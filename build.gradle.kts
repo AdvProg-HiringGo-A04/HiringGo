@@ -24,6 +24,7 @@ repositories {
 }
 
 dependencies {
+    implementation("io.github.cdimascio:dotenv-java:3.2.0")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
