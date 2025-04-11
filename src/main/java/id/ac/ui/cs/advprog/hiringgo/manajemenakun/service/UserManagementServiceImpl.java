@@ -2,11 +2,14 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.User;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class UserManagementServiceImpl implements UserManagementService {
     private final UserRepository userRepository;
     private final Map<String, String> roleDisplayMap;
