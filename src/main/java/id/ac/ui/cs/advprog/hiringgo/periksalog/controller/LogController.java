@@ -21,7 +21,7 @@ public class LogController {
 
     @GetMapping
     public ResponseEntity<List<LogDTO>> getAllLogs(@AuthenticationPrincipal User user) {
-        if (user == null || user.getRole() != UserRole.DOSEN) {
+        if (!isDosenUser(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -39,7 +39,7 @@ public class LogController {
     @PutMapping("/status")
     public ResponseEntity<LogDTO> updateLogStatus(@AuthenticationPrincipal User user,
                                                   @RequestBody LogStatusUpdateDTO logStatusUpdateDTO) {
-        if (user == null || user.getRole() != UserRole.DOSEN) {
+        if (!isDosenUser(user)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
@@ -51,5 +51,9 @@ public class LogController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    private boolean isDosenUser(User user) {
+        return user != null && user.getRole() == UserRole.DOSEN;
     }
 }
