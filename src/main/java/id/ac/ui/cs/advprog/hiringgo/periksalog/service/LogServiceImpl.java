@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 
 import id.ac.ui.cs.advprog.hiringgo.common.model.Log;
-import id.ac.ui.cs.advprog.hiringgo.common.model.LogStatus;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.repository.LogRepository;
@@ -29,22 +28,29 @@ public class LogServiceImpl implements LogService {
     public LogDTO updateLogStatus(Long dosenId, LogStatusUpdateDTO logStatusUpdateDTO) {
         Long logId = logStatusUpdateDTO.getLogId();
 
-        if (!isLogOwnedByDosen(logId, dosenId)) {
-            throw new SecurityException("You don't have permission to update this log");
-        }
+        validateDosenOwnership(logId, dosenId);
 
-        Log log = logRepository.findById(logId)
-                .orElseThrow(() -> new NoSuchElementException("Log not found"));
-
+        Log log = findLogById(logId);
         log.setStatus(logStatusUpdateDTO.getStatus());
-        Log updatedLog = logRepository.save(log);
 
+        Log updatedLog = logRepository.save(log);
         return convertToDTO(updatedLog);
     }
 
     @Override
     public boolean isLogOwnedByDosen(Long logId, Long dosenId) {
         return logRepository.isLogOwnedByDosen(logId, dosenId);
+    }
+
+    private void validateDosenOwnership(Long logId, Long dosenId) {
+        if (!isLogOwnedByDosen(logId, dosenId)) {
+            throw new SecurityException("You don't have permission to update this log");
+        }
+    }
+
+    private Log findLogById(Long logId) {
+        return logRepository.findById(logId)
+                .orElseThrow(() -> new NoSuchElementException("Log not found"));
     }
 
     private LogDTO convertToDTO(Log log) {
