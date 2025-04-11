@@ -46,7 +46,7 @@ public class JdbcUserRepositoryTest {
         when(resultSet.getString("password")).thenReturn("pass1", "pass2", "pass3");
 
         when(resultSet.getString("nip")).thenReturn(null, "12345", null);
-        when(resultSet.getString("nama_lengkap")).thenReturn(null, "Nama Dosen", "Nama Mahasiswa");
+        when(resultSet.getString("nama_lengkap")).thenReturn("Nama Dosen", "Nama Mahasiswa");
 
         when(resultSet.getString("nim")).thenReturn(null, null, "M12345");
 
