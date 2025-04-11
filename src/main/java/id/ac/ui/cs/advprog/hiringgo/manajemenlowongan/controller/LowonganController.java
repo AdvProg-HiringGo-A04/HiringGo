@@ -1,54 +1,55 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.dto.PendaftaranLowonganForm;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.dto.LowonganForm;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service.PendaftaranLowonganService;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service.LowonganService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
-@Controller
-@RequiredArgsConstructor
-@RequestMapping("/lowongan")
+@RestController
+@RequestMapping("/api/lowongan")
 public class LowonganController {
 
-    private final LowonganRepository lowonganRepository;
-    private final PendaftaranLowonganService pendaftaranService;
+    private final LowonganService lowonganService;
+
+    public LowonganController(LowonganService lowonganService) {
+        this.lowonganService = lowonganService;
+    }
 
     @GetMapping
-    public String listLowongan(Model model) {
-        model.addAttribute("lowonganList", lowonganRepository.findAll());
-        return "lowongan/list"; // Create this HTML later
+    public List<Lowongan> getAllLowongan() {
+        return lowonganService.getAllLowongan();
     }
 
-    @GetMapping("/{id}")
-    public String detailLowongan(@PathVariable UUID id, Model model) {
-        Lowongan lowongan = lowonganRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
-        model.addAttribute("lowongan", lowongan);
-        model.addAttribute("form", new PendaftaranLowonganForm());
-        return "lowongan/detail"; // Create this HTML later
+    @PostMapping("/create")
+    public String createLowongan(@ModelAttribute LowonganForm form) {
+        lowonganService.createLowongan(form);
+        return "redirect:/lowongan";
     }
 
-    @PostMapping("/{id}/daftar")
-    public String daftarLowongan(@PathVariable UUID id,
-                                 @ModelAttribute("form") PendaftaranLowonganForm form,
-                                 @AuthenticationPrincipal Mahasiswa mahasiswa,
-                                 Model model) {
-        try {
-            form.setLowonganId(id);
-            pendaftaranService.daftar(mahasiswa, form);
-            return "redirect:/lowongan/" + id + "?success";
-        } catch (Exception e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("lowongan", lowonganRepository.findById(id).orElse(null));
-            return "lowongan/detail";
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<Lowongan> updateLowongan(@PathVariable UUID id, @RequestBody LowonganForm form) {
+        return ResponseEntity.ok(lowonganService.updateLowongan(id, form));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLowongan(@PathVariable UUID id) {
+        lowonganService.deleteLowongan(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/pendaftar")
+    public List<PendaftarLowongan> getPendaftar(@PathVariable UUID id) {
+        return lowonganService.getPendaftarByLowongan(id);
+    }
+
+    @PostMapping("/pendaftar/{id}/status")
+    public ResponseEntity<Void> setStatusPendaftar(@PathVariable UUID id, @RequestParam boolean diterima) {
+        lowonganService.setStatusPendaftar(id, diterima);
+        return ResponseEntity.ok().build();
     }
 }

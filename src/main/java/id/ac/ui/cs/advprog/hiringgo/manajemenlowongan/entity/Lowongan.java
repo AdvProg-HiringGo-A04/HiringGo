@@ -3,6 +3,8 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,8 +23,7 @@ public class Lowongan {
 
     private String tahunAjaran; // Contoh "2024/2025"
 
-    @Enumerated(EnumType.STRING)
-    private Semester semester; // GANJIL or GENAP
+    private String semester; // GANJIL or GENAP
 
     private int jumlahDibutuhkan;
 
@@ -30,7 +31,8 @@ public class Lowongan {
 
     private int jumlahDiterima;
 
-    public enum Semester {
-        GANJIL, GENAP
-    }
+    @Builder.Default
+    @OneToMany(mappedBy = "lowongan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PendaftarLowongan> pendaftar = new ArrayList<>();
+
 }
