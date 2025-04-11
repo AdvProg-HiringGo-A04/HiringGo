@@ -2,7 +2,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.common.model.User;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
