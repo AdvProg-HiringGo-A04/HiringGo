@@ -9,6 +9,9 @@ public class DaftarLowonganService {
             throw new InvalidDataException("IPK harus antara 0 dan 4");
         }
 
+        if (command.getSks() < 0) {
+            throw new InvalidDataException("SKS tidak boleh negatif");
+        }
         // cek lowongan, cek udah daftar, simpan ke db
     }
 }
