@@ -13,6 +13,10 @@ public class DashboardStrategyFactory {
     private final DashboardRepository dashboardRepository;
 
     public DashboardStatisticsStrategy<?> getStrategy(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
         if (user.getRole() == null) {
             throw new IllegalArgumentException("User role cannot be null");
         }
