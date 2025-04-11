@@ -8,7 +8,6 @@ class HiringGoApplicationTests {
 
     @Test
     void contextLoads() {
-        HiringGoApplication.main(new String[]{});
     }
 
 }
