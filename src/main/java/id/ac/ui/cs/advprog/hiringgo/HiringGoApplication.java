@@ -31,7 +31,6 @@ public class HiringGoApplication {
         if (datasourcePassword != null) {
             System.setProperty("SPRING_DATASOURCE_PASSWORD", datasourcePassword);
         } else {
-            System.out.println("SPRING_DATASOURCE_PASSWORD is missing in .env");
             log.warn("SPRING_DATASOURCE_PASSWORD is missing in .env");
         }
 
