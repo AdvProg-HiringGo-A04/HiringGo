@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,6 +119,47 @@ public class MataKuliahControllerTest {
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahSuccess() throws Exception {
+        MataKuliah mataKuliah = new MataKuliah();
+        mataKuliah.setKodeMataKuliah("CSCM602223");
+        mataKuliah.setNamaMataKuliah("Pemrograman Lanjut");
+        mataKuliah.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        mataKuliahRepository.save(mataKuliah);
+
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getErrors());
+            assertEquals(mataKuliah.getKodeMataKuliah(), response.getData().getFirst().getKodeMataKuliah());
+            assertEquals(mataKuliah.getNamaMataKuliah(), response.getData().getFirst().getNamaMataKuliah());
+            assertEquals(mataKuliah.getDeskripsiMataKuliah(), response.getData().getFirst().getDeskripsiMataKuliah());
+            assertEquals(mataKuliah.getDosenPengampu(), response.getData().getFirst().getDosenPengampu());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahEmpty() throws Exception {
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertTrue(response.getData().isEmpty());
             assertNull(response.getErrors());
         });
     }
