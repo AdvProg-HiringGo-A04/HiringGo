@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.authentication;
+package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +40,9 @@ public class AuthenticationControllerTest {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
@@ -46,21 +50,21 @@ public class AuthenticationControllerTest {
         User admin = new User();
         admin.setId("admin");
         admin.setEmail("admin@hiringgo.com");
-        admin.setPassword("securepassword");
+        admin.setPassword(passwordEncoder.encode("securepassword"));
         admin.setRole("ADMIN");
         userRepository.save(admin);
 
         User dosen = new User();
         dosen.setId("dosen");
         dosen.setEmail("dosen@hiringgo.com");
-        dosen.setPassword("securepassword");
+        dosen.setPassword(passwordEncoder.encode("securepassword"));
         dosen.setRole("DOSEN");
         userRepository.save(dosen);
 
         User mahasiswa = new User();
         mahasiswa.setId("mahasiswa");
         mahasiswa.setEmail("mahasiswa@hiringgo.com");
-        mahasiswa.setPassword("securepassword");
+        mahasiswa.setPassword(passwordEncoder.encode("securepassword"));
         mahasiswa.setRole("MAHASISWA");
         userRepository.save(mahasiswa);
     }
@@ -75,7 +79,7 @@ public class AuthenticationControllerTest {
                 post("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isUnauthorized()
         ).andDo(result -> {
@@ -96,7 +100,7 @@ public class AuthenticationControllerTest {
                 post("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isUnauthorized()
         ).andDo(result -> {
@@ -117,7 +121,7 @@ public class AuthenticationControllerTest {
                 post("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -139,7 +143,7 @@ public class AuthenticationControllerTest {
                 post("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -161,7 +165,7 @@ public class AuthenticationControllerTest {
                 post("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -183,7 +187,7 @@ public class AuthenticationControllerTest {
                 patch("/auth/login")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .contentType(objectMapper.writeValueAsString(loginUserRequest))
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
         ).andExpectAll(
                 status().isMethodNotAllowed()
         ).andDo(result -> {
