@@ -5,6 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -32,6 +33,9 @@ public class AuthenticationController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping(
             path = "/auth/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -51,10 +55,10 @@ public class AuthenticationController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
-        // TODO: implement logic
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
 
         LoginUserResponse loginUserResponse = new LoginUserResponse();
-        loginUserResponse.setToken("test"); // Ganti dengan JWT beneran
+        loginUserResponse.setToken(token);
 
         WebResponse<LoginUserResponse> response = WebResponse.<LoginUserResponse>builder()
                 .data(loginUserResponse)
