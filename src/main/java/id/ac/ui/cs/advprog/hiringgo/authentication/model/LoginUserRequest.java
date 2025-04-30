@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class LoginUserRequest {
 
     @NotBlank
-    private String username;
+    private String email;
 
     @NotBlank
     private String password;
