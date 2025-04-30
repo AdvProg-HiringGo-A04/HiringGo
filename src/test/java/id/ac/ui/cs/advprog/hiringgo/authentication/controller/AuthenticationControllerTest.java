@@ -197,4 +197,23 @@ public class AuthenticationControllerTest {
             assertNotNull(response.getErrors());
         });
     }
+
+    @Test
+    void testLoginEmptyUsernameOrPassword() throws Exception {
+        LoginUserRequest loginUserRequest = new LoginUserRequest();
+
+        mockMvc.perform(
+                post("/auth/login")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginUserRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
 }
