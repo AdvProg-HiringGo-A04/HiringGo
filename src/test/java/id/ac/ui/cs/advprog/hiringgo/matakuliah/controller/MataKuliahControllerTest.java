@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -161,6 +166,46 @@ public class MataKuliahControllerTest {
             });
             assertTrue(response.getData().isEmpty());
             assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahById() throws Exception {
+        MataKuliah mataKuliah = new MataKuliah();
+        mataKuliah.setKodeMataKuliah("CSCM602223");
+        mataKuliah.setNamaMataKuliah("Pemrograman Lanjut");
+        mataKuliah.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        mataKuliahRepository.save(mataKuliah);
+
+        mockMvc.perform(
+                get("/courses/" + mataKuliah.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getErrors());
+            assertEquals(mataKuliah.getKodeMataKuliah(), response.getData().getKodeMataKuliah());
+            assertEquals(mataKuliah.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
+            assertEquals(mataKuliah.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
+            assertEquals(mataKuliah.getDosenPengampu(), response.getData().getDosenPengampu());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahNotFound() throws Exception {
+        mockMvc.perform(
+                get("/courses/CSCM602223")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getErrors());
         });
     }
 }
