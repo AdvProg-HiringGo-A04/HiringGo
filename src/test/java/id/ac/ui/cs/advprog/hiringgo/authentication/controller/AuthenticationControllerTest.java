@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.authentication.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
