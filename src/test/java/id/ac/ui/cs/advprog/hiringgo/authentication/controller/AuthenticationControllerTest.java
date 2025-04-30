@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.authentication.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
+import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
@@ -41,7 +42,7 @@ public class AuthenticationControllerTest {
     private JwtUtil jwtUtil;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +68,12 @@ public class AuthenticationControllerTest {
         mahasiswa.setPassword(passwordEncoder.encode("securepassword"));
         mahasiswa.setRole("MAHASISWA");
         userRepository.save(mahasiswa);
+
+        Mahasiswa mahasiswa2 = new Mahasiswa();
+        mahasiswa2.setId(mahasiswa.getId());
+        mahasiswa2.setNamaLengkap("Jane Doe");
+        mahasiswa2.setNPM("1234567890");
+        mahasiswaRepository.save(mahasiswa2);
     }
 
     @Test
@@ -207,6 +214,127 @@ public class AuthenticationControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginUserRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaSuccess() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+        registerMahasiswaRequest.setNamaLengkap("John Doe");
+        registerMahasiswaRequest.setNPM("2306123456");
+        registerMahasiswaRequest.setEmail("johndoe@hiringgo.com");
+        registerMahasiswaRequest.setPassword("securepassword");
+        registerMahasiswaRequest.setConfirmPassword("securepassword");
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isCreated()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getErrors());
+            assertEquals(registerMahasiswaRequest.getEmail(), jwtUtil.extractEmail(response.getData().getToken()));
+            assertEquals("MAHASISWA", jwtUtil.extractRole(response.getData().getToken()));
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaWithNonMatchingPasswords() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+        registerMahasiswaRequest.setNamaLengkap("John Doe");
+        registerMahasiswaRequest.setNPM("2306123456");
+        registerMahasiswaRequest.setEmail("johndoe@hiringgo.com");
+        registerMahasiswaRequest.setPassword("securepassword");
+        registerMahasiswaRequest.setConfirmPassword("nonmatchingpassword");
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaWithTakenEmail() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+        registerMahasiswaRequest.setNamaLengkap("John Doe");
+        registerMahasiswaRequest.setNPM("2306123456");
+        registerMahasiswaRequest.setEmail("mahasiswa@hiringgo.com");
+        registerMahasiswaRequest.setPassword("securepassword");
+        registerMahasiswaRequest.setConfirmPassword("securepassword");
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaWithTakenNPM() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+        registerMahasiswaRequest.setNamaLengkap("John Doe");
+        registerMahasiswaRequest.setNPM("1234567890");
+        registerMahasiswaRequest.setEmail("johndoe@hiringgo.com");
+        registerMahasiswaRequest.setPassword("securepassword");
+        registerMahasiswaRequest.setConfirmPassword("securepassword");
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaWithTooLongNPM() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+        registerMahasiswaRequest.setNamaLengkap("John Doe");
+        registerMahasiswaRequest.setNPM("01234567890");
+        registerMahasiswaRequest.setEmail("johndoe@hiringgo.com");
+        registerMahasiswaRequest.setPassword("securepassword");
+        registerMahasiswaRequest.setConfirmPassword("securepassword");
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
