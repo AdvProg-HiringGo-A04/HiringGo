@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.authentication.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,9 @@ public class AuthenticationControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MahasiswaRepository mahasiswaRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
