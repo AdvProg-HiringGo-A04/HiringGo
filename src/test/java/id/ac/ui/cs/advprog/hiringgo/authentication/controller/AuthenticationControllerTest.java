@@ -211,7 +211,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void testLoginEmptyUsernameOrPassword() throws Exception {
+    void testLoginWhenRequestIsNull() throws Exception {
         LoginUserRequest loginUserRequest = new LoginUserRequest();
 
         mockMvc.perform(
@@ -219,6 +219,22 @@ public class AuthenticationControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginUserRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testLoginWithEmptyRequestBody() throws Exception {
+        mockMvc.perform(
+                post("/auth/login")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
@@ -350,7 +366,7 @@ public class AuthenticationControllerTest {
     }
 
     @Test
-    void testRegisterMahasiswaWithEmptyData() throws Exception {
+    void testRegisterMahasiswaWhenRequestIsNull() throws Exception {
         RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
 
         mockMvc.perform(
@@ -358,6 +374,22 @@ public class AuthenticationControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testRegisterMahasiswaWithEmptyRequestBody() throws Exception {
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
