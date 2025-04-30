@@ -348,4 +348,23 @@ public class AuthenticationControllerTest {
             assertNotNull(response.getErrors());
         });
     }
+
+    @Test
+    void testRegisterMahasiswaWithEmptyData() throws Exception {
+        RegisterMahasiswaRequest registerMahasiswaRequest = new RegisterMahasiswaRequest();
+
+        mockMvc.perform(
+                post("/auth/register")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerMahasiswaRequest))
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
 }
