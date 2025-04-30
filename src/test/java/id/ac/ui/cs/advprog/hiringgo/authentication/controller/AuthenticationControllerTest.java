@@ -246,11 +246,10 @@ public class AuthenticationControllerTest {
         ).andExpectAll(
                 status().isCreated()
         ).andDo(result -> {
-            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
+            assertNotNull(response.getData());
             assertNull(response.getErrors());
-            assertEquals(registerMahasiswaRequest.getEmail(), jwtUtil.extractEmail(response.getData().getToken()));
-            assertEquals("MAHASISWA", jwtUtil.extractRole(response.getData().getToken()));
         });
     }
 
@@ -271,7 +270,7 @@ public class AuthenticationControllerTest {
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
-            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getData());
             assertNotNull(response.getErrors());
@@ -295,7 +294,7 @@ public class AuthenticationControllerTest {
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
-            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getData());
             assertNotNull(response.getErrors());
@@ -319,7 +318,7 @@ public class AuthenticationControllerTest {
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
-            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getData());
             assertNotNull(response.getErrors());
@@ -343,7 +342,7 @@ public class AuthenticationControllerTest {
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
-            WebResponse<LoginUserResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getData());
             assertNotNull(response.getErrors());
