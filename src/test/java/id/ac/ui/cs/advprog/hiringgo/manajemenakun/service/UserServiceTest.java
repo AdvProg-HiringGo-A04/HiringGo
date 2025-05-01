@@ -1,16 +1,20 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepositoryImpl;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
-    private AccountService service;
+    private UserService service;
 
     @BeforeEach
     void setup() {
-        service = new AccountService(new UserRepositoryImpl());
+        service = new UserService(new UserRepositoryImpl());
     }
 
     @Test
