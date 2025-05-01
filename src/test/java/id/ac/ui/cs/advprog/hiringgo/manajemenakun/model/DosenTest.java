@@ -7,12 +7,13 @@ public class DosenTest {
 
     @Test
     public void dosenShouldHaveCorrectFields() {
-        Dosen dosen = new Dosen("1", "123456", "Dr. John Doe", "dosen@example.com", "password");
+        AccountData data = new AccountData("NIP123", "Prof. X", "px@example.com", "pwd");
+        Dosen dosen = new Dosen(data);
 
-        assertEquals("1", dosen.getId());
-        assertEquals("123456", dosen.getNip());
-        assertEquals("dosen@example.com", dosen.getEmail());
-        assertEquals("DOSEN", dosen.getRole());
-        assertEquals("Dr. John Doe", dosen.getNamaLengkap());
+        assertEquals("NIP123", dosen.getNip());
+        assertEquals("Prof. X", dosen.getFullName());
+        assertEquals("px@example.com", dosen.getEmail());
+        assertEquals(Role.DOSEN, dosen.getRole());
+        assertNotNull(dosen.getId());
     }
 }
