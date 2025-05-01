@@ -7,11 +7,12 @@ public class AdminTest {
 
     @Test
     public void adminShouldHaveCorrectFields() {
-        Admin admin = new Admin("1", "admin@example.com", "password");
+        AccountData data = new AccountData(null, null, "admin@example.com", "adminpwd");
+        Admin admin = new Admin(data);
 
-        assertEquals("1", admin.getId());
         assertEquals("admin@example.com", admin.getEmail());
-        assertEquals("ADMIN", admin.getRole());
-        assertEquals("-", admin.getNamaLengkap(), "Admin should return '-' for nama lengkap");
+        assertEquals(Role.ADMIN, admin.getRole());
+        assertNotNull(admin.getId());
+        assertEquals("", admin.getFullName());
     }
 }
