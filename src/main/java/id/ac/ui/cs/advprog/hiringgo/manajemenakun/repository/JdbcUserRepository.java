@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.exception.DataAccessException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.*;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Repository
 public class JdbcUserRepository implements UserRepository {
     private static final Logger LOGGER = Logger.getLogger(JdbcUserRepository.class.getName());
     private final DataSource dataSource;
