@@ -1,13 +1,31 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
-public class Admin extends User {
+import java.util.UUID;
 
-    public Admin() {
-        super();
-        setRole("ADMIN");
+public class Admin implements Account {
+    private final String id = UUID.randomUUID().toString();
+    private final String email;
+    private Role role = Role.ADMIN;
+
+    public Admin(AccountData data) {
+        this.email = data.getEmail();
     }
 
-    public Admin(String id, String email, String password) {
-        super(id, email, password, "ADMIN");
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override public String getFullName() {
+        return "";
+    }
+
+    @Override public Role getRole() {
+        return role;
     }
 }
