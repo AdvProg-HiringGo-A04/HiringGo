@@ -1,24 +1,38 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
-public class Dosen extends User {
-    private String nip;
-    private String namaLengkap;
+import java.util.UUID;
 
-    public Dosen() {
-        super();
-        setRole("DOSEN");
+public class Dosen implements Account {
+    private final String id = UUID.randomUUID().toString();
+    private final String nip;
+    private final String fullName;
+    private final String email;
+    private Role role = Role.DOSEN;
+
+    public Dosen(AccountData data) {
+        this.nip = data.getNip();
+        this.fullName = data.getFullName();
+        this.email = data.getEmail();
     }
 
-    public Dosen(String id, String nip, String namaLengkap, String email, String password) {
-        super(id, email, password, "DOSEN");
-        this.nip = nip;
-        this.namaLengkap = namaLengkap;
+    public String getNip() {
+        return nip;
     }
-
-    public String getNip() { return nip; }
-    public void setNip(String nip) { this.nip = nip; }
 
     @Override
-    public String getNamaLengkap() { return namaLengkap; }
-    public void setNamaLengkap(String namaLengkap) { this.namaLengkap = namaLengkap; }
+    public String getId() {
+        return id;
+    }
+
+    @Override public String getEmail() {
+        return email;
+    }
+
+    @Override public String getFullName() {
+        return fullName;
+    }
+
+    @Override public Role getRole() {
+        return role;
+    }
 }
