@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Admin;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
 
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class UserService {
         }
         else if (existing instanceof Admin) {
             ((Admin) existing).setRole(newRole);
+        }
+        else if (existing instanceof Mahasiswa) {
+            ((Mahasiswa) existing).setRole(newRole);
         }
         else {
             throw new IllegalArgumentException("Cannot update role for this account type");

@@ -17,8 +17,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-        service = new UserService(new UserRepositoryImpl());
         repo = new UserRepositoryImpl();
+        service = new UserService(repo);
     }
 
     @Test
