@@ -1,5 +1,6 @@
-package id.ac.ui.cs.advprog.hiringgo.matakuliah.entity;
+package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -13,6 +14,11 @@ import lombok.Setter;
 public class Dosen {
 
     @Id
-    private String nip;
+    private String id;
 
+    @Column(name = "nama_lengkap")
+    private String namaLengkap;
+
+    @Column(name = "nip")
+    private String NIP;
 }

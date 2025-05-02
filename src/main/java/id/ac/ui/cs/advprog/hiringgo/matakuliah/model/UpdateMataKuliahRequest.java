@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.model;
 
-import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
