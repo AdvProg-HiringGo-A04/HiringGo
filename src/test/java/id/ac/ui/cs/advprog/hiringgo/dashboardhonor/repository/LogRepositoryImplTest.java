@@ -28,7 +28,7 @@ class LogRepositoryImplTest {
         repo.save(out);
 
         List<Log> found = repo
-                .findByVacancyId(lowonganId, now.minusDays(1), now.plusDays(1));
+                .findByLowonganId(lowonganId, now.minusDays(1), now.plusDays(1));
 
         assertEquals(1, found.size());
         assertEquals(in.getId(), found.get(0).getId());
