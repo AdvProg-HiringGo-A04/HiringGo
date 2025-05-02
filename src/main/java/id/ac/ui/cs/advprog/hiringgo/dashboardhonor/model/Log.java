@@ -19,11 +19,11 @@ public class Log {
         this.id = id;
     }
 
-    public String getLowonganid() {
+    public String getLowonganId() {
         return lowonganid;
     }
 
-    public void setLowonganid(String lowonganid) {
+    public void setLowonganId(String lowonganid) {
         this.lowonganid = lowonganid;
     }
 
