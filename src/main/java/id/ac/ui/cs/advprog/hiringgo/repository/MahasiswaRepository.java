@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.authentication.repository;
+package id.ac.ui.cs.advprog.hiringgo.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,5 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface MahasiswaRepository extends JpaRepository<Mahasiswa, String> {
+
     Optional<Mahasiswa> findByNPM(String npm);
 }
