@@ -26,4 +26,14 @@ class AccountFactoryTest {
                 AccountFactory.createAccount(Role.MAHASISWA, new AccountData(null, "Zula", "zula@example.com", "pwd"))
         );
     }
+
+    @Test
+    void createUnknownRole_shouldThrowException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                AccountFactory.createAccount(
+                        null,
+                        new AccountData(null, "Cleo", "cleo@example.com", "pwd")
+                )
+        );
+    }
 }
