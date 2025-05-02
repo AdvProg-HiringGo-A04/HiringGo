@@ -1,28 +1,22 @@
-package id.ac.ui.cs.advprog.hiringgo.honor.model;
+package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LogTest {
 
     @Test
-    public void shouldCreateLogWithCorrectValues() {
-        String id = "1";
-        String jobId = "job-123";
-        String mahasiswaId = "mhs-456";
-        double hours = 2.5;
-        LocalDateTime timestamp = LocalDateTime.now();
-        boolean approved = true;
+    void testGetWorkLog() {
+        Log log = new Log();
+        LocalDateTime start = LocalDateTime.of(2025, 5, 10, 8, 15);
+        LocalDateTime end = LocalDateTime.of(2025, 5, 10, 10, 45);
+        log.setStart(start);
+        log.setEnd(end);
 
-        Log log = new Log(id, jobId, mahasiswaId, hours, timestamp, approved);
-
-        assertEquals(id, log.getId());
-        assertEquals(jobId, log.getJobId());
-        assertEquals(mahasiswaId, log.getMahasiswaId());
-        assertEquals(hours, log.getHours());
-        assertEquals(timestamp, log.getTimestamp());
-        assertEquals(approved, log.isApproved());
+        BigDecimal expected = new BigDecimal("2.50");
+        assertEquals(0, expected.compareTo(log.getHours()));
     }
 }
