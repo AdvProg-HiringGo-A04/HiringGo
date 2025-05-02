@@ -3,7 +3,9 @@ package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
 import id.ac.ui.cs.advprog.hiringgo.authentication.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
+import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.authentication.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
@@ -26,6 +28,9 @@ public class AuthenticationController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    MahasiswaRepository mahasiswaRepository;
 
     @Autowired
     Validator validator;
@@ -66,4 +71,15 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(
+            path = "/auth/register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<String>> register(@RequestBody RegisterMahasiswaRequest request) {
+        // This is empty for the RED stage
+        return null;
+    }
+
 }
