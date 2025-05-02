@@ -51,6 +51,17 @@ class UserServiceTest {
     }
 
     @Test
+    void testAdminUpdateRoleItself() {
+        Account admin = service.createAccount(
+                Role.ADMIN,
+                new AccountData(null, null, "self@example.com", "pwd")
+        );
+        assertThrows(IllegalArgumentException.class, () ->
+                service.updateRole(admin.getId(), Role.DOSEN)
+        );
+    }
+
+    @Test
     void testAdminDeleteAccountDosen() {
         Account admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "self@example.com", "pwd"));
         Account other = service.createAccount(Role.DOSEN, new AccountData("NIP3", "Dr. X", "x@example.com", "pwd"));
@@ -82,4 +93,5 @@ class UserServiceTest {
                 service.deleteAccount(admin.getId(), admin.getId())
         );
     }
+
 }
