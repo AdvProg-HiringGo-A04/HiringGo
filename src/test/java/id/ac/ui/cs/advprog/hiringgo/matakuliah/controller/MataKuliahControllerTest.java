@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -372,6 +373,44 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testDeleteMataKuliahSuccess() throws Exception {
+        MataKuliah mataKuliah = new MataKuliah();
+        mataKuliah.setKodeMataKuliah("CSGE601021");
+        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
+        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
+        mataKuliahRepository.save(mataKuliah);
+
+        mockMvc.perform(
+                delete("/courses/" + mataKuliah.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getData());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testDeleteMataKuliahWhenIdIsNotFound() throws Exception {
+        mockMvc.perform(
+                delete("/courses/CSGEXXXXXX")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isNotFound()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
