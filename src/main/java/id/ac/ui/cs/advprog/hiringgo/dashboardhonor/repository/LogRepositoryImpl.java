@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class LogRepositoryImpl implements LogRepository {
+public class LogRepositoryImpl implements LogRepository {
     private final List<Log> store = new ArrayList<>();
     private long seq = 1;
 
