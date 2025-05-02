@@ -1,14 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserManagementService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserService;
 
 @SpringBootTest
 class HiringGoApplicationTests {
     @MockitoBean
-    private UserManagementService userManagementService;
+    private UserService userService;
 
     @Test
     void contextLoads() {
