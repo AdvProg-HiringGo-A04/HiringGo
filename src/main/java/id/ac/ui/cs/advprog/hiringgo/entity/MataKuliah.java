@@ -1,5 +1,6 @@
-package id.ac.ui.cs.advprog.hiringgo.matakuliah.entity;
+package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.Dosen;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

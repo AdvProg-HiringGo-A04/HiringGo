@@ -2,8 +2,8 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.Dosen;
-import id.ac.ui.cs.advprog.hiringgo.matakuliah.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
