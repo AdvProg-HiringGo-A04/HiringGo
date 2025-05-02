@@ -1,9 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository;
 
-import  id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
-import  id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
-import  id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
-import  id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountFactory;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -13,18 +10,18 @@ public class UserRepositoryImplTest {
         private UserRepositoryImpl repo;
         private Account dosen;
         private Account admin;
+        private Account mhs;
 
-        @BeforeEach
+    @BeforeEach
         void setup() {
             repo = new UserRepositoryImpl();
-            dosen = AccountFactory.createAccount(Role.DOSEN,
-                    new AccountData("NIP10", "Dr. Test", "dt@example.com", "pwd"));
-            admin = AccountFactory.createAccount(Role.ADMIN,
-                    new AccountData(null, null, "admin@test.com", "pwd"));
+            dosen = new Dosen(new AccountData("NIP10", "Dr. Test", "dt@example.com", "pwd"));
+            admin = new Admin(new AccountData(null, null, "admin@test.com", "pwd"));
+            mhs = new Mahasiswa(new AccountData("NIM10", "Test Mhs", "mhs@test.com", "pwd"));
         }
 
         @Test
-        void saveAndFindById() {
+        void testSaveAndFindByIdDosen() {
             repo.save(dosen);
             Account found = repo.findById(dosen.getId());
             assertNotNull(found);
@@ -32,20 +29,54 @@ public class UserRepositoryImplTest {
         }
 
         @Test
-        void testFindAllUser() {
-            repo.save(dosen);
+        void testSaveAndFindByIdAdmin() {
             repo.save(admin);
-            List<Account> list = repo.findAll();
-            assertEquals(2, list.size());
-            assertTrue(list.stream().anyMatch(a -> a.getId().equals(dosen.getId())));
-            assertTrue(list.stream().anyMatch(a -> a.getId().equals(admin.getId())));
+            Account found = repo.findById(admin.getId());
+            assertNotNull(found);
+            assertEquals(admin.getId(), found.getId());
         }
 
         @Test
-        void testDeleteUser() {
+        void testSaveAndFindByIdMahasiswa() {
+            repo.save(mhs);
+            Account found = repo.findById(mhs.getId());
+            assertNotNull(found);
+            assertEquals(mhs.getId(), found.getId());
+        }
+
+        @Test
+        void testFindAllUser() {
+            repo.save(dosen);
+            repo.save(admin);
+            repo.save(mhs);
+            List<Account> list = repo.findAll();
+            assertEquals(3, list.size());
+            assertTrue(list.stream().anyMatch(a -> a.getId().equals(dosen.getId())));
+            assertTrue(list.stream().anyMatch(a -> a.getId().equals(admin.getId())));
+            assertTrue(list.stream().anyMatch(a -> a.getId().equals(mhs.getId())));
+        }
+
+        @Test
+        void testDeleteDosen() {
             repo.save(dosen);
             repo.delete(dosen.getId());
             assertNull(repo.findById(dosen.getId()));
+            assertTrue(repo.findAll().isEmpty());
+        }
+
+        @Test
+        void testDeleteAdmin() {
+            repo.save(admin);
+            repo.delete(admin.getId());
+            assertNull(repo.findById(admin.getId()));
+            assertTrue(repo.findAll().isEmpty());
+        }
+
+        @Test
+        void testDeleteMahasiswa() {
+            repo.save(mhs);
+            repo.delete(mhs.getId());
+            assertNull(repo.findById(mhs.getId()));
             assertTrue(repo.findAll().isEmpty());
         }
 
