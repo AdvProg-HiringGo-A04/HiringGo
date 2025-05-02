@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,7 +16,9 @@ public class Mahasiswa {
     @Id
     private String id;
 
+    @Column(name = "nama_lengkap")
     private String namaLengkap;
 
+    @Column(name = "nim")
     private String NPM;
 }
