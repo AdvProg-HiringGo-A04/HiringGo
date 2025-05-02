@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class LowonganServiceTest {
@@ -37,13 +38,22 @@ class LowonganServiceTest {
             form.getMataKuliah(), form.getSemester(), form.getTahunAjaran()))
             .thenReturn(false);
 
+        ArgumentCaptor<Lowongan> captor = ArgumentCaptor.forClass(Lowongan.class);
+        when(lowonganRepository.save(any(Lowongan.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0)); // return the saved object directly
+
         Lowongan created = lowonganService.createLowongan(form);
 
-        ArgumentCaptor<Lowongan> captor = ArgumentCaptor.forClass(Lowongan.class);
-        assertEquals(captor.getValue(), created);
         verify(lowonganRepository).save(captor.capture());
-        assertEquals("Pemrograman Lanjut", captor.getValue().getMataKuliah());
-        assertEquals("Ganjil", captor.getValue().getSemester());
+        Lowongan saved = captor.getValue();
+
+        assertEquals("Pemrograman Lanjut", saved.getMataKuliah());
+        assertEquals("Ganjil", saved.getSemester());
+        assertEquals("2024/2025", saved.getTahunAjaran());
+        assertEquals(3, saved.getJumlahDibutuhkan());
+
+        // Optional but useful
+        assertEquals(saved, created);
     }
 
     @Test
@@ -84,11 +94,14 @@ class LowonganServiceTest {
         when(lowonganRepository.existsByMataKuliahAndSemesterAndTahunAjaran(
             form.getMataKuliah(), form.getSemester(), form.getTahunAjaran()))
             .thenReturn(false);
+        when(lowonganRepository.save(any(Lowongan.class)))
+            .thenAnswer(invocation -> invocation.getArgument(0)); // return updated object
 
         Lowongan updated = lowonganService.updateLowongan(id, form);
 
         assertEquals("Algo", updated.getMataKuliah());
         assertEquals("Genap", updated.getSemester());
+        assertEquals("2024/2025", updated.getTahunAjaran());
         assertEquals(5, updated.getJumlahDibutuhkan());
     }
 
