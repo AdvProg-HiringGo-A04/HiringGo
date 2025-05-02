@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.authentication.model;
+package id.ac.ui.cs.advprog.hiringgo.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
