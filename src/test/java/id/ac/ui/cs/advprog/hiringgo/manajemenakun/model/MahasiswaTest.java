@@ -9,7 +9,7 @@ public class MahasiswaTest {
     void testMahasiswa() {
         Mahasiswa mhs = new Mahasiswa(
                 new AccountData("NIM456", "Dewi", "dewi@example.com", "pwd"));
-        assertEquals("NIM456", mhs.getNim());
+        assertEquals("NIM456", mhs.getIdentifier());
         assertEquals("Dewi", mhs.getFullName());
         assertEquals("dewi@example.com", mhs.getEmail());
         assertEquals(Role.MAHASISWA, mhs.getRole());

@@ -6,8 +6,13 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
 
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.updaterole.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -18,7 +23,15 @@ class UserServiceTest {
     @BeforeEach
     void setup() {
         repo = new UserRepositoryImpl();
-        service = new UserService(repo);
+        List<UpdateRoleStrategy> strategies = Arrays.asList(
+                new AdminToDosenStrategy(),
+                new AdminToMahasiswaStrategy(),
+                new DosenToAdminStrategy(),
+                new DosenToMahasiswaStrategy(),
+                new MahasiswaToAdminStrategy(),
+                new MahasiswaToDosenStrategy()
+        );
+        service = new UserService(repo, strategies);
     }
 
     @Test
@@ -39,18 +52,29 @@ class UserServiceTest {
     void testUpdateRoleDosenToAdmin() {
         Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
         Users dosen = service.createAccount(Role.DOSEN, new AccountData("NIP2", "Dr. C", "c@example.com", "pwd"));
-        service.updateRole(dosen.getId(), admin.getId(), Role.ADMIN);
+
+        AccountData dummy = new AccountData(null, null, null, null);
+        service.updateRole(dosen.getId(), admin.getId(), Role.ADMIN, dummy);
+
         assertEquals(Role.ADMIN, service.findById(dosen.getId()).getRole());
     }
 
     @Test
     void updateRoleMahasiswaToDosen() {
-        Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
-        Users mhs = new Mahasiswa(new AccountData("NIM3", "Citra", "citra@example.com", "pwd"));
+        Users admin = service.createAccount(
+                Role.ADMIN,
+                new AccountData(null, null, "a1@example.com", "pwd1")
+        );
+        Users mhs = new Mahasiswa(
+                new AccountData("NIM3", "Citra", "citra@example.com", "pwd")
+        );
         repo.save(mhs);
-        service.updateRole(mhs.getId(), admin.getId(), Role.DOSEN);
+
+        AccountData data = new AccountData("NIP999", "Dr. Citra", null, null);
+        service.updateRole(mhs.getId(), admin.getId(), Role.DOSEN, data);
         assertEquals(Role.DOSEN, service.findById(mhs.getId()).getRole());
     }
+
 
     @Test
     void testAdminUpdateRoleItself() {
@@ -58,8 +82,9 @@ class UserServiceTest {
                 Role.ADMIN,
                 new AccountData(null, null, "self@example.com", "pwd")
         );
+        AccountData dummy = new AccountData(null, null, null, null);
         assertThrows(IllegalArgumentException.class, () ->
-                service.updateRole(admin.getId(), admin.getId(), Role.DOSEN)
+                service.updateRole(admin.getId(), admin.getId(), Role.DOSEN, dummy)
         );
     }
 

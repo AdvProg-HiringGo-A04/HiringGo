@@ -35,8 +35,9 @@ public class AccountController {
     @PutMapping("/{id}/role")
     public ResponseEntity<Void> updateRole(@PathVariable String id,
                                            @RequestParam String requesterId,
-                                           @RequestParam Role newRole) {
-        service.updateRole(id, requesterId, newRole);
+                                           @RequestParam Role newRole,
+                                           @RequestBody AccountData data) {
+        service.updateRole(id, requesterId, newRole, data);
         return ResponseEntity.noContent().build();
     }
 

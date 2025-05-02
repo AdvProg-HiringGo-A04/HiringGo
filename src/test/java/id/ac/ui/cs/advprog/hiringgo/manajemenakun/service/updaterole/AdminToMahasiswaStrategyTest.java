@@ -23,7 +23,7 @@ class AdminToMahasiswaStrategyTest {
         AccountData data = new AccountData("NIM456", "Citra", "admin@example.com", "pwd");
 
         Mahasiswa mhs = (Mahasiswa) strategy.changeRole(old, data);
-        assertEquals("NIM456", mhs.getNim());
+        assertEquals("NIM456", mhs.getIdentifier());
         assertEquals("Citra", mhs.getFullName());
         assertEquals("admin@example.com", mhs.getEmail());
         assertEquals(Role.MAHASISWA, mhs.getRole());

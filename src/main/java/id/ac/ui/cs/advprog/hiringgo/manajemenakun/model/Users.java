@@ -5,4 +5,5 @@ public interface Users {
     String getEmail();
     String getFullName();
     Role getRole();
+    String getPassword();
 }

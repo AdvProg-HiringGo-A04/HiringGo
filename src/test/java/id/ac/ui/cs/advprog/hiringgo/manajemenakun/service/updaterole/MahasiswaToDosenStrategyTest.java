@@ -19,7 +19,7 @@ class MahasiswaToDosenStrategyTest {
 
     @Test
     void changeRole_createsDosenWithMahasiswaData() {
-        Mahasiswa old = new Mahasiswa(new AccountData("NIM3", "Citra", "citra@example.com", "siap"));
+        Mahasiswa old = new Mahasiswa(new AccountData("NIM3", "Dr. Citra", "citra@example.com", "siap"));
         AccountData data = new AccountData("NIP999", "Dr. Citra", "citra@example.com", "siap");
 
         Dosen dosen = (Dosen) strategy.changeRole(old, data);

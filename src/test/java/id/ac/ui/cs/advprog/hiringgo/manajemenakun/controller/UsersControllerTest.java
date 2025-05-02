@@ -66,10 +66,25 @@ class UsersControllerTest {
 
     @Test
     void testUpdateUser() throws Exception {
-        doNothing().when(service).updateRole(anyString(), anyString(), eq(Role.ADMIN));
-        mockMvc.perform(put("/accounts/123/role?requesterId=adminId&newRole=ADMIN"))
+        doNothing().when(service)
+                .updateRole(
+                        anyString(),
+                        anyString(),
+                        eq(Role.ADMIN),
+                        any(AccountData.class)
+                );
+
+        mockMvc.perform(put("/accounts/123/role?requesterId=adminId&newRole=ADMIN")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{" +
+                                "\"identifier\":null," +
+                                "\"fullName\":null," +
+                                "\"email\":null," +
+                                "\"password\":null" +
+                                "}"))
                 .andExpect(status().isNoContent());
     }
+
 
     @Test
     void testDeleteUser() throws Exception {

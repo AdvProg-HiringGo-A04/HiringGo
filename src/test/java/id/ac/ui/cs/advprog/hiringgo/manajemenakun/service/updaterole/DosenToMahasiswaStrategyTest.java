@@ -20,11 +20,11 @@ class DosenToMahasiswaStrategyTest {
     @Test
     void changeRole_createsMahasiswaWithDosenData() {
         Dosen old = new Dosen(new AccountData("NIP5", "Dr. E", "e@example.com", "null"));
-        AccountData data = new AccountData("NIM777", "E", "e@example.com", "null");
+        AccountData data = new AccountData("NIM777", null, null, null);
 
         Mahasiswa mhs = (Mahasiswa) strategy.changeRole(old, data);
-        assertEquals("NIM777", mhs.getNim());
-        assertEquals("E", mhs.getFullName());
+        assertEquals("NIM777", mhs.getIdentifier());
+        assertEquals("Dr. E", mhs.getFullName());
         assertEquals("e@example.com", mhs.getEmail());
         assertEquals(Role.MAHASISWA, mhs.getRole());
         assertNotNull(mhs.getId());

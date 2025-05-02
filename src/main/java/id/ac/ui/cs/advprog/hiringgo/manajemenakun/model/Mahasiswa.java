@@ -3,45 +3,32 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 import java.util.UUID;
 
 public class Mahasiswa implements Users {
-    private final String id = UUID.randomUUID().toString();
-    private final String nip;
-    private final String fullName;
-    private final String email;
+    private String id = UUID.randomUUID().toString();
+    private String nim;
+    private String fullName;
+    private String email;
+    private String password;
     private Role role = Role.MAHASISWA;
 
     public Mahasiswa(AccountData data) {
-        if (data.getIdentifier() == null || data.getFullName() == null || data.getEmail() == null || data.getPassword() == null)
-            throw new IllegalArgumentException("Mahasiswa data incomplete");
-        this.nip = data.getIdentifier();
-        this.fullName = data.getFullName();
-        this.email = data.getEmail();
+        this.nim       = data.getIdentifier();
+        this.fullName  = data.getFullName();
+        this.email     = data.getEmail();
+        this.password  = data.getPassword();
     }
 
-    public String getNim() {
-        return nip;
-    }
+    @Override public String getId()        { return id; }
+    @Override public String getEmail()     { return email; }
+    @Override public String getFullName()  { return fullName; }
+    @Override public Role getRole()        { return role; }
+    @Override public String getPassword()  { return password; }
 
-    @Override
-    public String getId() {
-        return id;
-    }
+    public String getIdentifier()          { return nim; }
+    public void setRole(Role role)         { this.role = role; }
+    public void setId(String id)         { this.id = id; }
+    public void setIdentifier(String nim)   { this.nim = nim; }
+    public void setFullName(String name)   { this.fullName = name; }
+    public void setPassword(String pwd)    { this.password = pwd; }
+    public void setEmail(String email)    { this.email = email; }
 
-    @Override
-    public String getEmail() {
-        return email;
-    }
-
-    @Override
-    public String getFullName() {
-        return fullName;
-    }
-
-    @Override
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 }

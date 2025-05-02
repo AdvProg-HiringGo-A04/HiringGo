@@ -14,6 +14,16 @@ public class AdminToDosenStrategy implements UpdateRoleStrategy {
     }
     @Override
     public Users changeRole(Users old, AccountData data) {
-        return new Dosen(data);
+        if (data.getIdentifier() == null || data.getFullName() == null) {
+            throw new IllegalArgumentException("Dosen requires NIP and full name");
+        }
+
+        Dosen dosen = new Dosen(data);
+        dosen.setId(old.getId());
+        dosen.setEmail(old.getEmail());
+        dosen.setPassword(old.getPassword());
+        dosen.setFullName(data.getFullName());
+        dosen.setIdentifier(data.getIdentifier());
+        return dosen;
     }
 }
