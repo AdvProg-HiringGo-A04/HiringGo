@@ -25,9 +25,9 @@ class LowonganRepositoryImplTest {
 
         Lowongan saved = repo.save(vac);
         assertNotNull(saved.getId(), "ID harus di-assign oleh repository");
-        assertEquals("studentA", saved.getMahasiswaId());
+        assertEquals("mhs-123", saved.getMahasiswaId());
 
-        List<Lowongan> all = repo.findByMahasiswaId("studentA");
+        List<Lowongan> all = repo.findByMahasiswaId("mhs-123");
         assertEquals(1, all.size());
         assertEquals(saved.getId(), all.get(0).getId());
     }
