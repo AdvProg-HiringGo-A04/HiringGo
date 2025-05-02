@@ -1,29 +1,51 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class Log {
-    private String id;
-    private String jobId;
-    private String mahasiswaId;
-    private double hours;
-    private LocalDateTime timestamp;
-    private boolean approved;
+    private Long id;
+    private String lowonganid;
+    private LocalDateTime start;
+    private LocalDateTime end;
 
-    public Log(String id, String jobId, String mahasiswaId, double hours,
-               LocalDateTime timestamp, boolean approved) {
-        this.id = id;
-        this.jobId = jobId;
-        this.mahasiswaId = mahasiswaId;
-        this.hours = hours;
-        this.timestamp = timestamp;
-        this.approved = approved;
+    public Long getId() {
+        return id;
     }
 
-    public String getId() { return id; }
-    public String getJobId() { return jobId; }
-    public String getMahasiswaId() { return mahasiswaId; }
-    public double getHours() { return hours; }
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public boolean isApproved() { return approved; }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLowonganid() {
+        return lowonganid;
+    }
+
+    public void setLowonganid(String lowonganid) {
+        this.lowonganid = lowonganid;
+    }
+
+    public LocalDateTime getStart() {
+        return start;
+    }
+
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
+
+    public BigDecimal getHours() {
+        long minutes = Duration.between(start, end).toMinutes();
+        return new BigDecimal(minutes)
+                .divide(new BigDecimal("60"), 2, RoundingMode.HALF_UP);
+    }
 }
