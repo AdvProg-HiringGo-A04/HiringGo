@@ -77,9 +77,52 @@ public class AuthenticationController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> register(@RequestBody RegisterMahasiswaRequest request) {
-        // This is empty for the RED stage
-        return null;
-    }
+    public ResponseEntity<WebResponse<String>> register(@RequestBody(required = false) RegisterMahasiswaRequest request) {
 
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
+        }
+
+        Set<ConstraintViolation<RegisterMahasiswaRequest>> constraintViolations = validator.validate(request);
+
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+
+        // Check if passwords match
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password and confirm password must match");
+        }
+
+        // Check if email is already taken
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
+        }
+
+        // Check if NPM is already taken
+        if (mahasiswaRepository.findByNPM(request.getNPM()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NPM is already taken");
+        }
+
+        // Create user
+        User user = new User();
+        user.setId(java.util.UUID.randomUUID().toString());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole("MAHASISWA"); // Only mahasiswa role is allowed to register
+        userRepository.save(user);
+
+        // Create mahasiswa profile
+        id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa mahasiswa = new id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa();
+        mahasiswa.setId(user.getId());
+        mahasiswa.setNamaLengkap(request.getNamaLengkap());
+        mahasiswa.setNPM(request.getNPM());
+        mahasiswaRepository.save(mahasiswa);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("Registration successful")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }
