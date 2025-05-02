@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class LowonganRepositoryImpl implements LowonganRepository {
     private final List<Lowongan> store = new ArrayList<>();
     private final AtomicLong seq = new AtomicLong(1);
