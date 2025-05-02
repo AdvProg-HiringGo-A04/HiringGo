@@ -28,8 +28,12 @@ public class UserService {
 
     public Account findById(String id) { return repo.findById(id); }
 
-    public void updateRole(String id, Role newRole) {
-        Account existing = repo.findById(id);
+    public void updateRole(String targetId, String requesterId, Role newRole) {
+        if (targetId.equals(requesterId)) {
+            throw new IllegalArgumentException("Cannot update own role");
+        }
+
+        Account existing = repo.findById(targetId);
         if (existing == null) {
             throw new IllegalArgumentException("Account not found");
         }
