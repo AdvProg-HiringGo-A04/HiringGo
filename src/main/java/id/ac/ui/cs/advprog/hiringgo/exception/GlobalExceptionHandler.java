@@ -1,12 +1,13 @@
 package id.ac.ui.cs.advprog.hiringgo.exception;
 
-import id.ac.ui.cs.advprog.hiringgo.model.response.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.stream.Collectors;

@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.model.response;
+package id.ac.ui.cs.advprog.hiringgo.authentication.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
