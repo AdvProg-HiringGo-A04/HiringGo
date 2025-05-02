@@ -1,24 +1,47 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
-public class Mahasiswa extends User {
-    private String nim;
-    private String namaLengkap;
+import java.util.UUID;
 
-    public Mahasiswa() {
-        super();
-        setRole("MAHASISWA");
+public class Mahasiswa implements Account {
+    private final String id = UUID.randomUUID().toString();
+    private final String nip;
+    private final String fullName;
+    private final String email;
+    private Role role = Role.MAHASISWA;
+
+    public Mahasiswa(AccountData data) {
+        if (data.getNip() == null || data.getFullName() == null || data.getEmail() == null || data.getPassword() == null)
+            throw new IllegalArgumentException("Mahasiswa data incomplete");
+        this.nip = data.getNip();
+        this.fullName = data.getFullName();
+        this.email = data.getEmail();
     }
 
-    public Mahasiswa(String id, String nim, String namaLengkap, String email, String password) {
-        super(id, email, password, "MAHASISWA");
-        this.nim = nim;
-        this.namaLengkap = namaLengkap;
+    public String getNim() {
+        return nip;
     }
-
-    public String getNim() { return nim; }
-    public void setNim(String nim) { this.nim = nim; }
 
     @Override
-    public String getNamaLengkap() { return namaLengkap; }
-    public void setNamaLengkap(String namaLengkap) { this.namaLengkap = namaLengkap; }
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public String getFullName() {
+        return fullName;
+    }
+
+    @Override
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
