@@ -27,7 +27,7 @@ public class LowonganController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createLowongan(@ModelAttribute LowonganForm form) {
+    public ResponseEntity<Void> createLowongan(@RequestBody LowonganForm form) {
         Lowongan created = lowonganService.createLowongan(form);
         return ResponseEntity
                 .created(URI.create("/api/lowongan/" + created.getId()))
@@ -36,13 +36,17 @@ public class LowonganController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Lowongan> updateLowongan(@PathVariable UUID id, @RequestBody LowonganForm form) {
-        return ResponseEntity.ok(lowonganService.updateLowongan(id, form));
+        Lowongan updated = lowonganService.updateLowongan(id, form);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLowongan(@PathVariable UUID id) {
-        lowonganService.deleteLowongan(id);
-        return ResponseEntity.noContent().build();
+        if (lowonganService.deleteLowongan(id)) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{id}/pendaftar")
@@ -52,7 +56,11 @@ public class LowonganController {
 
     @PostMapping("/pendaftar/{id}/status")
     public ResponseEntity<Void> setStatusPendaftar(@PathVariable UUID id, @RequestParam boolean diterima) {
-        lowonganService.setStatusPendaftar(id, diterima);
-        return ResponseEntity.ok().build();
+        try {
+            lowonganService.setStatusPendaftar(id, diterima);
+            return ResponseEntity.ok().build(); // Success
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build(); // Pendaftar not found
+        }
     }
 }

@@ -84,14 +84,12 @@ public class LowonganControllerTest {
         when(lowonganService.createLowongan(any(LowonganForm.class))).thenReturn(dummyLowongan);
 
         mockMvc.perform(post("/api/lowongan/create")
-                .param("mataKuliah", form.getMataKuliah())
-                .param("tahunAjaran", form.getTahunAjaran())
-                .param("semester", form.getSemester())
-                .param("jumlahDibutuhkan", String.valueOf(form.getJumlahAsistenDibutuhkan())))
-            .andExpect(status().isCreated())
-            .andExpect(header().string("Location", "/api/lowongan/" + dummyLowongan.getId()));
+                .contentType("application/json")
+                .content("{\"mataKuliah\": \"PL\", \"tahunAjaran\": \"2024/2025\", \"semester\": \"Ganjil\", \"jumlahAsistenDibutuhkan\": 2}")
+        )
+        .andExpect(status().isCreated())
+        .andExpect(header().string("Location", "/api/lowongan/" + dummyLowongan.getId()));
     }
-
 
     @Test
     void testUpdateLowongan_success() throws Exception {

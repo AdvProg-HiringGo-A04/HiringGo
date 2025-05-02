@@ -69,8 +69,12 @@ public class LowonganService {
     }
 
     @Transactional
-    public void deleteLowongan(UUID id) {
-        lowonganRepository.deleteById(id);
+    public boolean deleteLowongan(UUID id) {
+        if (lowonganRepository.existsById(id)) {
+            lowonganRepository.deleteById(id);
+            return true; // Successfully deleted
+        }
+        return false; // Not found, no deletion
     }
 
     public List<PendaftarLowongan> getPendaftarByLowongan(UUID lowonganId) {
