@@ -8,7 +8,7 @@ public class AccountFactory {
 
         switch (role) {
             case DOSEN:
-                if (data.getNip() == null || data.getFullName() == null)
+                if (data.getIdentifier() == null || data.getFullName() == null)
                     throw new IllegalArgumentException("Dosen data incomplete");
                 return new Dosen(data);
             case ADMIN:

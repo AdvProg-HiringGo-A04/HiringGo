@@ -10,12 +10,12 @@ public class Dosen implements Account {
     private Role role = Role.DOSEN;
 
     public Dosen(AccountData data) {
-        this.nip = data.getNip();
+        this.nip = data.getIdentifier();
         this.fullName = data.getFullName();
         this.email = data.getEmail();
     }
 
-    public String getNip() {
+    public String getIdentifier() {
         return nip;
     }
 

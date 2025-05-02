@@ -10,7 +10,7 @@ public class DosenTest {
         AccountData data = new AccountData("NIP123", "Prof. X", "px@example.com", "pwd");
         Dosen dosen = new Dosen(data);
 
-        assertEquals("NIP123", dosen.getNip());
+        assertEquals("NIP123", dosen.getIdentifier());
         assertEquals("Prof. X", dosen.getFullName());
         assertEquals("px@example.com", dosen.getEmail());
         assertEquals(Role.DOSEN, dosen.getRole());

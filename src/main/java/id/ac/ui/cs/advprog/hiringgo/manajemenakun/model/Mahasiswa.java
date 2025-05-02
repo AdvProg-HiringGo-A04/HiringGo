@@ -10,9 +10,9 @@ public class Mahasiswa implements Account {
     private Role role = Role.MAHASISWA;
 
     public Mahasiswa(AccountData data) {
-        if (data.getNip() == null || data.getFullName() == null || data.getEmail() == null || data.getPassword() == null)
+        if (data.getIdentifier() == null || data.getFullName() == null || data.getEmail() == null || data.getPassword() == null)
             throw new IllegalArgumentException("Mahasiswa data incomplete");
-        this.nip = data.getNip();
+        this.nip = data.getIdentifier();
         this.fullName = data.getFullName();
         this.email = data.getEmail();
     }

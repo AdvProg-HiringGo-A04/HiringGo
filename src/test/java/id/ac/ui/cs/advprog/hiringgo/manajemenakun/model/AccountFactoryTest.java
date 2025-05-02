@@ -8,7 +8,7 @@ class AccountFactoryTest {
     void testAdminCreateDosenAccount() {
         Account dosen = AccountFactory.createAccount(Role.DOSEN, new AccountData("12345", "Dr. Budi", "budi@example.com", "secret"));
         assertTrue(dosen instanceof Dosen);
-        assertEquals("12345", ((Dosen) dosen).getNip());
+        assertEquals("12345", ((Dosen) dosen).getIdentifier());
         assertEquals("Dr. Budi", dosen.getFullName());
         assertEquals("budi@example.com", dosen.getEmail());
     }
