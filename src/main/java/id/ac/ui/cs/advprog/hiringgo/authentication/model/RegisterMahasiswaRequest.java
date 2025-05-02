@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.model.request;
+package id.ac.ui.cs.advprog.hiringgo.authentication.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
