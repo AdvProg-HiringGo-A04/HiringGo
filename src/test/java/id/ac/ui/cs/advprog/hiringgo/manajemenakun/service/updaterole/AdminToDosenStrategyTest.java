@@ -22,7 +22,7 @@ class AdminToDosenStrategyTest {
 
     @Test
     void changeRole_createsDosenAccountWithData() {
-        Admin old = new Admin("admin@example.com");
+        Admin old = new Admin(new AccountData(null, null, "admin@example.com", null));
         AccountData data = new AccountData("NIP123", "Dr. Budi", "admin@example.com", "pwd");
 
         Dosen dosen = (Dosen) strategy.changeRole(old, data);
