@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service.LowonganService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,9 +27,11 @@ public class LowonganController {
     }
 
     @PostMapping("/create")
-    public String createLowongan(@ModelAttribute LowonganForm form) {
-        lowonganService.createLowongan(form);
-        return "redirect:/lowongan";
+    public ResponseEntity<Void> createLowongan(@ModelAttribute LowonganForm form) {
+        Lowongan created = lowonganService.createLowongan(form);
+        return ResponseEntity
+                .created(URI.create("/api/lowongan/" + created.getId()))
+                .build();
     }
 
     @PutMapping("/{id}")
