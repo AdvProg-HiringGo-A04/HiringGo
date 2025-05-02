@@ -399,4 +399,62 @@ public class AuthenticationControllerTest {
             assertNotNull(response.getErrors());
         });
     }
+
+    @Test
+    void testLogoutUserSuccess() throws Exception {
+        User user = new User();
+        user.setId("admin");
+        user.setEmail("admin@hiringgo.com");
+        user.setPassword(passwordEncoder.encode("securepassword"));
+        user.setRole("ADMIN");
+
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+
+        mockMvc.perform(
+                post("/auth/logout")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Bearer", token)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getData());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testLogoutUserWhenTokenIsInvalid() throws Exception {
+        mockMvc.perform(
+                post("/auth/logout")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Bearer", "invalidToken")
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testLogoutUserWhenRequestHeaderIsEmpty() throws Exception {
+        mockMvc.perform(
+                post("/auth/logout")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
 }
