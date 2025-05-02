@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.model;
+package id.ac.ui.cs.advprog.hiringgo.model.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.exception;
 
-import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.model.response.WebResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;

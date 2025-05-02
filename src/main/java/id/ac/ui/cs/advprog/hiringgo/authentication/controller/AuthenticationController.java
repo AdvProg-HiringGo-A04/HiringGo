@@ -4,10 +4,10 @@ import id.ac.ui.cs.advprog.hiringgo.authentication.repository.MahasiswaRepositor
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.model.LoginUserRequest;
-import id.ac.ui.cs.advprog.hiringgo.model.LoginUserResponse;
-import id.ac.ui.cs.advprog.hiringgo.model.RegisterMahasiswaRequest;
-import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.model.request.LoginUserRequest;
+import id.ac.ui.cs.advprog.hiringgo.model.request.RegisterMahasiswaRequest;
+import id.ac.ui.cs.advprog.hiringgo.model.response.LoginUserResponse;
+import id.ac.ui.cs.advprog.hiringgo.model.response.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
