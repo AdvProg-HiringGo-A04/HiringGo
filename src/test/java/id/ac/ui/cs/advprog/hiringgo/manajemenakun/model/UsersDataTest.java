@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class AccountDataTest {
+class UsersDataTest {
     @Test
     void testAccountData() {
         AccountData data = new AccountData("NIP1", "Arisha", "arisha@example.com", "pwd");

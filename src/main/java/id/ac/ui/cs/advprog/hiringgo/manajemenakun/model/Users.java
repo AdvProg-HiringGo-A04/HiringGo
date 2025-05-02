@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
-public interface Account {
+public interface Users {
     String getId();
     String getEmail();
     String getFullName();

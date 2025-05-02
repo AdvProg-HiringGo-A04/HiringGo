@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.doNothing;
 
 @WebMvcTest(AccountController.class)
-class AccountControllerTest {
+class UsersControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,9 +51,9 @@ class AccountControllerTest {
 
     @Test
     void testGetAllAccount() throws Exception {
-        Account a1 = new Dosen(
+        Users a1 = new Dosen(
                 new AccountData("NIP10", "Dr. Alice", "alice@example.com", "pwd"));
-        Account a2 = new Admin(
+        Users a2 = new Admin(
                 new AccountData(null, null, "bob@example.com", "pwd"));
 
         Mockito.when(service.findAll())

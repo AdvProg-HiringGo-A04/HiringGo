@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
 public class AccountFactory {
-    public static Account createAccount(Role role, AccountData data) {
+    public static Users createAccount(Role role, AccountData data) {
         if (role == null) {
             throw new IllegalArgumentException("Role tidak boleh null");
         }

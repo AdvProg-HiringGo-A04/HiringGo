@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserService;
@@ -20,15 +20,15 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestParam Role role,
-                                                 @RequestBody AccountData data) {
-        Account created = service.createAccount(role, data);
+    public ResponseEntity<Users> createAccount(@RequestParam Role role,
+                                               @RequestBody AccountData data) {
+        Users created = service.createAccount(role, data);
         return ResponseEntity.ok(created);
     }
 
     @GetMapping
-    public ResponseEntity<List<Account>> getAllAccounts() {
-        List<Account> list = service.findAll();
+    public ResponseEntity<List<Users>> getAllAccounts() {
+        List<Users> list = service.findAll();
         return ResponseEntity.ok(list);
     }
 

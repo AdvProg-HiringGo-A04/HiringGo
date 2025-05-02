@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserRepositoryImplTest {
         private UserRepositoryImpl repo;
-        private Account dosen;
-        private Account admin;
-        private Account mhs;
+        private Users dosen;
+        private Users admin;
+        private Users mhs;
 
     @BeforeEach
         void setup() {
@@ -23,7 +23,7 @@ public class UserRepositoryImplTest {
         @Test
         void testSaveAndFindByIdDosen() {
             repo.save(dosen);
-            Account found = repo.findById(dosen.getId());
+            Users found = repo.findById(dosen.getId());
             assertNotNull(found);
             assertEquals(dosen.getId(), found.getId());
         }
@@ -31,7 +31,7 @@ public class UserRepositoryImplTest {
         @Test
         void testSaveAndFindByIdAdmin() {
             repo.save(admin);
-            Account found = repo.findById(admin.getId());
+            Users found = repo.findById(admin.getId());
             assertNotNull(found);
             assertEquals(admin.getId(), found.getId());
         }
@@ -39,7 +39,7 @@ public class UserRepositoryImplTest {
         @Test
         void testSaveAndFindByIdMahasiswa() {
             repo.save(mhs);
-            Account found = repo.findById(mhs.getId());
+            Users found = repo.findById(mhs.getId());
             assertNotNull(found);
             assertEquals(mhs.getId(), found.getId());
         }
@@ -49,7 +49,7 @@ public class UserRepositoryImplTest {
             repo.save(dosen);
             repo.save(admin);
             repo.save(mhs);
-            List<Account> list = repo.findAll();
+            List<Users> list = repo.findAll();
             assertEquals(3, list.size());
             assertTrue(list.stream().anyMatch(a -> a.getId().equals(dosen.getId())));
             assertTrue(list.stream().anyMatch(a -> a.getId().equals(admin.getId())));

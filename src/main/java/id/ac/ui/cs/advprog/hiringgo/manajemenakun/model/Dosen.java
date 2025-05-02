@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
 import java.util.UUID;
 
-public class Dosen implements Account {
+public class Dosen implements Users {
     private final String id = UUID.randomUUID().toString();
     private final String nip;
     private final String fullName;

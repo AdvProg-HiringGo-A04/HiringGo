@@ -3,10 +3,10 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class AccountFactoryTest {
+class UsersFactoryTest {
     @Test
     void testAdminCreateDosenAccount() {
-        Account dosen = AccountFactory.createAccount(Role.DOSEN, new AccountData("12345", "Dr. Budi", "budi@example.com", "secret"));
+        Users dosen = AccountFactory.createAccount(Role.DOSEN, new AccountData("12345", "Dr. Budi", "budi@example.com", "secret"));
         assertTrue(dosen instanceof Dosen);
         assertEquals("12345", ((Dosen) dosen).getIdentifier());
         assertEquals("Dr. Budi", dosen.getFullName());
@@ -15,7 +15,7 @@ class AccountFactoryTest {
 
     @Test
     void testAdminCreateAdminAccount() {
-        Account admin = AccountFactory.createAccount(Role.ADMIN, new AccountData(null, null, "admin@example.com", "adminpwd"));
+        Users admin = AccountFactory.createAccount(Role.ADMIN, new AccountData(null, null, "admin@example.com", "adminpwd"));
         assertTrue(admin instanceof Admin);
         assertEquals("admin@example.com", admin.getEmail());
     }

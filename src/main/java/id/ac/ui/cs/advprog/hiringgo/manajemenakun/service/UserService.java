@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountFactory;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Admin;
@@ -20,22 +20,22 @@ public class UserService {
         this.repo = repo;
     }
 
-    public Account createAccount(Role role, AccountData data) {
-        Account acc = AccountFactory.createAccount(role, data);
+    public Users createAccount(Role role, AccountData data) {
+        Users acc = AccountFactory.createAccount(role, data);
         repo.save(acc);
         return acc;
     }
 
-    public List<Account> findAll() { return repo.findAll(); }
+    public List<Users> findAll() { return repo.findAll(); }
 
-    public Account findById(String id) { return repo.findById(id); }
+    public Users findById(String id) { return repo.findById(id); }
 
     public void updateRole(String targetId, String requesterId, Role newRole) {
         if (targetId.equals(requesterId)) {
             throw new IllegalArgumentException("Cannot update own role");
         }
 
-        Account existing = repo.findById(targetId);
+        Users existing = repo.findById(targetId);
         if (existing == null) {
             throw new IllegalArgumentException("Account not found");
         }

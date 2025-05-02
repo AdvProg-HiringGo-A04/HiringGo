@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
 import java.util.UUID;
 
-public class Mahasiswa implements Account {
+public class Mahasiswa implements Users {
     private final String id = UUID.randomUUID().toString();
     private final String nip;
     private final String fullName;

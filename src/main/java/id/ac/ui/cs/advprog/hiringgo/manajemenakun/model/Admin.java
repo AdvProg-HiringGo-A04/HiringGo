@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
 import java.util.UUID;
 
-public class Admin implements Account {
+public class Admin implements Users {
     private final String id = UUID.randomUUID().toString();
     private final String email;
     private Role role = Role.ADMIN;
