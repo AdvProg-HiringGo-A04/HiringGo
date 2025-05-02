@@ -6,8 +6,8 @@ public class AccountData {
     private final String email;
     private final String password;
 
-    public AccountData(String nip, String fullName, String email, String password) {
-        this.identifier = nip;
+    public AccountData(String identifier, String fullName, String email, String password) {
+        this.identifier = identifier;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
