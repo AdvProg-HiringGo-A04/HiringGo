@@ -1,8 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Account;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.*;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,24 +28,36 @@ class AccountControllerTest {
 
     @Test
     void testCreateAccount() throws Exception {
-        String id = UUID.randomUUID().toString();
         AccountData data = new AccountData("NIP1","Dr Test","test@example.com","pwd");
-        Account dummy = Mockito.mock(Account.class);
-        Mockito.when(dummy.getId()).thenReturn(id);
-        Mockito.when(service.createAccount(eq(Role.DOSEN), any(AccountData.class))).thenReturn(dummy);
+        Dosen dummy = new Dosen(data);
+        String id = dummy.getId();
+
+        Mockito.when(service.createAccount(eq(Role.DOSEN), any(AccountData.class)))
+                .thenReturn(dummy);
 
         mockMvc.perform(post("/accounts?role=DOSEN")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nip\":\"NIP1\",\"fullName\":\"Dr Test\",\"email\":\"test@example.com\",\"password\":\"pwd\"}"))
+                        .content("{"
+                                + "\"nip\":\"NIP1\","
+                                + "\"fullName\":\"Dr Test\","
+                                + "\"email\":\"test@example.com\","
+                                + "\"password\":\"pwd\""
+                                + "}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id));
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.role").value("DOSEN"))
+                .andExpect(jsonPath("$.email").value("test@example.com"));
     }
 
     @Test
     void testGetAllAccount() throws Exception {
-        Account a1 = Mockito.mock(Account.class);
-        Account a2 = Mockito.mock(Account.class);
-        Mockito.when(service.findAll()).thenReturn(Arrays.asList(a1,a2));
+        Account a1 = new Dosen(
+                new AccountData("NIP10", "Dr. Alice", "alice@example.com", "pwd"));
+        Account a2 = new Admin(
+                new AccountData(null, null, "bob@example.com", "pwd"));
+
+        Mockito.when(service.findAll())
+                .thenReturn(Arrays.asList(a1, a2));
 
         mockMvc.perform(get("/accounts"))
                 .andExpect(status().isOk())

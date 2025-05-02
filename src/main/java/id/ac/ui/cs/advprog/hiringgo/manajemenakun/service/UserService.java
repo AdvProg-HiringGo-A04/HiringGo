@@ -10,7 +10,9 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Admin;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
 
 import java.util.List;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
     private final UserRepository repo;
 
