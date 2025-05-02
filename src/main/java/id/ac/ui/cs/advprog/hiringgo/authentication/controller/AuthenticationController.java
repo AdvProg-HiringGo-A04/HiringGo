@@ -1,0 +1,134 @@
+package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
+
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.model.request.LoginUserRequest;
+import id.ac.ui.cs.advprog.hiringgo.model.request.RegisterMahasiswaRequest;
+import id.ac.ui.cs.advprog.hiringgo.model.response.LoginUserResponse;
+import id.ac.ui.cs.advprog.hiringgo.model.response.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Set;
+
+@RestController
+public class AuthenticationController {
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    MahasiswaRepository mahasiswaRepository;
+
+    @Autowired
+    Validator validator;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @PostMapping(
+            path = "/auth/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<LoginUserResponse>> login(@RequestBody(required = false) LoginUserRequest request) {
+
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
+        }
+
+        Set<ConstraintViolation<LoginUserRequest>> constraintViolations = validator.validate(request);
+
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+        }
+
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+
+        LoginUserResponse loginUserResponse = new LoginUserResponse();
+        loginUserResponse.setToken(token);
+
+        WebResponse<LoginUserResponse> response = WebResponse.<LoginUserResponse>builder()
+                .data(loginUserResponse)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            path = "/auth/register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<String>> register(@RequestBody(required = false) RegisterMahasiswaRequest request) {
+
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
+        }
+
+        Set<ConstraintViolation<RegisterMahasiswaRequest>> constraintViolations = validator.validate(request);
+
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+
+        // Check if passwords match
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password and confirm password must match");
+        }
+
+        // Check if email is already taken
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
+        }
+
+        // Check if NPM is already taken
+        if (mahasiswaRepository.findByNPM(request.getNPM()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NPM is already taken");
+        }
+
+        // Create user
+        User user = new User();
+        user.setId(java.util.UUID.randomUUID().toString());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole("MAHASISWA"); // Only mahasiswa role is allowed to register
+        userRepository.save(user);
+
+        // Create mahasiswa profile
+        Mahasiswa mahasiswa = new Mahasiswa();
+        mahasiswa.setId(user.getId());
+        mahasiswa.setNamaLengkap(request.getNamaLengkap());
+        mahasiswa.setNPM(request.getNPM());
+        mahasiswaRepository.save(mahasiswa);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("Registration successful")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+}
