@@ -37,16 +37,18 @@ class UserServiceTest {
 
     @Test
     void testUpdateRoleDosenToAdmin() {
+        Account admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
         Account dosen = service.createAccount(Role.DOSEN, new AccountData("NIP2", "Dr. C", "c@example.com", "pwd"));
-        service.updateRole(dosen.getId(), Role.ADMIN);
+        service.updateRole(dosen.getId(), admin.getId(), Role.ADMIN);
         assertEquals(Role.ADMIN, service.findById(dosen.getId()).getRole());
     }
 
     @Test
     void updateRoleMahasiswaToDosen() {
+        Account admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
         Account mhs = new Mahasiswa(new AccountData("NIM3", "Citra", "citra@example.com", "pwd"));
         repo.save(mhs);
-        service.updateRole(mhs.getId(), Role.DOSEN);
+        service.updateRole(mhs.getId(), admin.getId(), Role.DOSEN);
         assertEquals(Role.DOSEN, service.findById(mhs.getId()).getRole());
     }
 
@@ -57,7 +59,7 @@ class UserServiceTest {
                 new AccountData(null, null, "self@example.com", "pwd")
         );
         assertThrows(IllegalArgumentException.class, () ->
-                service.updateRole(admin.getId(), Role.DOSEN)
+                service.updateRole(admin.getId(), admin.getId(), Role.DOSEN)
         );
     }
 
