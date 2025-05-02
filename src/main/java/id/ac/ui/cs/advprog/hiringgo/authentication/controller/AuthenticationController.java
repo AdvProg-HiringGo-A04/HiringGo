@@ -1,12 +1,13 @@
 package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.authentication.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -118,7 +119,7 @@ public class AuthenticationController {
         userRepository.save(user);
 
         // Create mahasiswa profile
-        id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa mahasiswa = new id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa();
+        Mahasiswa mahasiswa = new Mahasiswa();
         mahasiswa.setId(user.getId());
         mahasiswa.setNamaLengkap(request.getNamaLengkap());
         mahasiswa.setNPM(request.getNPM());

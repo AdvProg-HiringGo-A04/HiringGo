@@ -2,14 +2,14 @@ package id.ac.ui.cs.advprog.hiringgo.authentication.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import id.ac.ui.cs.advprog.hiringgo.authentication.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.authentication.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.authentication.repository.UserRepository;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

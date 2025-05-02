@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.authentication.entity;
+package id.ac.ui.cs.advprog.hiringgo.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
