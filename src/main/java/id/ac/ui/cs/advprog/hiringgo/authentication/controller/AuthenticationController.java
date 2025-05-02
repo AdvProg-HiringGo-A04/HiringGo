@@ -46,7 +46,12 @@ public class AuthenticationController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<LoginUserResponse>> login(@RequestBody LoginUserRequest request) {
+    public ResponseEntity<WebResponse<LoginUserResponse>> login(@RequestBody(required = false) LoginUserRequest request) {
+
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
+        }
+
         Set<ConstraintViolation<LoginUserRequest>> constraintViolations = validator.validate(request);
 
         if (!constraintViolations.isEmpty()) {
