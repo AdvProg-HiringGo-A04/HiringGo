@@ -9,8 +9,8 @@ public class LowonganTest {
     void testSetterAndGetter() {
         Lowongan vac = new Lowongan();
         vac.setId("csui-123");
-        vac.setStudentId("mhs-456");
+        vac.setMahasiswaId("mhs-456");
         assertEquals("csui-123", vac.getId());
-        assertEquals("mhs-456", vac.getStudentId());
+        assertEquals("mhs-456", vac.getMahasiswaId());
     }
 }
