@@ -20,7 +20,7 @@ class AdminToMahasiswaStrategyTest {
     @Test
     void testUpdateRoleAdminToMahasiswa() {
         Admin old = new Admin(new AccountData(null, null, "admin@example.com", null));
-        AccountData data = new AccountData("NIM456", "Citra", "ignored@example.com", "pwd");
+        AccountData data = new AccountData("NIM456", "Citra", "admin@example.com", "pwd");
 
         Mahasiswa mhs = (Mahasiswa) strategy.changeRole(old, data);
         assertEquals("NIM456", mhs.getNim());
