@@ -21,7 +21,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
 public class Log {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, length = 36)
     private String id;
     
     @Column(nullable = false)
