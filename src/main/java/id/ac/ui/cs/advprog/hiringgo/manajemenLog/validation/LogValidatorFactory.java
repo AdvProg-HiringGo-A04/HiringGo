@@ -5,6 +5,9 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.validators.TimeValid
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class LogValidatorFactory {
     public List<LogValidator> createValidators() {
         List<LogValidator> validators = new ArrayList<>();

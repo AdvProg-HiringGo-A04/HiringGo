@@ -11,27 +11,29 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
 public class TimeValidator implements LogValidator {
     
     @Override
-    public Map<String, String> validate(LogRequest logRequest) {
+    public Map<String, String> validate(LogRequest logRequest, boolean isUpdate) {
         Map<String, String> errors = new HashMap<>();
         
         LocalTime waktuMulai = logRequest.getWaktuMulai();
         LocalTime waktuSelesai = logRequest.getWaktuSelesai();
         LocalDate tanggalLog = logRequest.getTanggalLog();
         
-        // Validasi waktu tidak boleh null
-        if (waktuMulai == null) {
-            errors.put("waktuMulai", "Waktu mulai tidak boleh kosong");
-            return errors;
-        }
-        
-        if (waktuSelesai == null) {
-            errors.put("waktuSelesai", "Waktu selesai tidak boleh kosong");
-            return errors;
-        }
-        
-        if (tanggalLog == null) {
-            errors.put("tanggalLog", "Tanggal log tidak boleh kosong");
-            return errors;
+        if (!isUpdate) {
+            // Validasi waktu tidak boleh null
+            if (waktuMulai == null) {
+                errors.put("waktuMulai", "Waktu mulai tidak boleh kosong");
+                return errors;
+            }
+            
+            if (waktuSelesai == null) {
+                errors.put("waktuSelesai", "Waktu selesai tidak boleh kosong");
+                return errors;
+            }
+            
+            if (tanggalLog == null) {
+                errors.put("tanggalLog", "Tanggal log tidak boleh kosong");
+                return errors;
+            }
         }
         
         // Validasi tanggal log tidak boleh di masa depan
