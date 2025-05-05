@@ -28,7 +28,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request);
+        Map<String, String> errors = validator.validate(request, false);
         assertTrue(errors.isEmpty());
     }
 
@@ -40,7 +40,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request);
+        Map<String, String> errors = validator.validate(request, false);
         assertEquals("Waktu mulai harus sebelum waktu selesai", errors.get("rangeWaktu"));
     }
 
@@ -52,7 +52,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now().plusDays(1))
                 .build();
 
-        Map<String, String> errors = validator.validate(request);
+        Map<String, String> errors = validator.validate(request, false);
         assertEquals("Tanggal log tidak boleh di masa depan", errors.get("tanggalLog"));
     }
 
@@ -64,7 +64,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request);
+        Map<String, String> errors = validator.validate(request, false);
         assertEquals("Waktu mulai tidak boleh kosong", errors.get("waktuMulai"));
     }
 
@@ -76,7 +76,7 @@ public class TimeValidatorTest {
                 .tanggalLog(null)
                 .build();
 
-        Map<String, String> errors = validator.validate(request);
+        Map<String, String> errors = validator.validate(request, false);
         assertEquals("Tanggal log tidak boleh kosong", errors.get("tanggalLog"));
     }
 }
