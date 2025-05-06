@@ -15,9 +15,10 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(LogNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleLogNotFoundException(LogNotFoundException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
+    public ResponseEntity<Map<String, Object>> handleLogNotFoundException(LogNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Validasi log gagal");
+        response.put("errors", ex.getErrors());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
     

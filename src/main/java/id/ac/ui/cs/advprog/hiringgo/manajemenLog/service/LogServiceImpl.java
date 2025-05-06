@@ -40,10 +40,10 @@ public class LogServiceImpl implements LogService{
     @Override
     public LogResponse getLogById(String logId, String mahasiswaId) {
         Log log = logRepository.findById(logId)
-                .orElseThrow(() -> new LogNotFoundException(logId));
+                .orElseThrow(() -> new LogNotFoundException(Map.of("logId", "Log tidak ditemukan")));
         
         if (!log.getMahasiswaId().equals(mahasiswaId)) {
-            throw new LogNotFoundException("Log tidak ditemukan atau Anda tidak memiliki akses");
+            throw new LogNotFoundException(Map.of("mahasiswaId", "Log tidak ditemukan atau Anda tidak memiliki akses"));
         }
 
         validateEnrollment(log.getMataKuliahId(), mahasiswaId);
@@ -81,10 +81,10 @@ public class LogServiceImpl implements LogService{
         validateLog(logRequest);
 
         Log existingLog = logRepository.findById(logId)
-                .orElseThrow(() -> new LogNotFoundException(logId));
+                .orElseThrow(() -> new LogNotFoundException(Map.of("logId", "Log tidak ditemukan")));
         
         if (!existingLog.getMahasiswaId().equals(mahasiswaId)) {
-            throw new LogNotFoundException("Log tidak ditemukan atau Anda tidak memiliki akses");
+            throw new LogNotFoundException(Map.of("mahasiswaId", "Log tidak ditemukan atau Anda tidak memiliki akses"));
         }
 
         if (!existingLog.getMataKuliahId().equals(logRequest.getMataKuliahId())) {
@@ -92,12 +92,10 @@ public class LogServiceImpl implements LogService{
                     "Log ini tidak terkait dengan mata kuliah yang diminta"));
         }
 
-        // Hanya log dengan status PENDING yang dapat diubah
         if (existingLog.getStatus() != StatusLog.DIPROSES) {
             throw new InvalidLogException(Map.of("status", "Log yang sudah " + existingLog.getStatus().getDisplayName() + " tidak dapat diubah"));
         }
         
-      
         if (logRequest.getKeterangan() != null) {
             existingLog.setKeterangan(logRequest.getKeterangan());
         }
@@ -122,10 +120,10 @@ public class LogServiceImpl implements LogService{
         validateEnrollment(mataKuliahId, mahasiswaId);
 
         Log log = logRepository.findById(logId)
-                .orElseThrow(() -> new LogNotFoundException(logId));
+                .orElseThrow(() -> new LogNotFoundException(Map.of("logId", "Log tidak ditemukan")));
         
         if (!log.getMahasiswaId().equals(mahasiswaId)) {
-            throw new LogNotFoundException("Log tidak ditemukan atau Anda tidak memiliki akses");
+            throw new LogNotFoundException(Map.of("mahasiswaId", "Log tidak ditemukan atau Anda tidak memiliki akses"));
         }
 
         if (!log.getMataKuliahId().equals(mataKuliahId)) {
@@ -133,7 +131,6 @@ public class LogServiceImpl implements LogService{
                     "Log ini tidak terkait dengan mata kuliah yang diminta"));
         }
         
-        // Hanya log dengan status PENDING yang dapat dihapus
         if (log.getStatus() != StatusLog.DIPROSES) {
             throw new InvalidLogException(Map.of("status", "Log yang sudah " + log.getStatus().getDisplayName() + " tidak dapat dihapus"));
         }
@@ -143,9 +140,7 @@ public class LogServiceImpl implements LogService{
     
     private void validateEnrollment(String mataKuliahId, String mahasiswaId) {
         if (!logRepository.existsByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId)) {
-            Map<String, String> error = new HashMap<>();
-            error.put("enrollment", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini");
-            throw new InvalidLogException(error);
+            throw new InvalidLogException(Map.of("enrollment", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini"));
         }
     }
     
