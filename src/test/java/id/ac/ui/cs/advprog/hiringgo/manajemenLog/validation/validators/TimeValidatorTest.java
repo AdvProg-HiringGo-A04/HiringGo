@@ -28,7 +28,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request, false);
+        Map<String, String> errors = validator.validate(request);
         assertTrue(errors.isEmpty());
     }
 
@@ -40,7 +40,19 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request, false);
+        Map<String, String> errors = validator.validate(request);
+        assertEquals("Waktu mulai harus sebelum waktu selesai", errors.get("rangeWaktu"));
+    }
+
+    @Test
+    public void testWaktuMulaiEqualsWaktuSelesai_RangeWaktuError() {
+        LogRequest request = LogRequest.builder()
+                .waktuMulai(LocalTime.of(12, 0))
+                .waktuSelesai(LocalTime.of(12, 0))
+                .tanggalLog(LocalDate.now())
+                .build();
+
+        Map<String, String> errors = validator.validate(request);
         assertEquals("Waktu mulai harus sebelum waktu selesai", errors.get("rangeWaktu"));
     }
 
@@ -52,7 +64,7 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now().plusDays(1))
                 .build();
 
-        Map<String, String> errors = validator.validate(request, false);
+        Map<String, String> errors = validator.validate(request);
         assertEquals("Tanggal log tidak boleh di masa depan", errors.get("tanggalLog"));
     }
 
@@ -64,8 +76,20 @@ public class TimeValidatorTest {
                 .tanggalLog(LocalDate.now())
                 .build();
 
-        Map<String, String> errors = validator.validate(request, false);
+        Map<String, String> errors = validator.validate(request);
         assertEquals("Waktu mulai tidak boleh kosong", errors.get("waktuMulai"));
+    }
+
+    @Test
+    public void testNullWaktuSelesai_WaktuSelesaiError() {
+        LogRequest request = LogRequest.builder()
+                .waktuMulai(LocalTime.of(10, 0))
+                .waktuSelesai(null)
+                .tanggalLog(LocalDate.now())
+                .build();
+
+        Map<String, String> errors = validator.validate(request);
+        assertEquals("Waktu selesai tidak boleh kosong", errors.get("waktuSelesai"));
     }
 
     @Test
@@ -76,7 +100,7 @@ public class TimeValidatorTest {
                 .tanggalLog(null)
                 .build();
 
-        Map<String, String> errors = validator.validate(request, false);
+        Map<String, String> errors = validator.validate(request);
         assertEquals("Tanggal log tidak boleh kosong", errors.get("tanggalLog"));
     }
 }
