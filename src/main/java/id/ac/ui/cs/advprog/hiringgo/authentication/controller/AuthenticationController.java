@@ -28,13 +28,13 @@ import java.util.Set;
 public class AuthenticationController {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    MahasiswaRepository mahasiswaRepository;
+    private MahasiswaRepository mahasiswaRepository;
 
     @Autowired
-    Validator validator;
+    private Validator validator;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
