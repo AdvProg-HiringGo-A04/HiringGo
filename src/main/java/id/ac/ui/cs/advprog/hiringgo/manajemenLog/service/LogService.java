@@ -10,6 +10,5 @@ public interface LogService {
     LogResponse getLogById(String logId, String mahasiswaId);
     LogResponse createLog(LogRequest logRequest, String mahasiswaId);
     LogResponse updateLog(String logId, LogRequest logRequest, String mahasiswaId);
-    void deleteLog(String logId, String mahasiswaId);
-    boolean validateEnrollment(String mataKuliahId, String mahasiswaId);
+    void deleteLog(String logId, String mataKuliahId, String mahasiswaId);
 }

@@ -9,12 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.service.LogService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/log")
@@ -29,12 +26,6 @@ public class LogController {
     public ResponseEntity<List<LogResponse>> getAllLogs(
             @PathVariable("mataKuliahId") String mataKuliahId,
             @RequestHeader("X-Student-ID") String mahasiswaId) {
-        
-        if (!logService.validateEnrollment(mataKuliahId, mahasiswaId)) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini");
-            throw new InvalidLogException(error);
-        }
         
         List<LogResponse> logs = logService.getAllLogs(mataKuliahId, mahasiswaId);
         return ResponseEntity.ok(logs);
@@ -53,12 +44,6 @@ public class LogController {
             @Valid @RequestBody LogRequest logRequest,
             @RequestHeader("X-Student-ID") String mahasiswaId) {
         
-        if (!logService.validateEnrollment(logRequest.getMataKuliahId(), mahasiswaId)) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini");
-            throw new InvalidLogException(error);
-        }
-        
         LogResponse createdLog = logService.createLog(logRequest, mahasiswaId);
         return new ResponseEntity<>(createdLog, HttpStatus.CREATED);
     }
@@ -69,21 +54,16 @@ public class LogController {
             @Valid @RequestBody LogRequest logRequest,
             @RequestHeader("X-Student-ID") String mahasiswaId) {
         
-        if (!logService.validateEnrollment(logRequest.getMataKuliahId(), mahasiswaId)) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini");
-            throw new InvalidLogException(error);
-        }
-        
         LogResponse updatedLog = logService.updateLog(logId, logRequest, mahasiswaId);
         return ResponseEntity.ok(updatedLog);
     }
     
-    @DeleteMapping("/{logId}")
+    @DeleteMapping("{mataKuliahId}/{logId}")
     public ResponseEntity<Void> deleteLog(
+            @PathVariable("mataKuliahId") String mataKuliahId,
             @PathVariable("logId") String logId,
             @RequestHeader("X-Student-ID") String mahasiswaId) {
-        logService.deleteLog(logId, mahasiswaId);
+        logService.deleteLog(logId, mataKuliahId, mahasiswaId);
         return ResponseEntity.noContent().build();
     }
 }
