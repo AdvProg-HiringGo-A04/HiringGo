@@ -113,6 +113,77 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testCreateMataKuliahWhenUserIsDosen() throws Exception {
+        CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
+        mockMvc.perform(
+                post("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDosen)
+                        .content(objectMapper.writeValueAsString(createMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testCreateMataKuliahWhenUserIsMahasiswa() throws Exception {
+        CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
+        mockMvc.perform(
+                post("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+                        .content(objectMapper.writeValueAsString(createMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testCreateMataKuliahWhenUserIsNotAuthenticate() throws Exception {
+        CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
+        mockMvc.perform(
+                post("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testCreateMataKuliahWhenRequestBodyIsNull() throws Exception {
         CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
 
