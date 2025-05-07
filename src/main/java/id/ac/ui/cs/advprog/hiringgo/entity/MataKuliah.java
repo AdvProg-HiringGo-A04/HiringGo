@@ -32,7 +32,7 @@ public class MataKuliah {
     @JoinTable(
             name = "mengampu_mata_kuliah",
             joinColumns = @JoinColumn(name = "kode_mata_kuliah"),
-            inverseJoinColumns = @JoinColumn(name = "nip")
+            inverseJoinColumns = @JoinColumn(name = "id")
     )
     private List<Dosen> dosenPengampu;
 

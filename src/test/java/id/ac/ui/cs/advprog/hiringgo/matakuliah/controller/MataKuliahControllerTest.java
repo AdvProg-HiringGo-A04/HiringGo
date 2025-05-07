@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +42,9 @@ public class MataKuliahControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private DosenRepository dosenRepository;
 
     @Autowired
@@ -65,9 +70,18 @@ public class MataKuliahControllerTest {
     void setUp() {
         mataKuliahRepository.deleteAll();
         dosenRepository.deleteAll();
+        userRepository.deleteAll();
+
+        String id = UUID.randomUUID().toString();
+        User user = new User();
+        user.setId(id);
+        user.setEmail("dosen@hiringgo.com");
+        user.setPassword("securepassword");
+        user.setRole("DOSEN");
+        userRepository.save(user);
 
         Dosen dosen = new Dosen();
-        dosen.setId(UUID.randomUUID().toString());
+        dosen.setId(id);
         dosen.setNIP("198403262023012008");
         dosen.setNamaLengkap("John Doe");
         dosenRepository.save(dosen);
