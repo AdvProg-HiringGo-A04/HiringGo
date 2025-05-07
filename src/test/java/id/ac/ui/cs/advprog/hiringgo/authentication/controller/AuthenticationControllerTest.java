@@ -414,7 +414,7 @@ public class AuthenticationControllerTest {
                 post("/auth/logout")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Bearer", token)
+                        .header("Authorization", "Bearer " + token)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -431,7 +431,7 @@ public class AuthenticationControllerTest {
                 post("/auth/logout")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Bearer", "invalidToken")
+                        .header("Authorization", "Bearer invalidToken")
         ).andExpectAll(
                 status().isUnauthorized()
         ).andDo(result -> {
