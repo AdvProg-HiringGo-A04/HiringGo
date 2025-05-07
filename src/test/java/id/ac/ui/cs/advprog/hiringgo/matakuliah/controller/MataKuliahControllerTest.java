@@ -292,6 +292,62 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testGetMataKuliahWhenUserIsDosen() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDosen)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahWhenUserIsMahasiswa() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahWhenUserIsNotAuthenticate() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testGetMataKuliahEmpty() throws Exception {
         mockMvc.perform(
                 get("/courses")
