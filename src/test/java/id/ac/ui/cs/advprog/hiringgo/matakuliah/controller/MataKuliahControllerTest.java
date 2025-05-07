@@ -625,6 +625,62 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testDeleteMataKuliahWhenUserIsDosen() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                delete("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDosen)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testDeleteMataKuliahWhenUserIsMahasiswa() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                delete("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testDeleteMataKuliahWhenUserIsNotAuthenticate() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                delete("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testDeleteMataKuliahWhenIdIsNotFound() throws Exception {
         mockMvc.perform(
                 delete("/courses/CSGEXXXXXX")
