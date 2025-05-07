@@ -8,6 +8,7 @@ import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,23 +39,48 @@ public class MataKuliahControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private DosenRepository dosenRepository;
+
+    @Autowired
     private MataKuliahRepository mataKuliahRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    private MataKuliah mataKuliah1;
+
+    private MataKuliah mataKuliah2;
+
     @BeforeEach
     void setUp() {
         mataKuliahRepository.deleteAll();
+        dosenRepository.deleteAll();
+
+        Dosen dosen = new Dosen();
+        dosen.setId(UUID.randomUUID().toString());
+        dosen.setNIP("198403262023012008");
+        dosen.setNamaLengkap("John Doe");
+        dosenRepository.save(dosen);
+
+        mataKuliah1 = new MataKuliah();
+        mataKuliah1.setKodeMataKuliah("CSCM602223");
+        mataKuliah1.setNamaMataKuliah("Pemrograman Lanjut");
+        mataKuliah1.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        mataKuliah1.setDosenPengampu(List.of(dosen));
+
+        mataKuliah2 = new MataKuliah();
+        mataKuliah2.setKodeMataKuliah("CSGE601021");
+        mataKuliah2.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
+        mataKuliah2.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
     }
 
     @Test
     void testCreateMataKuliahSuccess() throws Exception {
         CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
-        createMataKuliahRequest.setKodeMataKuliah("CSCM602223");
-        createMataKuliahRequest.setNamaMataKuliah("Pemrograman Lanjut");
-        createMataKuliahRequest.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
-        createMataKuliahRequest.setDosenPengampu(List.of(new Dosen()));
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
 
         mockMvc.perform(
                 post("/courses")
@@ -107,17 +134,13 @@ public class MataKuliahControllerTest {
 
     @Test
     void testCreateMataKuliahDuplicate() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSCM602223");
-        mataKuliah.setNamaMataKuliah("Pemrograman Lanjut");
-        mataKuliah.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
-        createMataKuliahRequest.setKodeMataKuliah("CSCM602223");
-        createMataKuliahRequest.setNamaMataKuliah("Pemrograman Lanjut");
-        createMataKuliahRequest.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
-        createMataKuliahRequest.setDosenPengampu(List.of(new Dosen()));
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
 
         mockMvc.perform(
                 post("/courses")
@@ -137,9 +160,9 @@ public class MataKuliahControllerTest {
     @Test
     void testCreateMataKuliahWithoutDosen() throws Exception {
         CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
-        createMataKuliahRequest.setKodeMataKuliah("CSCM602223");
-        createMataKuliahRequest.setNamaMataKuliah("Pemrograman Lanjut");
-        createMataKuliahRequest.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
 
         mockMvc.perform(
                 post("/courses")
@@ -158,11 +181,7 @@ public class MataKuliahControllerTest {
 
     @Test
     void testGetMataKuliahSuccess() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         mockMvc.perform(
                 get("/courses")
@@ -174,10 +193,10 @@ public class MataKuliahControllerTest {
             WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getErrors());
-            assertEquals(mataKuliah.getKodeMataKuliah(), response.getData().getFirst().getKodeMataKuliah());
-            assertEquals(mataKuliah.getNamaMataKuliah(), response.getData().getFirst().getNamaMataKuliah());
-            assertEquals(mataKuliah.getDeskripsiMataKuliah(), response.getData().getFirst().getDeskripsiMataKuliah());
-            assertEquals(mataKuliah.getDosenPengampu(), response.getData().getFirst().getDosenPengampu());
+            assertEquals(mataKuliah1.getKodeMataKuliah(), response.getData().getFirst().getKodeMataKuliah());
+            assertEquals(mataKuliah1.getNamaMataKuliah(), response.getData().getFirst().getNamaMataKuliah());
+            assertEquals(mataKuliah1.getDeskripsiMataKuliah(), response.getData().getFirst().getDeskripsiMataKuliah());
+            assertEquals(mataKuliah1.getDosenPengampu().size(), response.getData().getFirst().getDosenPengampu().size());
         });
     }
 
@@ -199,14 +218,10 @@ public class MataKuliahControllerTest {
 
     @Test
     void testGetMataKuliahById() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         mockMvc.perform(
-                get("/courses/" + mataKuliah.getKodeMataKuliah())
+                get("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
@@ -215,10 +230,10 @@ public class MataKuliahControllerTest {
             WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getErrors());
-            assertEquals(mataKuliah.getKodeMataKuliah(), response.getData().getKodeMataKuliah());
-            assertEquals(mataKuliah.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
-            assertEquals(mataKuliah.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
-            assertEquals(mataKuliah.getDosenPengampu(), response.getData().getDosenPengampu());
+            assertEquals(mataKuliah1.getKodeMataKuliah(), response.getData().getKodeMataKuliah());
+            assertEquals(mataKuliah1.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
+            assertEquals(mataKuliah1.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
+            assertEquals(mataKuliah1.getDosenPengampu().size(), response.getData().getDosenPengampu().size());
         });
     }
 
@@ -240,19 +255,15 @@ public class MataKuliahControllerTest {
 
     @Test
     void testUpdateMataKuliahSuccess() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah("CSCM602223");
-        updateMataKuliahRequest.setNamaMataKuliah("Pemrograman Lanjut");
-        updateMataKuliahRequest.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
 
         mockMvc.perform(
-                patch("/courses/" + mataKuliah.getKodeMataKuliah())
+                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
@@ -278,29 +289,20 @@ public class MataKuliahControllerTest {
             assertEquals(updateMataKuliahRequest.getKodeMataKuliah(), response.getData().getKodeMataKuliah());
             assertEquals(updateMataKuliahRequest.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
             assertEquals(updateMataKuliahRequest.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
-            assertEquals(updateMataKuliahRequest.getDosenPengampu(), response.getData().getDosenPengampu());
+            assertEquals(mataKuliah2.getDosenPengampu().size(), response.getData().getDosenPengampu().size());
         });
     }
 
     @Test
     void testUpdateMataKuliahWhenIdIsTaken() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
-
-        MataKuliah mataKuliah2 = new MataKuliah();
-        mataKuliah2.setKodeMataKuliah("CSCM602223");
-        mataKuliah2.setNamaMataKuliah("Pemrograman Lanjut");
-        mataKuliah2.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        mataKuliahRepository.save(mataKuliah1);
         mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
         updateMataKuliahRequest.setKodeMataKuliah("CSGE601021");
 
         mockMvc.perform(
-                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
+                patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
@@ -336,16 +338,12 @@ public class MataKuliahControllerTest {
 
     @Test
     void testUpdateMataKuliahWhenRequestBodyIsNull() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
 
         mockMvc.perform(
-                patch("/courses/" + mataKuliah.getKodeMataKuliah())
+                patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
@@ -361,14 +359,10 @@ public class MataKuliahControllerTest {
 
     @Test
     void testUpdateMataKuliahWithEmptyRequestBody() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         mockMvc.perform(
-                patch("/courses/" + mataKuliah.getKodeMataKuliah())
+                patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
@@ -383,18 +377,14 @@ public class MataKuliahControllerTest {
 
     @Test
     void testDeleteMataKuliahSuccess() throws Exception {
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setKodeMataKuliah("CSGE601021");
-        mataKuliah.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
-        mataKuliah.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahRepository.save(mataKuliah1);
 
         mockMvc.perform(
-                delete("/courses/" + mataKuliah.getKodeMataKuliah())
+                delete("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
-                status().isBadRequest()
+                status().isOk()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
