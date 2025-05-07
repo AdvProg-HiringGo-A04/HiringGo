@@ -10,6 +10,7 @@ import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +48,18 @@ public class MataKuliahControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     private MataKuliah mataKuliah1;
 
     private MataKuliah mataKuliah2;
+
+    private String tokenAdmin;
+
+    private String tokenDosen;
+
+    private String tokenMahasiswa;
 
     @BeforeEach
     void setUp() {
@@ -72,6 +82,10 @@ public class MataKuliahControllerTest {
         mataKuliah2.setKodeMataKuliah("CSGE601021");
         mataKuliah2.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
         mataKuliah2.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
+
+        tokenAdmin = jwtUtil.generateToken("admin", "admin@hiringg@gmail.com", "ADMIN");
+        tokenDosen = jwtUtil.generateToken("dosen", "dosen@hiringg@gmail.com", "DOSEN");
+        tokenMahasiswa = jwtUtil.generateToken("mahasiswa", "mahasiswa@hiringg@gmail.com", "MAHASISWA");
     }
 
     @Test
@@ -86,6 +100,7 @@ public class MataKuliahControllerTest {
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
                 status().isCreated()
@@ -105,6 +120,7 @@ public class MataKuliahControllerTest {
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
                 status().isBadRequest()
@@ -121,6 +137,7 @@ public class MataKuliahControllerTest {
         mockMvc.perform(
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
                 status().isBadRequest()
@@ -146,6 +163,7 @@ public class MataKuliahControllerTest {
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
                 status().isBadRequest()
@@ -168,6 +186,7 @@ public class MataKuliahControllerTest {
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
                 status().isCreated()
@@ -187,6 +206,7 @@ public class MataKuliahControllerTest {
                 get("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -206,6 +226,7 @@ public class MataKuliahControllerTest {
                 get("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -224,6 +245,7 @@ public class MataKuliahControllerTest {
                 get("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -243,6 +265,7 @@ public class MataKuliahControllerTest {
                 get("/courses/CSCMXXXXXX")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isNotFound()
         ).andDo(result -> {
@@ -266,6 +289,7 @@ public class MataKuliahControllerTest {
                 patch("/courses/" + mataKuliah2.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
                 status().isOk()
@@ -280,6 +304,7 @@ public class MataKuliahControllerTest {
                 get("/courses/" + updateMataKuliahRequest.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -305,6 +330,7 @@ public class MataKuliahControllerTest {
                 patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
                 status().isBadRequest()
@@ -325,6 +351,7 @@ public class MataKuliahControllerTest {
                 patch("/courses/CSGEXXXXXX")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
                 status().isNotFound()
@@ -346,6 +373,7 @@ public class MataKuliahControllerTest {
                 patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
                 status().isBadRequest()
@@ -365,6 +393,7 @@ public class MataKuliahControllerTest {
                 patch("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isBadRequest()
         ).andDo(result -> {
@@ -383,6 +412,7 @@ public class MataKuliahControllerTest {
                 delete("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isOk()
         ).andDo(result -> {
@@ -399,6 +429,7 @@ public class MataKuliahControllerTest {
                 delete("/courses/CSGEXXXXXX")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenAdmin)
         ).andExpectAll(
                 status().isNotFound()
         ).andDo(result -> {
