@@ -5,9 +5,11 @@ import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Slf4j
 @RestController
 public class MataKuliahController {
 
@@ -35,11 +39,26 @@ public class MataKuliahController {
     @Autowired
     private Validator validator;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @GetMapping(
             path = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses() {
+    public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses(
+            @RequestHeader(name = "Authorization", required = false) String token) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String role = jwtUtil.extractRole(token.substring(7));
+
+        if (!role.equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
         List<MataKuliah> mataKuliah = mataKuliahRepository.findAll();
 
         WebResponse<List<MataKuliah>> response = WebResponse.<List<MataKuliah>>builder()
@@ -53,7 +72,20 @@ public class MataKuliahController {
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<MataKuliah>> getCoursesByCode(@PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+    public ResponseEntity<WebResponse<MataKuliah>> getCoursesByCode(
+            @RequestHeader(name = "Authorization", required = false) String token,
+            @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String role = jwtUtil.extractRole(token.substring(7));
+
+        if (!role.equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
         Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
 
         if (mataKuliah.isEmpty()) {
@@ -72,7 +104,20 @@ public class MataKuliahController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> createCourses(@RequestBody CreateMataKuliahRequest request) {
+    public ResponseEntity<WebResponse<String>> createCourses(
+            @RequestHeader(name = "Authorization", required = false) String token,
+            @RequestBody CreateMataKuliahRequest request) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String role = jwtUtil.extractRole(token.substring(7));
+
+        if (!role.equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
         Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
         if (!constraintViolations.isEmpty()) {
@@ -103,8 +148,19 @@ public class MataKuliahController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<String>> updateCourses(
+            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
             @RequestBody UpdateMataKuliahRequest request) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String role = jwtUtil.extractRole(token.substring(7));
+
+        if (!role.equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
 
         Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
@@ -146,7 +202,20 @@ public class MataKuliahController {
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> deleteCourses(@PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+    public ResponseEntity<WebResponse<String>> deleteCourses(
+            @RequestHeader(name = "Authorization", required = false) String token,
+            @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        String role = jwtUtil.extractRole(token.substring(7));
+
+        if (!role.equals("ADMIN")) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
         if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
         }
