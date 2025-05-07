@@ -1,0 +1,162 @@
+package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
+
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+@RestController
+public class MataKuliahController {
+
+    @Autowired
+    private MataKuliahRepository mataKuliahRepository;
+
+    @Autowired
+    private Validator validator;
+
+    @GetMapping(
+            path = "/courses",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses() {
+        List<MataKuliah> mataKuliah = mataKuliahRepository.findAll();
+
+        WebResponse<List<MataKuliah>> response = WebResponse.<List<MataKuliah>>builder()
+                .data(mataKuliah)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(
+            path = "/courses/{kodeMataKuliah}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<MataKuliah>> getCoursesByCode(@PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+        Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
+
+        if (mataKuliah.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+        }
+
+        WebResponse<MataKuliah> response = WebResponse.<MataKuliah>builder()
+                .data(mataKuliah.get())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            path = "/courses",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<String>> createCourses(@RequestBody CreateMataKuliahRequest request) {
+        Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
+
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+
+        if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kode mata kuliah sudah terdaftar");
+        }
+
+        MataKuliah mataKuliah = new MataKuliah();
+        mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
+        mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
+        mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
+        mataKuliah.setDosenPengampu(request.getDosenPengampu());
+        mataKuliahRepository.save(mataKuliah);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("Ok")
+                .build();
+
+        return ResponseEntity.created(URI.create("/courses/" + mataKuliah.getKodeMataKuliah())).body(response);
+    }
+
+    @PatchMapping(
+            path = "/courses/{kodeMataKuliah}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<String>> updateCourses(
+            @PathVariable("kodeMataKuliah") String kodeMataKuliah,
+            @RequestBody UpdateMataKuliahRequest request) {
+
+        Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
+
+        if (!constraintViolations.isEmpty()) {
+            throw new ConstraintViolationException(constraintViolations);
+        }
+
+        Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findByKodeMataKuliah(kodeMataKuliah);
+
+        if (optionalMataKuliah.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+        }
+
+        MataKuliah mataKuliah = optionalMataKuliah.get();
+
+        if (request.getKodeMataKuliah() != null) {
+            mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
+        }
+        if (request.getNamaMataKuliah() != null) {
+            mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
+        }
+        if (request.getDeskripsiMataKuliah() != null) {
+            mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
+        }
+        if (request.getDosenPengampu() != null) {
+            mataKuliah.setDosenPengampu(request.getDosenPengampu());
+        }
+
+        mataKuliahRepository.save(mataKuliah);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("Ok")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping(
+            path = "/courses/{kodeMataKuliah}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<WebResponse<String>> deleteCourses(@PathVariable("kodeMataKuliah") String kodeMataKuliah) {
+        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+        }
+
+        mataKuliahRepository.deleteById(kodeMataKuliah);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("Ok")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+}
