@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.model;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.validation.AtLeastOneFieldNotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@AtLeastOneFieldNotBlank
 public class UpdateMataKuliahRequest {
 
     @Size(max = 100)
