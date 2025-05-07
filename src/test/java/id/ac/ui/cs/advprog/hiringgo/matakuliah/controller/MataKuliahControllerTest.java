@@ -446,6 +446,80 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testUpdateMataKuliahWhenUserIsDosen() throws Exception {
+        mataKuliahRepository.save(mataKuliah2);
+
+        UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
+        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
+
+        mockMvc.perform(
+                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDosen)
+                        .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testUpdateMataKuliahWhenUserIsMahasiswa() throws Exception {
+        mataKuliahRepository.save(mataKuliah2);
+
+        UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
+        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
+
+        mockMvc.perform(
+                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+                        .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testUpdateMataKuliahWhenUserIsNotAuthenticate() throws Exception {
+        mataKuliahRepository.save(mataKuliah2);
+
+        UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
+        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
+
+        mockMvc.perform(
+                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testUpdateMataKuliahWhenIdIsTaken() throws Exception {
         mataKuliahRepository.save(mataKuliah1);
         mataKuliahRepository.save(mataKuliah2);
