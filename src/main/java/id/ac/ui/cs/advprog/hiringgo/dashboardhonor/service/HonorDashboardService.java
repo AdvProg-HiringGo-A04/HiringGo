@@ -43,4 +43,28 @@ public class HonorDashboardService {
                         vac -> logRepo.findByLowonganId(vac.getId(), from, to)
                 ));
     }
+
+    public Map<String, BigDecimal> calculateHonor(
+            String mahasiswaId,
+            YearMonth period
+    ) {
+        Map<String, List<Log>> logsByVac = getLogsForMahasiswaByPeriod(mahasiswaId, period);
+
+        Map<String, BigDecimal> honorPerVac = new HashMap<>();
+        for (Map.Entry<String, List<Log>> entry : logsByVac.entrySet()) {
+            String lowonganId = entry.getKey();
+            List<Log> logs    = entry.getValue();
+
+            BigDecimal totalHours = logs.stream()
+                    .map(Log::getHours)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal honor = calculator.calculate(totalHours);
+
+            honorPerVac.put(lowonganId, honor);
+        }
+
+        return honorPerVac;
+    }
+
 }
