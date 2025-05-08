@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.model;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,5 +28,6 @@ public class CreateMataKuliahRequest {
     @NotBlank
     private String deskripsiMataKuliah;
 
+    @NotNull
     private List<Dosen> dosenPengampu;
 }
