@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.service;
 
+import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.DashboardHonorDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.Log;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.repository.LowonganRepositoryImpl;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,4 +69,34 @@ public class HonorDashboardService {
         return honorPerVac;
     }
 
+    public List<DashboardHonorDTO> getHonorTable(
+            String mahasiswaId,
+            YearMonth period
+    ) {
+        List<Lowongan> vacs = lowonganRepo.findByMahasiswaId(mahasiswaId);
+
+        List<DashboardHonorDTO> rows = new ArrayList<>();
+        BigDecimal rate = calculator.getRatePerHour();
+
+        for (Lowongan vac : vacs) {
+            LocalDateTime from = period.atDay(1).atStartOfDay();
+            LocalDateTime to   = period.atEndOfMonth().atTime(23, 59, 59);
+            List<Log> logs = logRepo.findByLowonganId(vac.getId(), from, to);
+
+            BigDecimal totalHours = logs.stream()
+                    .map(Log::getHours)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalHonor = calculator.calculate(totalHours);
+
+            rows.add(new DashboardHonorDTO(
+                    vac.getName(),
+                    period,
+                    totalHours,
+                    rate,
+                    totalHonor
+            ));
+        }
+        return rows;
+    }
 }

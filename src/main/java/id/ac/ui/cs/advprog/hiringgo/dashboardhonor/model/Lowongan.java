@@ -2,11 +2,14 @@ package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model;
 
 public class Lowongan {
     private String id;
+    private String nama;
     private String mahasiswaId;
 
     public String getId() {
         return id;
     }
+
+    public String getName() { return nama; }
 
     public void setId(String id) {
         this.id = id;

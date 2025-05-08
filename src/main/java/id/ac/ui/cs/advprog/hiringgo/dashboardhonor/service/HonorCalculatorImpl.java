@@ -13,4 +13,9 @@ public class HonorCalculatorImpl implements HonorCalculator {
     public BigDecimal calculate(BigDecimal totalHours) {
         return totalHours.multiply(RATE_PER_HOUR).setScale(0, RoundingMode.HALF_UP);
     }
+
+    @Override
+    public BigDecimal getRatePerHour() {
+        return RATE_PER_HOUR;
+    }
 }
