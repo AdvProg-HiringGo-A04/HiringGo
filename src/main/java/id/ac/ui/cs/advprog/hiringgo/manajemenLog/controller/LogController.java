@@ -13,6 +13,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.service.LogService;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:8000", allowedHeaders = "*")
 @RestController
@@ -67,6 +68,13 @@ public class LogController {
             @RequestHeader("X-Student-ID") String mahasiswaId) {
         logService.deleteLog(logId, mataKuliahId, mahasiswaId);
         return ResponseEntity.ok(new ApiResponse<>("Successfully deleted log", null));
+    }
+
+    @GetMapping("/total/{mataKuliahId}")
+    public Map<String, Double> getTotalJamPerBulan(
+            @PathVariable("mataKuliahId") String mataKuliahId,
+            @RequestHeader("X-Student-ID") String mahasiswaId) {
+        return logService.getTotalJamPerBulan(mataKuliahId, mahasiswaId);
     }
     
 }
