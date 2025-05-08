@@ -96,6 +96,7 @@ public class MataKuliahControllerTest {
         mataKuliah2.setKodeMataKuliah("CSGE601021");
         mataKuliah2.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
         mataKuliah2.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
+        mataKuliah2.setDosenPengampu(List.of());
 
         tokenAdmin = jwtUtil.generateToken("admin", "admin@hiringg@gmail.com", "ADMIN");
         tokenDosen = jwtUtil.generateToken("dosen", "dosen@hiringg@gmail.com", "DOSEN");
@@ -261,11 +262,12 @@ public class MataKuliahControllerTest {
     }
 
     @Test
-    void testCreateMataKuliahWithoutDosen() throws Exception {
+    void testCreateMataKuliahWithEmptyListOfDosen() throws Exception {
         CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
         createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
         createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
         createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(List.of());
 
         mockMvc.perform(
                 post("/courses")
