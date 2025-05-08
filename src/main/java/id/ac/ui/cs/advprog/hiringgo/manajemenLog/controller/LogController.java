@@ -14,6 +14,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.service.LogService;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:8000", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/log")
 @RequiredArgsConstructor
