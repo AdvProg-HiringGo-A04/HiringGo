@@ -66,11 +66,15 @@ public class MataKuliahControllerTest {
 
     private String tokenMahasiswa;
 
+    private String tokenInvalid;
+
     @BeforeEach
     void setUp() {
         mataKuliahRepository.deleteAll();
         dosenRepository.deleteAll();
         userRepository.deleteAll();
+
+        tokenInvalid = "Invalid token";
 
         String id = UUID.randomUUID().toString();
         User user = new User();
@@ -187,6 +191,30 @@ public class MataKuliahControllerTest {
                 post("/courses")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testCreateMataKuliahWhenTokenIsInvalid() throws Exception {
+        CreateMataKuliahRequest createMataKuliahRequest = new CreateMataKuliahRequest();
+        createMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        createMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        createMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        createMataKuliahRequest.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
+        mockMvc.perform(
+                post("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenInvalid)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
                 status().isUnauthorized()
@@ -364,6 +392,25 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testGetMataKuliahWhenTokenIsInvalid() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenInvalid)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testGetMataKuliahEmpty() throws Exception {
         mockMvc.perform(
                 get("/courses")
@@ -448,6 +495,25 @@ public class MataKuliahControllerTest {
                 get("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahByIdWhenTokenIsInvalid() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenInvalid)
         ).andExpectAll(
                 status().isUnauthorized()
         ).andDo(result -> {
@@ -587,6 +653,30 @@ public class MataKuliahControllerTest {
     }
 
     @Test
+    void testUpdateMataKuliahWhenUserTokenIsInvalid() throws Exception {
+        mataKuliahRepository.save(mataKuliah2);
+
+        UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
+
+        mockMvc.perform(
+                patch("/courses/" + mataKuliah2.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenInvalid)
+                        .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testUpdateMataKuliahWhenIdIsNotFound() throws Exception {
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
         updateMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
@@ -713,6 +803,25 @@ public class MataKuliahControllerTest {
                 delete("/courses/" + mataKuliah1.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testDeleteMataKuliahWhenTokenIsInvalid() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                delete("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenInvalid)
         ).andExpectAll(
                 status().isUnauthorized()
         ).andDo(result -> {
