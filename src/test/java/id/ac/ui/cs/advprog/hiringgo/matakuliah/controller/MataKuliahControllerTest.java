@@ -142,7 +142,7 @@ public class MataKuliahControllerTest {
                         .header("Authorization", "Bearer " + tokenDosen)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -166,7 +166,7 @@ public class MataKuliahControllerTest {
                         .header("Authorization", "Bearer " + tokenMahasiswa)
                         .content(objectMapper.writeValueAsString(createMataKuliahRequest))
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -317,7 +317,7 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenDosen)
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -336,7 +336,7 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -399,6 +399,62 @@ public class MataKuliahControllerTest {
             assertEquals(mataKuliah1.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
             assertEquals(mataKuliah1.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
             assertEquals(mataKuliah1.getDosenPengampu().size(), response.getData().getDosenPengampu().size());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahByIdWhenUserIsDosen() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenDosen)
+        ).andExpectAll(
+                status().isForbidden()
+        ).andDo(result -> {
+            WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahByIdWhenUserIsMahasiswa() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isForbidden()
+        ).andDo(result -> {
+            WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testGetMataKuliahByIdWhenUserIsNotAuthenticate() throws Exception {
+        mataKuliahRepository.save(mataKuliah1);
+
+        mockMvc.perform(
+                get("/courses/" + mataKuliah1.getKodeMataKuliah())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
         });
     }
 
@@ -474,7 +530,7 @@ public class MataKuliahControllerTest {
                         .header("Authorization", "Bearer " + tokenDosen)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -498,7 +554,7 @@ public class MataKuliahControllerTest {
                         .header("Authorization", "Bearer " + tokenMahasiswa)
                         .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -621,7 +677,7 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenDosen)
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
@@ -640,7 +696,7 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
         ).andExpectAll(
-                status().isUnauthorized()
+                status().isForbidden()
         ).andDo(result -> {
             WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
