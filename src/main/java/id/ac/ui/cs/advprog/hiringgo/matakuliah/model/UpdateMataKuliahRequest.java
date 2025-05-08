@@ -20,9 +20,6 @@ public class UpdateMataKuliahRequest {
     @Size(max = 100)
     private String namaMataKuliah;
 
-    @Size(max = 10)
-    private String kodeMataKuliah;
-
     private String deskripsiMataKuliah;
 
     private List<Dosen> dosenPengampu;

@@ -424,7 +424,6 @@ public class MataKuliahControllerTest {
         mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
         updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
         updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
 
@@ -444,7 +443,7 @@ public class MataKuliahControllerTest {
         });
 
         mockMvc.perform(
-                get("/courses/" + updateMataKuliahRequest.getKodeMataKuliah())
+                get("/courses/" + mataKuliah2.getKodeMataKuliah())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenAdmin)
@@ -454,7 +453,6 @@ public class MataKuliahControllerTest {
             WebResponse<MataKuliahResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
             assertNull(response.getErrors());
-            assertEquals(updateMataKuliahRequest.getKodeMataKuliah(), response.getData().getKodeMataKuliah());
             assertEquals(updateMataKuliahRequest.getNamaMataKuliah(), response.getData().getNamaMataKuliah());
             assertEquals(updateMataKuliahRequest.getDeskripsiMataKuliah(), response.getData().getDeskripsiMataKuliah());
             assertEquals(mataKuliah2.getDosenPengampu().size(), response.getData().getDosenPengampu().size());
@@ -466,9 +464,8 @@ public class MataKuliahControllerTest {
         mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
-        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
-        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
 
         mockMvc.perform(
                 patch("/courses/" + mataKuliah2.getKodeMataKuliah())
@@ -491,7 +488,6 @@ public class MataKuliahControllerTest {
         mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
         updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
         updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
 
@@ -516,7 +512,6 @@ public class MataKuliahControllerTest {
         mataKuliahRepository.save(mataKuliah2);
 
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
         updateMataKuliahRequest.setNamaMataKuliah(mataKuliah2.getNamaMataKuliah());
         updateMataKuliahRequest.setDeskripsiMataKuliah(mataKuliah2.getDeskripsiMataKuliah());
 
@@ -536,33 +531,9 @@ public class MataKuliahControllerTest {
     }
 
     @Test
-    void testUpdateMataKuliahWhenIdIsTaken() throws Exception {
-        mataKuliahRepository.save(mataKuliah1);
-        mataKuliahRepository.save(mataKuliah2);
-
-        UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah("CSGE601021");
-
-        mockMvc.perform(
-                patch("/courses/" + mataKuliah1.getKodeMataKuliah())
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + tokenAdmin)
-                        .content(objectMapper.writeValueAsString(updateMataKuliahRequest))
-        ).andExpectAll(
-                status().isBadRequest()
-        ).andDo(result -> {
-            WebResponse<String> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
-            });
-            assertNull(response.getData());
-            assertNotNull(response.getErrors());
-        });
-    }
-
-    @Test
     void testUpdateMataKuliahWhenIdIsNotFound() throws Exception {
         UpdateMataKuliahRequest updateMataKuliahRequest = new UpdateMataKuliahRequest();
-        updateMataKuliahRequest.setKodeMataKuliah("CSGE601021");
+        updateMataKuliahRequest.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
 
         mockMvc.perform(
                 patch("/courses/CSGEXXXXXX")
