@@ -31,7 +31,7 @@ public class LogServiceImpl implements LogService{
     public List<LogResponse> getAllLogs(String mataKuliahId, String mahasiswaId) {
         validateEnrollment(mataKuliahId, mahasiswaId);
 
-        List<Log> logs = logRepository.findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId);
+        List<Log> logs = logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId);
         return logs.stream()
                 .map(this::mapToLogResponse)
                 .collect(Collectors.toList());

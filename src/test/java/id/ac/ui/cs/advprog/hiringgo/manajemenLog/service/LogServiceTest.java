@@ -85,7 +85,7 @@ public class LogServiceTest {
         
         when(logRepository.existsByMataKuliahIdAndMahasiswaId(anyString(), anyString())).thenReturn(true);
         
-        when(logRepository.findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId))
+        when(logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId))
             .thenReturn(Collections.singletonList(log));
     }
 
@@ -96,7 +96,7 @@ public class LogServiceTest {
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals(log.getJudul(), results.get(0).getJudul());
-        verify(logRepository).findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId);
+        verify(logRepository).findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId);
     }
     
     @Test
