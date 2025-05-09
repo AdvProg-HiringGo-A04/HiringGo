@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.User;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
@@ -38,32 +37,30 @@ public class LogControllerTest {
 
     @BeforeEach
     void setUp() {
-        dosen = User.builder()
-                .id(1L)
-                .fullName("Dosen Test")
-                .role(UserRole.DOSEN)
-                .build();
+        dosen = new User();
+        dosen.setId("dosen-123");
+        dosen.setEmail("dosen@test.com");
+        dosen.setRole("DOSEN");
 
-        mahasiswa = User.builder()
-                .id(2L)
-                .fullName("Mahasiswa Test")
-                .role(UserRole.MAHASISWA)
-                .build();
+        mahasiswa = new User();
+        mahasiswa.setId("mahasiswa-123");
+        mahasiswa.setEmail("mahasiswa@test.com");
+        mahasiswa.setRole("MAHASISWA");
 
         logDTO1 = LogDTO.builder()
-                .id(1L)
+                .id("log-1")
                 .judul("Log Test 1")
                 .mahasiswaName("Mahasiswa Test")
                 .build();
 
         logDTO2 = LogDTO.builder()
-                .id(2L)
+                .id("log-2")
                 .judul("Log Test 2")
                 .mahasiswaName("Mahasiswa Test")
                 .build();
 
         updateDTO = LogStatusUpdateDTO.builder()
-                .logId(1L)
+                .logId("log-1")
                 .build();
     }
 
@@ -90,7 +87,7 @@ public class LogControllerTest {
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNull(response.getBody());
-        verify(logService, never()).getAllLogsByDosenId(anyLong());
+        verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
@@ -101,7 +98,7 @@ public class LogControllerTest {
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNull(response.getBody());
-        verify(logService, never()).getAllLogsByDosenId(anyLong());
+        verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
@@ -140,7 +137,7 @@ public class LogControllerTest {
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNull(response.getBody());
-        verify(logService, never()).updateLogStatus(anyLong(), any());
+        verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
@@ -151,7 +148,7 @@ public class LogControllerTest {
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNull(response.getBody());
-        verify(logService, never()).updateLogStatus(anyLong(), any());
+        verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
