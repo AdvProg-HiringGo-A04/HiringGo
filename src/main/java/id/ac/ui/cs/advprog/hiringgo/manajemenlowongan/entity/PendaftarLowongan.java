@@ -1,5 +1,5 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity;
-// import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import java.util.UUID;
 
 // import jakarta.persistence.Column;
@@ -29,8 +29,8 @@ public class PendaftarLowongan {
     @JoinColumn(name = "lowongan_id", nullable = false)
     private Lowongan lowongan;
 
-    // @ManyToOne
-    // private Mahasiswa mahasiswa; // You’ll need a Mahasiswa entity
+    @ManyToOne
+    private Mahasiswa mahasiswa;
 
     private int jumlahSks;
 

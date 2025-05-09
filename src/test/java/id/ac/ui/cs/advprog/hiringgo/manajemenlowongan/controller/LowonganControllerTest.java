@@ -59,9 +59,10 @@ public class LowonganControllerTest {
 
         mockMvc.perform(get("/api/lowongan"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].mataKuliah").value("PL"))
-                .andExpect(jsonPath("$[0].semester").value("Ganjil"))
-                .andExpect(jsonPath("$[0].jumlahDibutuhkan").value(2));
+                .andExpect(jsonPath("$.data[0].mataKuliah").value("PL"))
+                .andExpect(jsonPath("$.data[0].semester").value("Ganjil"))
+                .andExpect(jsonPath("$.data[0].jumlahDibutuhkan").value(2))
+                .andExpect(jsonPath("$.errors").isEmpty());
     }
 
     @Test
@@ -85,10 +86,10 @@ public class LowonganControllerTest {
 
         mockMvc.perform(post("/api/lowongan/create")
                 .contentType("application/json")
-                .content("{\"mataKuliah\": \"PL\", \"tahunAjaran\": \"2024/2025\", \"semester\": \"Ganjil\", \"jumlahAsistenDibutuhkan\": 2}")
-        )
-        .andExpect(status().isCreated())
-        .andExpect(header().string("Location", "/api/lowongan/" + dummyLowongan.getId()));
+                .content("{\"mataKuliah\": \"PL\", \"tahunAjaran\": \"2024/2025\", \"semester\": \"Ganjil\", \"jumlahAsistenDibutuhkan\": 2}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.data.id").value(dummyLowongan.getId().toString()))
+                .andExpect(jsonPath("$.errors").isEmpty());
     }
 
     @Test
@@ -116,7 +117,8 @@ public class LowonganControllerTest {
                     }
                 """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mataKuliah").value("Algo"));
+                .andExpect(jsonPath("$.data.mataKuliah").value("Algo"))
+                .andExpect(jsonPath("$.errors").isEmpty());
     }
 
     @Test
@@ -136,8 +138,9 @@ public class LowonganControllerTest {
 
         mockMvc.perform(get("/api/lowongan/" + lowonganId + "/pendaftar"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].diterima").value(false))
-            .andExpect(jsonPath("$[0].ipk").value(3.75));
+            .andExpect(jsonPath("$.data[0].diterima").value(false))
+            .andExpect(jsonPath("$.data[0].ipk").value(3.75))
+            .andExpect(jsonPath("$.errors").isEmpty());
     }
 
     @Test
@@ -146,7 +149,9 @@ public class LowonganControllerTest {
 
         mockMvc.perform(post("/api/lowongan/pendaftar/" + pendaftarId + "/status")
                 .param("diterima", "true"))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data").value("Status updated successfully"))
+            .andExpect(jsonPath("$.errors").isEmpty());
 
         verify(lowonganService).setStatusPendaftar(pendaftarId, true);
     }
