@@ -99,7 +99,7 @@ public class MataKuliahController {
         Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
 
         if (mataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
         }
 
         WebResponse<MataKuliah> response = WebResponse.<MataKuliah>builder()
@@ -141,7 +141,7 @@ public class MataKuliahController {
         }
 
         if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Kode mata kuliah sudah terdaftar");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
         }
 
         MataKuliah mataKuliah = new MataKuliah();
@@ -152,7 +152,7 @@ public class MataKuliahController {
         mataKuliahRepository.save(mataKuliah);
 
         WebResponse<String> response = WebResponse.<String>builder()
-                .data("Ok")
+                .data("Created")
                 .build();
 
         return ResponseEntity.created(URI.create("/courses/" + mataKuliah.getKodeMataKuliah())).body(response);
@@ -193,7 +193,7 @@ public class MataKuliahController {
         Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findByKodeMataKuliah(kodeMataKuliah);
 
         if (optionalMataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
         }
 
         MataKuliah mataKuliah = optionalMataKuliah.get();
@@ -211,7 +211,7 @@ public class MataKuliahController {
         mataKuliahRepository.save(mataKuliah);
 
         WebResponse<String> response = WebResponse.<String>builder()
-                .data("Ok")
+                .data("OK")
                 .build();
 
         return ResponseEntity.ok(response);
@@ -242,13 +242,13 @@ public class MataKuliahController {
         }
 
         if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mata kuliah tidak ditemukan");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
         }
 
         mataKuliahRepository.deleteById(kodeMataKuliah);
 
         WebResponse<String> response = WebResponse.<String>builder()
-                .data("Ok")
+                .data("OK")
                 .build();
 
         return ResponseEntity.ok(response);
