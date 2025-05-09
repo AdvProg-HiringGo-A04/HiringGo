@@ -13,6 +13,7 @@ import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +106,13 @@ public class MataKuliahControllerTest {
         tokenAdmin = jwtUtil.generateToken("admin", "admin@hiringg@gmail.com", "ADMIN");
         tokenDosen = jwtUtil.generateToken("dosen", "dosen@hiringg@gmail.com", "DOSEN");
         tokenMahasiswa = jwtUtil.generateToken("mahasiswa", "mahasiswa@hiringg@gmail.com", "MAHASISWA");
+    }
+
+    @AfterEach
+    void tearDown() {
+        mataKuliahRepository.deleteAll();
+        dosenRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
