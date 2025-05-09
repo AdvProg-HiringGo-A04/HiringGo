@@ -51,6 +51,7 @@ public class AuthenticationControllerTest {
 
     @BeforeEach
     void setUp() {
+        mahasiswaRepository.deleteAll();
         userRepository.deleteAll();
 
         User admin = new User();
