@@ -102,4 +102,34 @@ class UsersControllerTest {
         mockMvc.perform(delete("/accounts/123?requesterId=adminId"))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void testCreateAccountForbiddenForDosen() throws Exception {
+        Mockito.when(jwtUtil.extractRole("token")).thenReturn("DOSEN");
+        mockMvc.perform(post("/accounts?role=ADMIN")
+                        .header("Authorization", "Bearer token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"
+                                + "\"identifier\":null,"
+                                + "\"fullName\":null,"
+                                + "\"email\":\"dosen@example.com\","
+                                + "\"password\":\"pwd\""
+                                + "}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void testCreateAccountForbiddenForMahasiswa() throws Exception {
+        Mockito.when(jwtUtil.extractRole("token")).thenReturn("MAHASISWA");
+        mockMvc.perform(post("/accounts?role=ADMIN")
+                        .header("Authorization", "Bearer token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"
+                                + "\"identifier\":null,"
+                                + "\"fullName\":null,"
+                                + "\"email\":\"mhs@example.com\","
+                                + "\"password\":\"pwd\""
+                                + "}"))
+                .andExpect(status().isForbidden());
+    }
 }
