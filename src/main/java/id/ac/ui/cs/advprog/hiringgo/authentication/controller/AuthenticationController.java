@@ -17,12 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -137,7 +139,22 @@ public class AuthenticationController {
             path = "/auth/logout",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> logout(@RequestHeader(required = false) String token) {
-        return ResponseEntity
+    public ResponseEntity<WebResponse<String>> logout(@RequestHeader(name = "Authorization", required = false) String token) {
+
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        token = token.substring(7);
+
+        if (!jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("OK")
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 }
