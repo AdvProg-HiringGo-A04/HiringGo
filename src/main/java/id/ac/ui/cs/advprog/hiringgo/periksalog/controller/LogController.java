@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.User;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
@@ -54,6 +53,6 @@ public class LogController {
     }
 
     private boolean isDosenUser(User user) {
-        return user != null && user.getRole() == UserRole.DOSEN;
+        return user != null && "DOSEN".equals(user.getRole());
     }
 }
