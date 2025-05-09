@@ -1,4 +1,3 @@
-
 package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
@@ -59,7 +58,7 @@ public class LogServiceImpl implements LogService {
 
     private Log findLogById(String logId) {
         return logRepository.findById(logId)
-                .orElseThrow(() -> new NoSuchElementException("Log not found"));
+                .orElseThrow(() -> new NoSuchElementException("Log not found with ID: " + logId));
     }
 
     private LogDTO convertToDTO(Log log) {
@@ -67,7 +66,7 @@ public class LogServiceImpl implements LogService {
         double durationInHours = duration.toMinutes() / 60.0;
 
         Mahasiswa mahasiswa = mahasiswaRepository.findById(log.getMahasiswaId())
-                .orElseThrow(() -> new NoSuchElementException("Mahasiswa not found"));
+                .orElseThrow(() -> new NoSuchElementException("Mahasiswa not found with ID: " + log.getMahasiswaId()));
 
         MataKuliah mataKuliah = mataKuliahService.getMataKuliahByKode(log.getMataKuliahId());
 

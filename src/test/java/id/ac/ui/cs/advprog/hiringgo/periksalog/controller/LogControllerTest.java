@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
+import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,114 +71,144 @@ public class LogControllerTest {
         when(logService.getAllLogsByDosenId(dosen.getId())).thenReturn(Arrays.asList(logDTO1, logDTO2));
 
         // Act
-        ResponseEntity<List<LogDTO>> response = logController.getAllLogs(dosen);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
+        assertNotNull(response.getBody().getData());
+        assertEquals(2, response.getBody().getData().size());
+        assertNull(response.getBody().getErrors());
         verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 
     @Test
     void getAllLogs_WithNullUser_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<List<LogDTO>> response = logController.getAllLogs(null);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(null);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Access forbidden"));
         verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
     void getAllLogs_WithNonDosenRole_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<List<LogDTO>> response = logController.getAllLogs(mahasiswa);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(mahasiswa);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Access forbidden"));
         verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
-    void getAllLogs_WithEmptyList_ShouldReturnNoContent() {
+    void getAllLogs_WithEmptyList_ShouldReturnOkWithEmptyList() {
         // Arrange
         when(logService.getAllLogsByDosenId(dosen.getId())).thenReturn(new ArrayList<>());
 
         // Act
-        ResponseEntity<List<LogDTO>> response = logController.getAllLogs(dosen);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
 
         // Assert
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertTrue(response.getBody().getData().isEmpty());
         verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 
     @Test
     void updateLogStatus_WithDosenRole_ShouldUpdateAndReturnLog() {
         // Arrange
+        String logId = "log-1";
         when(logService.updateLogStatus(dosen.getId(), updateDTO)).thenReturn(logDTO1);
 
         // Act
-        ResponseEntity<LogDTO> response = logController.updateLogStatus(dosen, updateDTO);
+        ResponseEntity<WebResponse<LogDTO>> response = logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(logDTO1, response.getBody());
+        assertNotNull(response.getBody().getData());
+        assertEquals(logDTO1, response.getBody().getData());
+        assertNull(response.getBody().getErrors());
         verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 
     @Test
     void updateLogStatus_WithNullUser_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<LogDTO> response = logController.updateLogStatus(null, updateDTO);
+        String logId = "log-1";
+        ResponseEntity<WebResponse<LogDTO>> response = logController.updateLogStatus(null, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Access forbidden"));
         verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
     void updateLogStatus_WithNonDosenRole_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<LogDTO> response = logController.updateLogStatus(mahasiswa, updateDTO);
+        String logId = "log-1";
+        ResponseEntity<WebResponse<LogDTO>> response = logController.updateLogStatus(mahasiswa, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Access forbidden"));
         verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
     void updateLogStatus_WhenSecurityException_ShouldReturnForbidden() {
         // Arrange
+        String logId = "log-1";
         when(logService.updateLogStatus(dosen.getId(), updateDTO))
                 .thenThrow(new SecurityException("Permission denied"));
 
         // Act
-        ResponseEntity<LogDTO> response = logController.updateLogStatus(dosen, updateDTO);
+        ResponseEntity<WebResponse<LogDTO>> response = logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertEquals("Permission denied", response.getBody().getErrors());
         verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 
     @Test
     void updateLogStatus_WhenGenericException_ShouldReturnInternalServerError() {
         // Arrange
+        String logId = "log-1";
         when(logService.updateLogStatus(dosen.getId(), updateDTO))
                 .thenThrow(new RuntimeException("Some error"));
 
         // Act
-        ResponseEntity<LogDTO> response = logController.updateLogStatus(dosen, updateDTO);
+        ResponseEntity<WebResponse<LogDTO>> response = logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNull(response.getBody());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Some error"));
         verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 }

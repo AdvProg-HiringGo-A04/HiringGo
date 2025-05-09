@@ -1,4 +1,3 @@
-
 package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
@@ -180,7 +179,8 @@ public class LogServiceTest {
             logService.updateLogStatus(dosenId, updateDTO);
         });
 
-        assertEquals("Log not found", exception.getMessage());
+        // Update assertion to match the new error message format
+        assertTrue(exception.getMessage().contains("Log not found with ID"));
 
         verify(logRepository).isLogOwnedByDosen(logId, dosenId);
         verify(logRepository).findById(logId);
