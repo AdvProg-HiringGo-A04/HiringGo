@@ -1,9 +1,15 @@
+
 package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.*;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.Log;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.repository.LogRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,77 +33,65 @@ public class LogServiceTest {
     @Mock
     private LogRepository logRepository;
 
+    @Mock
+    private MahasiswaRepository mahasiswaRepository;
+
+    @Mock
+    private MataKuliahService mataKuliahService;
+
     @InjectMocks
     private LogServiceImpl logService;
 
-    private User dosen;
-    private User mahasiswa;
+    private Mahasiswa mahasiswa;
     private MataKuliah mataKuliah;
-    private Lowongan lowongan;
+
     private Log log1;
     private Log log2;
 
     @BeforeEach
     void setUp() {
-        dosen = User.builder()
-                .id(1L)
-                .fullName("Dosen Test")
-                .email("dosen@test.com")
-                .role(UserRole.DOSEN)
-                .build();
+        mahasiswa = new Mahasiswa();
+        mahasiswa.setId("mahasiswa-123");
+        mahasiswa.setNamaLengkap("Mahasiswa Test");
+        mahasiswa.setNPM("1234567890");
 
-        mahasiswa = User.builder()
-                .id(2L)
-                .fullName("Mahasiswa Test")
-                .email("mahasiswa@test.com")
-                .role(UserRole.MAHASISWA)
-                .build();
+        mataKuliah = new MataKuliah();
+        mataKuliah.setKodeMataKuliah("CS-001");
+        mataKuliah.setNamaMataKuliah("Advanced Programming");
 
-        mataKuliah = MataKuliah.builder()
-                .id(1L)
-                .name("Advanced Programming")
-                .code("CS-001")
-                .build();
+        log1 = new Log();
+        log1.setId("log-1");
+        log1.setJudul("Asistensi Lab 1");
+        log1.setKeterangan("Membantu mahasiswa dengan lab 1");
+        log1.setKategori(TipeKategori.ASISTENSI);
+        log1.setWaktuMulai(LocalTime.of(10, 0));
+        log1.setWaktuSelesai(LocalTime.of(12, 0));
+        log1.setTanggalLog(LocalDate.now());
+        log1.setStatus(StatusLog.DIPROSES);
+        log1.setMahasiswaId("mahasiswa-123");
+        log1.setMataKuliahId("CS-001");
+        log1.setCreatedAt(LocalDate.now());
 
-        lowongan = Lowongan.builder()
-                .id(1L)
-                .mataKuliah(mataKuliah)
-                .tahunAjaran(2025)
-                .semester("GENAP")
-                .build();
-
-        log1 = Log.builder()
-                .id(1L)
-                .judul("Asistensi Lab 1")
-                .keterangan("Membantu mahasiswa dengan lab 1")
-                .kategori(LogCategory.ASISTENSI)
-                .waktuMulai(LocalTime.of(10, 0))
-                .waktuSelesai(LocalTime.of(12, 0))
-                .tanggalLog(LocalDate.now())
-                .status(LogStatus.PENDING)
-                .mahasiswa(mahasiswa)
-                .lowongan(lowongan)
-                .build();
-
-        log2 = Log.builder()
-                .id(2L)
-                .judul("Koreksi Tugas")
-                .keterangan("Mengoreksi tugas 1")
-                .kategori(LogCategory.MENGOREKSI)
-                .waktuMulai(LocalTime.of(13, 0))
-                .waktuSelesai(LocalTime.of(15, 0))
-                .tanggalLog(LocalDate.now())
-                .status(LogStatus.PENDING)
-                .mahasiswa(mahasiswa)
-                .lowongan(lowongan)
-                .build();
+        log2 = new Log();
+        log2.setId("log-2");
+        log2.setJudul("Koreksi Tugas");
+        log2.setKeterangan("Mengoreksi tugas 1");
+        log2.setKategori(TipeKategori.MENGOREKSI);
+        log2.setWaktuMulai(LocalTime.of(13, 0));
+        log2.setWaktuSelesai(LocalTime.of(15, 0));
+        log2.setTanggalLog(LocalDate.now());
+        log2.setStatus(StatusLog.DIPROSES);
+        log2.setMahasiswaId("mahasiswa-123");
+        log2.setMataKuliahId("CS-001");
+        log2.setCreatedAt(LocalDate.now());
     }
-
     @Test
     void getAllLogsByDosenId_ShouldReturnListOfLogs() {
         // Arrange
-        Long dosenId = 1L;
+        String dosenId = "dosen-123";
         when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1, log2));
+        when(mahasiswaRepository.findById("mahasiswa-123")).thenReturn(Optional.of(mahasiswa));
+        when(mataKuliahService.getMataKuliahByKode("CS-001")).thenReturn(mataKuliah);
 
         // Act
         List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
@@ -118,9 +112,9 @@ public class LogServiceTest {
     @Test
     void updateLogStatus_WhenLogFound_ShouldUpdateAndReturnUpdatedLog() {
         // Arrange
-        Long dosenId = 1L;
-        Long logId = 1L;
-        LogStatus newStatus = LogStatus.APPROVED;
+        String dosenId = "dosen-123";
+        String logId = "log-1";
+        StatusLog newStatus = StatusLog.DITERIMA;
 
         LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
         updateDTO.setLogId(logId);
@@ -129,13 +123,15 @@ public class LogServiceTest {
         when(logRepository.isLogOwnedByDosen(logId, dosenId)).thenReturn(true);
         when(logRepository.findById(logId)).thenReturn(Optional.of(log1));
         when(logRepository.save(any(Log.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(mahasiswaRepository.findById("mahasiswa-123")).thenReturn(Optional.of(mahasiswa));
+        when(mataKuliahService.getMataKuliahByKode("CS-001")).thenReturn(mataKuliah);
 
         // Act
         LogDTO result = logService.updateLogStatus(dosenId, updateDTO);
 
         // Assert
         assertNotNull(result);
-        assertEquals(LogStatus.APPROVED, result.getStatus());
+        assertEquals(StatusLog.DITERIMA, result.getStatus());
 
         verify(logRepository).isLogOwnedByDosen(logId, dosenId);
         verify(logRepository).findById(logId);
@@ -145,12 +141,12 @@ public class LogServiceTest {
     @Test
     void updateLogStatus_WhenLogNotOwnedByDosen_ShouldThrowSecurityException() {
         // Arrange
-        Long dosenId = 1L;
-        Long logId = 1L;
+        String dosenId = "dosen-123";
+        String logId = "log-1";
 
         LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
         updateDTO.setLogId(logId);
-        updateDTO.setStatus(LogStatus.APPROVED);
+        updateDTO.setStatus(StatusLog.DITERIMA);
 
         when(logRepository.isLogOwnedByDosen(logId, dosenId)).thenReturn(false);
 
@@ -162,19 +158,19 @@ public class LogServiceTest {
         assertEquals("You don't have permission to update this log", exception.getMessage());
 
         verify(logRepository).isLogOwnedByDosen(logId, dosenId);
-        verify(logRepository, never()).findById(anyLong());
+        verify(logRepository, never()).findById(anyString());
         verify(logRepository, never()).save(any(Log.class));
     }
 
     @Test
     void updateLogStatus_WhenLogNotFound_ShouldThrowNoSuchElementException() {
         // Arrange
-        Long dosenId = 1L;
-        Long logId = 999L;
+        String dosenId = "dosen-123";
+        String logId = "non-existent-log";
 
         LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
         updateDTO.setLogId(logId);
-        updateDTO.setStatus(LogStatus.APPROVED);
+        updateDTO.setStatus(StatusLog.DITERIMA);
 
         when(logRepository.isLogOwnedByDosen(logId, dosenId)).thenReturn(true);
         when(logRepository.findById(logId)).thenReturn(Optional.empty());
@@ -194,8 +190,8 @@ public class LogServiceTest {
     @Test
     void isLogOwnedByDosen_ShouldDelegateToRepository() {
         // Arrange
-        Long dosenId = 1L;
-        Long logId = 1L;
+        String dosenId = "dosen-123";
+        String logId = "log-1";
         when(logRepository.isLogOwnedByDosen(logId, dosenId)).thenReturn(true);
 
         // Act
