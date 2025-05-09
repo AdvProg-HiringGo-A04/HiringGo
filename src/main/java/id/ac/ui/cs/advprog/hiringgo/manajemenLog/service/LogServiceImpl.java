@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,7 @@ public class LogServiceImpl implements LogService{
     public List<LogResponse> getAllLogs(String mataKuliahId, String mahasiswaId) {
         validateEnrollment(mataKuliahId, mahasiswaId);
 
-        List<Log> logs = logRepository.findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId);
+        List<Log> logs = logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId);
         return logs.stream()
                 .map(this::mapToLogResponse)
                 .collect(Collectors.toList());
@@ -136,6 +137,28 @@ public class LogServiceImpl implements LogService{
         }
         
         logRepository.delete(log);
+    }
+
+    // Contoh return: "04-2025": 12
+    @Override
+    public Map<String, Double> getTotalJamPerBulan(String mataKuliahId, String mahasiswaId) {
+        validateEnrollment(mataKuliahId, mahasiswaId);
+    
+        List<Log> logs = logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId);
+    
+        return logs.stream()
+            .collect(Collectors.groupingBy(
+                log -> {
+                    int month = log.getTanggalLog().getMonthValue();
+                    int year = log.getTanggalLog().getYear();
+                    return String.format("%02d-%d", month, year);
+                },
+                Collectors.summingDouble(log -> {
+                    Duration durasi = Duration.between(log.getWaktuMulai(), log.getWaktuSelesai());
+                    double jam = durasi.toMinutes() / 60.0;
+                    return Math.round(jam * 1000.0) / 1000.0;
+                })
+            ));
     }
     
     private void validateEnrollment(String mataKuliahId, String mahasiswaId) {

@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenLog.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -85,7 +87,7 @@ public class LogServiceTest {
         
         when(logRepository.existsByMataKuliahIdAndMahasiswaId(anyString(), anyString())).thenReturn(true);
         
-        when(logRepository.findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId))
+        when(logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId))
             .thenReturn(Collections.singletonList(log));
     }
 
@@ -96,7 +98,7 @@ public class LogServiceTest {
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals(log.getJudul(), results.get(0).getJudul());
-        verify(logRepository).findByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId);
+        verify(logRepository).findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId);
     }
     
     @Test
@@ -280,5 +282,16 @@ public class LogServiceTest {
         assertThrows(InvalidLogException.class, () -> 
             logService.deleteLog("log1", mataKuliahId, mahasiswaId));
         verify(logRepository, never()).delete(any(Log.class));
+    }
+
+    @Test
+    void testGetTotalJamPerBulan() {
+        Map<String, Double> result = logService.getTotalJamPerBulan(mataKuliahId, mahasiswaId);
+        
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.containsKey("05-2025"));
+        
+        assertEquals(2.0, result.get("05-2025"), 0.001);
     }
 }
