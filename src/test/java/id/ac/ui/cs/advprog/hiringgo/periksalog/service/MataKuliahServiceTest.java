@@ -30,7 +30,7 @@ public class MataKuliahServiceTest {
     void setUp() {
         mataKuliah = new MataKuliah();
         mataKuliah.setKodeMataKuliah("CS-001");
-        mataKuliah.setNama("Advanced Programming");
+        mataKuliah.setNamaMataKuliah("Advanced Programming");
     }
 
     @Test
@@ -45,7 +45,7 @@ public class MataKuliahServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals("CS-001", result.getKodeMataKuliah());
-        assertEquals("Advanced Programming", result.getNama());
+        assertEquals("Advanced Programming", result.getNamaMataKuliah());
         verify(mataKuliahRepository).findByKodeMataKuliah("CS-001");
     }
 
