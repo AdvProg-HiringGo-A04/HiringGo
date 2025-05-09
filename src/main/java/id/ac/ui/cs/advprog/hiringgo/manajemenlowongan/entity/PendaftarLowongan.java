@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity;
 // import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
+// import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -34,7 +34,6 @@ public class PendaftarLowongan {
 
     private int jumlahSks;
 
-    @Column(precision = 2, scale = 2)
     private double ipk;
 
     private boolean diterima; // default false
