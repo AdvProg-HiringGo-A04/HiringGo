@@ -3,8 +3,10 @@ package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.Log;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.service.HonorDashboardService;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtilImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -12,15 +14,19 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.time.format.DateTimeFormatter;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(HonorDashboardController.class)
+@WebMvcTest(
+        controllers = HonorDashboardController.class,
+        excludeAutoConfiguration = SecurityAutoConfiguration.class
+)
+
 class HonorDashboardControllerTest {
 
     @Autowired
@@ -28,6 +34,9 @@ class HonorDashboardControllerTest {
 
     @MockBean
     private HonorDashboardService service;
+
+    @MockBean
+    private JwtUtilImpl jwtUtil;
 
     @Autowired
     private ObjectMapper mapper;
@@ -51,22 +60,22 @@ class HonorDashboardControllerTest {
         given(service.getLogsForMahasiswaByPeriod(mahasiswaId, periode))
                 .willReturn(mockResponse);
 
+        given(jwtUtil.extractRole("dummyToken")).willReturn("STUDENT");
+
         String expectedStart = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String expectedEnd   = end  .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        mockMvc.perform(get("/api/honor/logs")
-                        .param("mahasiswaId", mahasiswaId)
-                        .param("year", "2025")
+        mockMvc.perform(get("/api/students/{studentId}/honor/logs", mahasiswaId)
+                        .param("year",  "2025")
                         .param("month", "5")
+                        .header("Authorization", "Bearer dummyToken")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$['lowonganA']").isArray())
-                .andExpect(jsonPath("$['lowonganA'][0].id").value(1))
-                .andExpect(jsonPath("$['lowonganA'][0].lowonganId").value("lowonganA"))
-                .andExpect(jsonPath("$['lowonganA'][0].start").value(expectedStart))
-                .andExpect(jsonPath("$['lowonganA'][0].end"  ).value(expectedEnd));
-
+                .andExpect(jsonPath("$.data['lowonganA']").isArray())
+                .andExpect(jsonPath("$.data['lowonganA'][0].id").value(1))
+                .andExpect(jsonPath("$.data['lowonganA'][0].lowonganId").value("lowonganA"))
+                .andExpect(jsonPath("$.data['lowonganA'][0].start").value(expectedStart))
+                .andExpect(jsonPath("$.data['lowonganA'][0].end").value(expectedEnd));
     }
 }
