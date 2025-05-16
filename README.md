@@ -35,3 +35,6 @@ Strategi ini memungkinkan kami menjaga stabilitas aplikasi, meningkatkan keterse
 
 ### Future Deployment Diagram
 ![Future Deployment Diagram](docs/NewFutureArchitecture.png)
+
+## Why Risk Storming?
+Kami menggunakan teknik Risk Storming untuk membantu tim mengidentifikasi dan memahami risiko-risiko utama yang mungkin terjadi pada arsitektur aplikasi kami yang saat ini masih berbentuk monolitik. Melalui diskusi ini, kami menemukan beberapa risiko penting seperti potensi bottleneck ketika trafik meningkat, adanya single point of failure (SPOF), serta downtime saat proses deployment atau maintenance. Dengan memahami risiko-risiko ini sejak awal, kami dapat menyusun strategi mitigasi yang tepat tanpa harus langsung berpindah ke arsitektur microservices yang lebih kompleks. Salah satu keputusan yang kami ambil adalah melakukan skala horizontal terhadap aplikasi monolitik, dengan men-deploy beberapa instance aplikasi yang didistribusikan melalui load balancer. Pendekatan ini membantu meningkatkan ketersediaan layanan dan performa aplikasi, sekaligus menjaga arsitektur tetap sederhana. Risk Storming menjadi langkah penting dalam proses perencanaan ini karena membantu tim mengambil keputusan berbasis risiko, dengan pertimbangan teknis yang lebih matang dan terdokumentasi dengan baik.
