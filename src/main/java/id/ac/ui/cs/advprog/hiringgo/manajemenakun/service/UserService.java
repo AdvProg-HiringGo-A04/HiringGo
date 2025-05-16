@@ -16,40 +16,43 @@ public class UserService {
     private final UserRepository repo;
     private final List<UpdateRoleStrategy> strategies;
 
-    public UserService(UserRepository repo,
-                          List<UpdateRoleStrategy> strategies) {
+    public UserService(UserRepository repo, List<UpdateRoleStrategy> strategies) {
         this.repo = repo;
         this.strategies = strategies;
     }
+
     public Users createAccount(Role role, AccountData data) {
         Users acc = AccountFactory.createAccount(role, data);
-        repo.save(acc);
-        return acc;
+        return repo.save(acc);
     }
 
-    public List<Users> findAll() { return repo.findAll(); }
+    public List<Users> findAll() {
+        return repo.findAll();
+    }
 
-    public Users findById(String id) { return repo.findById(id); }
+    public Users findById(String id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+    }
 
     public void updateRole(String id, String requesterId, Role newRole, AccountData data) {
         if (id.equals(requesterId)) {
             throw new IllegalArgumentException("Cannot update own role");
         }
-        Users old = repo.findById(id);
-        if (old == null) {
-            throw new IllegalArgumentException("Account not found");
-        }
-        Role oldRole = old.getRole();
+        Users old = findById(id);
         UpdateRoleStrategy strat = strategies.stream()
-                .filter(s -> s.supports(oldRole, newRole))
+                .filter(s -> s.supports(old.getRole(), newRole))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Transition " + oldRole + "->" + newRole + " not supported"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Transition " + old.getRole() + "->" + newRole + " not supported"));
         Users updated = strat.changeRole(old, data);
         repo.save(updated);
     }
 
     public void deleteAccount(String targetId, String requesterId) {
-        if (targetId.equals(requesterId)) throw new IllegalArgumentException("Cannot delete self");
-        repo.delete(targetId);
+        if (targetId.equals(requesterId)) {
+            throw new IllegalArgumentException("Cannot delete self");
+        }
+        repo.deleteById(targetId);
     }
 }

@@ -1,29 +1,30 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepositoryImpl;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Mahasiswa;
-
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.*;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.updaterole.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
+import org.mockito.*;
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceTest {
-    private UserService service;
-    private UserRepositoryImpl repo;
 
+    @Mock
+    private UserRepository repo;
+
+    private List<UpdateRoleStrategy> strategies;
+
+    @InjectMocks
+    private UserService service;
 
     @BeforeEach
     void setup() {
-        repo = new UserRepositoryImpl();
-        List<UpdateRoleStrategy> strategies = Arrays.asList(
+        MockitoAnnotations.openMocks(this);
+        strategies = Arrays.asList(
                 new AdminToDosenStrategy(),
                 new AdminToMahasiswaStrategy(),
                 new DosenToAdminStrategy(),
@@ -36,89 +37,91 @@ class UserServiceTest {
 
     @Test
     void testCreateAndFindAll() {
+        Users u1 = new Admin(new AccountData(null, null, "a1@example.com", "pwd1"));
+        Users u2 = new Dosen(new AccountData("NIP1", "Dr. A", "d1@example.com", "pwd2"));
+
+        when(repo.save(u1)).thenReturn(u1);
+        when(repo.save(u2)).thenReturn(u2);
+        when(repo.findAll()).thenReturn(Arrays.asList(u1, u2));
+
         service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
         service.createAccount(Role.DOSEN, new AccountData("NIP1", "Dr. A", "d1@example.com", "pwd2"));
-        assertEquals(2, service.findAll().size());
+
+        List<Users> all = service.findAll();
+        assertEquals(2, all.size());
+        verify(repo).findAll();
     }
 
     @Test
     void testCreateMahasiswaViaService_shouldThrowException() {
         assertThrows(IllegalArgumentException.class, () ->
-                service.createAccount(Role.MAHASISWA, new AccountData("NIM2", "Budi", "budi@example.com", "pwd3"))
+                service.createAccount(Role.MAHASISWA,
+                        new AccountData("NIM2", "Budi", "budi@example.com", "pwd3"))
         );
+        verify(repo, never()).save(any());
     }
 
     @Test
     void testUpdateRoleDosenToAdmin() {
-        Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "a1@example.com", "pwd1"));
-        Users dosen = service.createAccount(Role.DOSEN, new AccountData("NIP2", "Dr. C", "c@example.com", "pwd"));
+        Users admin = new Admin(new AccountData(null, null, "a1@example.com", "pwd1"));
+        Users dosen = new Dosen(new AccountData("NIP2", "Dr. C", "c@example.com", "pwd"));
+        when(repo.findById(admin.getId())).thenReturn(Optional.of(admin));
+        when(repo.findById(dosen.getId())).thenReturn(Optional.of(dosen));
+        when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        AccountData dummy = new AccountData(null, null, null, null);
-        service.updateRole(dosen.getId(), admin.getId(), Role.ADMIN, dummy);
+        service.updateRole(dosen.getId(), admin.getId(), Role.ADMIN,
+                new AccountData(null,null,null,null));
 
-        assertEquals(Role.ADMIN, service.findById(dosen.getId()).getRole());
+        assertEquals(Role.ADMIN, dosen.getRole());
+        verify(repo).save(dosen);
     }
 
     @Test
-    void updateRoleMahasiswaToDosen() {
-        Users admin = service.createAccount(
-                Role.ADMIN,
-                new AccountData(null, null, "a1@example.com", "pwd1")
-        );
-        Users mhs = new Mahasiswa(
-                new AccountData("NIM3", "Citra", "citra@example.com", "pwd")
-        );
-        repo.save(mhs);
+    void testUpdateRoleMahasiswaToDosen() {
+        Users admin = new Admin(new AccountData(null,null,"a1@example.com","pwd1"));
+        Users mhs   = new Mahasiswa(new AccountData("NIM3","Citra","citra@example.com","pwd"));
+        when(repo.findById(admin.getId())).thenReturn(Optional.of(admin));
+        when(repo.findById(mhs.getId())).thenReturn(Optional.of(mhs));
+        when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        AccountData data = new AccountData("NIP999", "Dr. Citra", null, null);
+        AccountData data = new AccountData("NIP999","Dr. Citra",null,null);
         service.updateRole(mhs.getId(), admin.getId(), Role.DOSEN, data);
-        assertEquals(Role.DOSEN, service.findById(mhs.getId()).getRole());
-    }
 
+        assertEquals(Role.DOSEN, mhs.getRole());
+        assertEquals("NIP999", ((Dosen)mhs).getIdentifier());
+        verify(repo).save(mhs);
+    }
 
     @Test
     void testAdminUpdateRoleItself() {
-        Users admin = service.createAccount(
-                Role.ADMIN,
-                new AccountData(null, null, "self@example.com", "pwd")
-        );
-        AccountData dummy = new AccountData(null, null, null, null);
+        Users admin = new Admin(new AccountData(null,null,"self@example.com","pwd"));
+        when(repo.findById(admin.getId())).thenReturn(Optional.of(admin));
+
         assertThrows(IllegalArgumentException.class, () ->
-                service.updateRole(admin.getId(), admin.getId(), Role.DOSEN, dummy)
+                service.updateRole(admin.getId(), admin.getId(), Role.DOSEN,
+                        new AccountData(null,null,null,null))
         );
+        verify(repo, never()).save(any());
     }
 
     @Test
-    void testAdminDeleteAccountDosen() {
-        Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "self@example.com", "pwd"));
-        Users other = service.createAccount(Role.DOSEN, new AccountData("NIP3", "Dr. X", "x@example.com", "pwd"));
-        service.deleteAccount(other.getId(), admin.getId());
-        assertNull(service.findById(other.getId()));
+    void testDeleteAndFindById() {
+        Users dosen = new Dosen(new AccountData("NIP3","Dr. X","x@example.com","pwd"));
+        when(repo.findById(dosen.getId())).thenReturn(Optional.of(dosen));
+        doNothing().when(repo).deleteById(dosen.getId());
+
+        service.deleteAccount(dosen.getId(), "adminId");
+        verify(repo).deleteById(dosen.getId());
     }
 
     @Test
-    void testAdminDeleteAccountMahasiswa() {
-        Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "self@example.com", "pwd"));
-        Users mhs = new Mahasiswa(new AccountData("NIM3", "Citra", "citra@example.com", "pwd"));
-        repo.save(mhs);
-        service.deleteAccount(mhs.getId(), admin.getId());
-        assertNull(service.findById(mhs.getId()));
-    }
+    void testDeleteItself() {
+        Users admin = new Admin(new AccountData(null,null,"root@example.com","pwd"));
+        when(repo.findById(admin.getId())).thenReturn(Optional.of(admin));
 
-    @Test
-    void testAdminDeleteAccountAnotherAdmin() {
-        Users admin1 = service.createAccount(Role.ADMIN, new AccountData(null, null, "self@example.com", "pwd"));
-        Users admin2 = service.createAccount(Role.ADMIN, new AccountData(null, null, "self2@example.com", "pwd"));
-        service.deleteAccount(admin2.getId(), admin1.getId());
-        assertNull(service.findById(admin2.getId()));
-    }
-
-    @Test
-    void testAdminDeleteItself() {
-        Users admin = service.createAccount(Role.ADMIN, new AccountData(null, null, "root@example.com", "pwd"));
         assertThrows(IllegalArgumentException.class, () ->
                 service.deleteAccount(admin.getId(), admin.getId())
         );
+        verify(repo, never()).deleteById(any());
     }
-
 }
