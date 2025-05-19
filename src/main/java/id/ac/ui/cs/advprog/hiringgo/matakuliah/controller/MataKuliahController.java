@@ -47,21 +47,7 @@ public class MataKuliahController {
     public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses(
             @RequestHeader(name = "Authorization", required = false) String token) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         List<MataKuliah> mataKuliah = mataKuliahRepository.findAll();
 
@@ -80,21 +66,7 @@ public class MataKuliahController {
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
 
@@ -118,21 +90,7 @@ public class MataKuliahController {
             @RequestHeader(name = "Authorization", required = false) String token,
             @RequestBody CreateMataKuliahRequest request) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
@@ -168,21 +126,7 @@ public class MataKuliahController {
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
             @RequestBody UpdateMataKuliahRequest request) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
@@ -225,6 +169,22 @@ public class MataKuliahController {
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
 
+        roleRequired(token);
+
+        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
+        }
+
+        mataKuliahRepository.deleteById(kodeMataKuliah);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("OK")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    private void roleRequired(String token) {
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
@@ -240,17 +200,5 @@ public class MataKuliahController {
         if (!role.equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
-
-        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        mataKuliahRepository.deleteById(kodeMataKuliah);
-
-        WebResponse<String> response = WebResponse.<String>builder()
-                .data("OK")
-                .build();
-
-        return ResponseEntity.ok(response);
     }
 }
