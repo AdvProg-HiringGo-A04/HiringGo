@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.*;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -42,7 +44,7 @@ class DashboardRepositoryImplTest {
     void countDosenUsers_ShouldReturnCorrectCount() {
         // Arrange
         when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(UserRole.DOSEN))).thenReturn(query);
+        when(query.setParameter(eq("role"), eq(Role.DOSEN))).thenReturn(query);
         when(query.getSingleResult()).thenReturn(10L);
 
         // Act
@@ -56,7 +58,7 @@ class DashboardRepositoryImplTest {
     void countMahasiswaUsers_ShouldReturnCorrectCount() {
         // Arrange
         when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(UserRole.MAHASISWA))).thenReturn(query);
+        when(query.setParameter(eq("role"), eq(Role.MAHASISWA))).thenReturn(query);
         when(query.getSingleResult()).thenReturn(100L);
 
         // Act
@@ -95,7 +97,7 @@ class DashboardRepositoryImplTest {
     @Test
     void countMataKuliahByDosenId_ShouldReturnCorrectCount() {
         // Arrange
-        Long dosenId = 1L;
+        String dosenId = "1";
         when(entityManager.createQuery(anyString())).thenReturn(query);
         when(query.setParameter(eq("dosenId"), eq(dosenId))).thenReturn(query);
         when(query.getSingleResult()).thenReturn(5L);
@@ -110,11 +112,11 @@ class DashboardRepositoryImplTest {
     @Test
     void calculateTotalLogHoursByMahasiswaId_ShouldReturnCorrectHours() {
         // Arrange
-        Long mahasiswaId = 1L;
+        String mahasiswaId = "1";
 
         when(entityManager.createQuery(anyString())).thenReturn(query);
         when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(LogStatus.APPROVED))).thenReturn(query);
+        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
 
         // Create log time data - 2 hours total
         LocalTime start1 = LocalTime.of(10, 0);
@@ -139,7 +141,7 @@ class DashboardRepositoryImplTest {
     @Test
     void calculateTotalInsentifByMahasiswaId_ShouldReturnCorrectAmount() {
         // Arrange
-        Long mahasiswaId = 1L;
+        String mahasiswaId = "1";
         double logHours = 2.0;
         double expectedInsentif = logHours * 27500.0; // Based on RATE_PER_HOUR
 
@@ -157,7 +159,7 @@ class DashboardRepositoryImplTest {
     @Test
     void findAcceptedLowonganByMahasiswaId_ShouldReturnCorrectList() {
         // Arrange
-        Long mahasiswaId = 1L;
+        String mahasiswaId = "1";
         List<Lowongan> expectedLowongans = new ArrayList<>();
         Lowongan lowongan = new Lowongan();
         expectedLowongans.add(lowongan);

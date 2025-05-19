@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.common.model.LogStatus;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -24,27 +24,27 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     private static final double RATE_PER_HOUR = 27500.0;
 
     // Cached query strings for better performance and maintainability
-    private static final String COUNT_USERS_BY_ROLE = "SELECT COUNT(u) FROM User u WHERE u.role = :role";
+    private static final String COUNT_USERS_BY_ROLE = "SELECT COUNT(u) FROM Users u WHERE u.role = :role";
     private static final String COUNT_MATA_KULIAH = "SELECT COUNT(mk) FROM MataKuliah mk";
     private static final String COUNT_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l";
     private static final String COUNT_MATA_KULIAH_BY_DOSEN = "SELECT COUNT(mk) FROM MataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId";
-    private static final String COUNT_MAHASISWA_BY_DOSEN = "SELECT COUNT(DISTINCT m) FROM Lowongan l JOIN l.mataKuliah mk JOIN mk.dosenPengampu d JOIN l.diterima m WHERE d.id = :dosenId";
-    private static final String COUNT_OPEN_LOWONGAN_BY_DOSEN = "SELECT COUNT(l) FROM Lowongan l JOIN l.mataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId AND SIZE(l.diterima) < l.jumlahDibutuhkan";
-    private static final String COUNT_OPEN_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l WHERE SIZE(l.diterima) < l.jumlahDibutuhkan";
-    private static final String COUNT_ACCEPTED_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l JOIN l.diterima m WHERE m.id = :mahasiswaId";
-    private static final String COUNT_REJECTED_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l JOIN l.ditolak m WHERE m.id = :mahasiswaId";
-    private static final String COUNT_PENDING_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l JOIN l.pendaftar m WHERE m.id = :mahasiswaId AND m NOT MEMBER OF l.diterima AND m NOT MEMBER OF l.ditolak";
-    private static final String FIND_LOG_HOURS = "SELECT log.waktuMulai, log.waktuSelesai FROM Log log WHERE log.mahasiswa.id = :mahasiswaId AND log.status = :status";
-    private static final String FIND_ACCEPTED_LOWONGAN = "SELECT l FROM Lowongan l JOIN l.diterima m WHERE m.id = :mahasiswaId";
+    private static final String COUNT_MAHASISWA_BY_DOSEN = "SELECT COUNT(DISTINCT pl.mahasiswa) FROM PendaftarLowongan pl WHERE pl.lowongan.id IN (SELECT l.id FROM Lowongan l WHERE l.mataKuliah IN (SELECT mk.id FROM MataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId)) AND pl.diterima = true";
+    private static final String COUNT_OPEN_LOWONGAN_BY_DOSEN = "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan AND l.mataKuliah IN (SELECT mk.id FROM MataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId)";
+    private static final String COUNT_OPEN_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan";
+    private static final String COUNT_ACCEPTED_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
+    private static final String COUNT_REJECTED_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = false";
+    private static final String COUNT_PENDING_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId";
+    private static final String FIND_LOG_HOURS = "SELECT log.waktuMulai, log.waktuSelesai FROM Log log WHERE log.mahasiswaId = :mahasiswaId AND log.status = :status";
+    private static final String FIND_ACCEPTED_LOWONGAN = "SELECT pl.lowongan FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
 
     @Override
     public long countDosenUsers() {
-        return executeCountQuery(COUNT_USERS_BY_ROLE, "role", UserRole.DOSEN);
+        return executeCountQuery(COUNT_USERS_BY_ROLE, "role", Role.DOSEN);
     }
 
     @Override
     public long countMahasiswaUsers() {
-        return executeCountQuery(COUNT_USERS_BY_ROLE, "role", UserRole.MAHASISWA);
+        return executeCountQuery(COUNT_USERS_BY_ROLE, "role", Role.MAHASISWA);
     }
 
     @Override
@@ -58,17 +58,17 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     }
 
     @Override
-    public long countMataKuliahByDosenId(Long dosenId) {
+    public long countMataKuliahByDosenId(String dosenId) {
         return executeCountQuery(COUNT_MATA_KULIAH_BY_DOSEN, "dosenId", dosenId);
     }
 
     @Override
-    public long countMahasiswaAssistantByDosenId(Long dosenId) {
+    public long countMahasiswaAssistantByDosenId(String dosenId) {
         return executeCountQuery(COUNT_MAHASISWA_BY_DOSEN, "dosenId", dosenId);
     }
 
     @Override
-    public long countOpenLowonganByDosenId(Long dosenId) {
+    public long countOpenLowonganByDosenId(String dosenId) {
         return executeCountQuery(COUNT_OPEN_LOWONGAN_BY_DOSEN, "dosenId", dosenId);
     }
 
@@ -78,37 +78,37 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     }
 
     @Override
-    public long countAcceptedLowonganByMahasiswaId(Long mahasiswaId) {
+    public long countAcceptedLowonganByMahasiswaId(String mahasiswaId) {
         return executeCountQuery(COUNT_ACCEPTED_LOWONGAN, "mahasiswaId", mahasiswaId);
     }
 
     @Override
-    public long countRejectedLowonganByMahasiswaId(Long mahasiswaId) {
+    public long countRejectedLowonganByMahasiswaId(String mahasiswaId) {
         return executeCountQuery(COUNT_REJECTED_LOWONGAN, "mahasiswaId", mahasiswaId);
     }
 
     @Override
-    public long countPendingLowonganByMahasiswaId(Long mahasiswaId) {
+    public long countPendingLowonganByMahasiswaId(String mahasiswaId) {
         return executeCountQuery(COUNT_PENDING_LOWONGAN, "mahasiswaId", mahasiswaId);
     }
 
     @Override
-    public double calculateTotalLogHoursByMahasiswaId(Long mahasiswaId) {
+    public double calculateTotalLogHoursByMahasiswaId(String mahasiswaId) {
         List<Object[]> logs = entityManager.createQuery(FIND_LOG_HOURS)
                 .setParameter("mahasiswaId", mahasiswaId)
-                .setParameter("status", LogStatus.APPROVED)
+                .setParameter("status", StatusLog.DITERIMA)
                 .getResultList();
 
         return calculateTotalHours(logs);
     }
 
     @Override
-    public double calculateTotalInsentifByMahasiswaId(Long mahasiswaId) {
+    public double calculateTotalInsentifByMahasiswaId(String mahasiswaId) {
         return calculateTotalLogHoursByMahasiswaId(mahasiswaId) * RATE_PER_HOUR;
     }
 
     @Override
-    public List<Lowongan> findAcceptedLowonganByMahasiswaId(Long mahasiswaId) {
+    public List<Lowongan> findAcceptedLowonganByMahasiswaId(String mahasiswaId) {
         return entityManager.createQuery(FIND_ACCEPTED_LOWONGAN, Lowongan.class)
                 .setParameter("mahasiswaId", mahasiswaId)
                 .getResultList();

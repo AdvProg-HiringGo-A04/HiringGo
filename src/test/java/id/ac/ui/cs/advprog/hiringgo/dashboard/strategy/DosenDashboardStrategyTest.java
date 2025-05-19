@@ -1,4 +1,3 @@
-// src/test/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/DosenDashboardStrategyTest.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
@@ -27,7 +26,7 @@ class DosenDashboardStrategyTest {
     @Test
     void calculateStatistics_ShouldReturnCorrectStatistics() {
         // Arrange
-        Long dosenId = 1L;
+        String dosenId = "1";
         when(dashboardRepository.countMataKuliahByDosenId(dosenId)).thenReturn(5L);
         when(dashboardRepository.countMahasiswaAssistantByDosenId(dosenId)).thenReturn(25L);
         when(dashboardRepository.countOpenLowonganByDosenId(dosenId)).thenReturn(3L);

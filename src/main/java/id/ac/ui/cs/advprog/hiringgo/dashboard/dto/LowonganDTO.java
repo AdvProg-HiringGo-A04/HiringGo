@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LowonganDTO {
-    private Long id;
+    private String id;
     private String mataKuliahName;
     private String mataKuliahCode;
     private int tahunAjaran;

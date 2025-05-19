@@ -10,7 +10,7 @@ public class AdminDashboardStrategy implements DashboardStatisticsStrategy<Admin
     private final DashboardRepository dashboardRepository;
 
     @Override
-    public AdminStatisticsDTO calculateStatistics(Long userId) {
+    public AdminStatisticsDTO calculateStatistics(String userId) {
         return AdminStatisticsDTO.builder()
                 .totalDosen(dashboardRepository.countDosenUsers())
                 .totalMahasiswa(dashboardRepository.countMahasiswaUsers())

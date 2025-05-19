@@ -33,7 +33,7 @@ class AdminDashboardStrategyTest {
         when(dashboardRepository.countLowongan()).thenReturn(30L);
 
         // Act
-        AdminStatisticsDTO result = strategy.calculateStatistics(1L); // userId doesn't matter for admin
+        AdminStatisticsDTO result = strategy.calculateStatistics("1L"); // userId doesn't matter for admin
 
         // Assert
         assertEquals(10L, result.getTotalDosen());

@@ -1,8 +1,7 @@
-// src/test/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/DashboardStrategyFactoryTest.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.User;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ class DashboardStrategyFactoryTest {
     @Test
     void getStrategy_WhenUserIsAdmin_ShouldReturnAdminStrategy() {
         // Arrange
-        User adminUser = User.builder().role(UserRole.ADMIN).build();
+        Users adminUser = createMockUser("1", Role.ADMIN);
 
         // Act
         DashboardStatisticsStrategy<?> strategy = factory.getStrategy(adminUser);
@@ -39,7 +38,7 @@ class DashboardStrategyFactoryTest {
     @Test
     void getStrategy_WhenUserIsDosen_ShouldReturnDosenStrategy() {
         // Arrange
-        User dosenUser = User.builder().role(UserRole.DOSEN).build();
+        Users dosenUser = createMockUser("2", Role.DOSEN);
 
         // Act
         DashboardStatisticsStrategy<?> strategy = factory.getStrategy(dosenUser);
@@ -51,7 +50,7 @@ class DashboardStrategyFactoryTest {
     @Test
     void getStrategy_WhenUserIsMahasiswa_ShouldReturnMahasiswaStrategy() {
         // Arrange
-        User mahasiswaUser = User.builder().role(UserRole.MAHASISWA).build();
+        Users mahasiswaUser = createMockUser("3", Role.MAHASISWA);
 
         // Act
         DashboardStatisticsStrategy<?> strategy = factory.getStrategy(mahasiswaUser);
@@ -63,10 +62,69 @@ class DashboardStrategyFactoryTest {
     @Test
     void getStrategy_WhenUserRoleIsInvalid_ShouldThrowException() {
         // Arrange
-        User invalidUser = new User();
-        // No role set
+        Users invalidUser = createMockUserWithNullRole("4");
 
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> factory.getStrategy(invalidUser));
+    }
+
+    // Helper method to create mock Users objects
+    private Users createMockUser(String id, Role role) {
+        return new Users() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public String getEmail() {
+                return "user" + id + "@example.com";
+            }
+
+            @Override
+            public String getFullName() {
+                return "User " + id;
+            }
+
+            @Override
+            public Role getRole() {
+                return role;
+            }
+
+            @Override
+            public String getPassword() {
+                return "password";
+            }
+        };
+    }
+
+    // Helper method to create mock Users with null role
+    private Users createMockUserWithNullRole(String id) {
+        return new Users() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public String getEmail() {
+                return "user" + id + "@example.com";
+            }
+
+            @Override
+            public String getFullName() {
+                return "User " + id;
+            }
+
+            @Override
+            public Role getRole() {
+                return null;
+            }
+
+            @Override
+            public String getPassword() {
+                return "password";
+            }
+        };
     }
 }

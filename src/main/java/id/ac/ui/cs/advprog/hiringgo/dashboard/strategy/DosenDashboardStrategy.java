@@ -10,7 +10,7 @@ public class DosenDashboardStrategy implements DashboardStatisticsStrategy<Dosen
     private final DashboardRepository dashboardRepository;
 
     @Override
-    public DosenStatisticsDTO calculateStatistics(Long dosenId) {
+    public DosenStatisticsDTO calculateStatistics(String dosenId) {
         return DosenStatisticsDTO.builder()
                 .totalMataKuliah(dashboardRepository.countMataKuliahByDosenId(dosenId))
                 .totalMahasiswaAssistant(dashboardRepository.countMahasiswaAssistantByDosenId(dosenId))

@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.service;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.User;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
@@ -17,7 +17,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final DashboardStrategyFactory dashboardStrategyFactory;
 
     @Override
-    public Object getStatisticsForUser(User user) {
+    public Object getStatisticsForUser(Users user) {
         DashboardStatisticsStrategy<?> strategy = dashboardStrategyFactory.getStrategy(user);
         return strategy.calculateStatistics(user.getId());
     }
@@ -33,7 +33,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public DosenStatisticsDTO getDosenStatistics(Long dosenId) {
+    public DosenStatisticsDTO getDosenStatistics(String dosenId) {
         return DosenStatisticsDTO.builder()
                 .totalMataKuliah(dashboardRepository.countMataKuliahByDosenId(dosenId))
                 .totalMahasiswaAssistant(dashboardRepository.countMahasiswaAssistantByDosenId(dosenId))
@@ -42,7 +42,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public MahasiswaStatisticsDTO getMahasiswaStatistics(Long mahasiswaId) {
+    public MahasiswaStatisticsDTO getMahasiswaStatistics(String mahasiswaId) {
         return MahasiswaStatisticsDTO.builder()
                 .openLowonganCount(dashboardRepository.countOpenLowongan())
                 .acceptedLowonganCount(dashboardRepository.countAcceptedLowonganByMahasiswaId(mahasiswaId))
@@ -54,10 +54,9 @@ public class DashboardServiceImpl implements DashboardService {
                         .stream()
                         .map(lowongan -> {
                             return id.ac.ui.cs.advprog.hiringgo.dashboard.dto.LowonganDTO.builder()
-                                    .id(lowongan.getId())
-                                    .mataKuliahName(lowongan.getMataKuliah().getName())
-                                    .mataKuliahCode(lowongan.getMataKuliah().getCode())
-                                    .tahunAjaran(lowongan.getTahunAjaran())
+                                    .id(lowongan.getId().toString())
+                                    .mataKuliahName(lowongan.getMataKuliah())
+                                    .tahunAjaran(Integer.parseInt(lowongan.getTahunAjaran().split("/")[0]))
                                     .semester(lowongan.getSemester())
                                     .build();
                         })

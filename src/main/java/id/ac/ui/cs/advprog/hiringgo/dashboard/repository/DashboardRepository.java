@@ -1,26 +1,26 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
 import java.util.List;
 
 public interface DashboardRepository {
-    // Admin stats0
+    // Admin stats
     long countDosenUsers();
     long countMahasiswaUsers();
     long countMataKuliah();
     long countLowongan();
 
     // Dosen stats
-    long countMataKuliahByDosenId(Long dosenId);
-    long countMahasiswaAssistantByDosenId(Long dosenId);
-    long countOpenLowonganByDosenId(Long dosenId);
+    long countMataKuliahByDosenId(String dosenId);
+    long countMahasiswaAssistantByDosenId(String dosenId);
+    long countOpenLowonganByDosenId(String dosenId);
 
     // Mahasiswa stats
     long countOpenLowongan();
-    long countAcceptedLowonganByMahasiswaId(Long mahasiswaId);
-    long countRejectedLowonganByMahasiswaId(Long mahasiswaId);
-    long countPendingLowonganByMahasiswaId(Long mahasiswaId);
-    double calculateTotalLogHoursByMahasiswaId(Long mahasiswaId);
-    double calculateTotalInsentifByMahasiswaId(Long mahasiswaId);
-    List<Lowongan> findAcceptedLowonganByMahasiswaId(Long mahasiswaId);
+    long countAcceptedLowonganByMahasiswaId(String mahasiswaId);
+    long countRejectedLowonganByMahasiswaId(String mahasiswaId);
+    long countPendingLowonganByMahasiswaId(String mahasiswaId);
+    double calculateTotalLogHoursByMahasiswaId(String mahasiswaId);
+    double calculateTotalInsentifByMahasiswaId(String mahasiswaId);
+    List<Lowongan> findAcceptedLowonganByMahasiswaId(String mahasiswaId);
 }

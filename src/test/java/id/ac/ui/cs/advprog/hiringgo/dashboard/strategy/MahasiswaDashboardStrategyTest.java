@@ -1,8 +1,6 @@
-// src/test/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/MahasiswaDashboardStrategyTest.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.common.model.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.LowonganDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
@@ -13,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -33,7 +32,7 @@ class MahasiswaDashboardStrategyTest {
     @Test
     void calculateStatistics_ShouldReturnCorrectStatistics() {
         // Arrange
-        Long mahasiswaId = 1L;
+        String mahasiswaId = "1";
 
         // Mock repository methods
         when(dashboardRepository.countOpenLowongan()).thenReturn(5L);
@@ -44,11 +43,22 @@ class MahasiswaDashboardStrategyTest {
         when(dashboardRepository.calculateTotalInsentifByMahasiswaId(mahasiswaId)).thenReturn(701250.0); // 25.5 * 27500
 
         // Create mock data for lowongan
-        MataKuliah mk1 = MataKuliah.builder().id(1L).name("Advanced Programming").code("CSUI-ADVPROG").build();
-        MataKuliah mk2 = MataKuliah.builder().id(2L).name("Web Programming").code("CSUI-WEBPROG").build();
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
 
-        Lowongan l1 = Lowongan.builder().id(1L).mataKuliah(mk1).tahunAjaran(2023).semester("GANJIL").build();
-        Lowongan l2 = Lowongan.builder().id(2L).mataKuliah(mk2).tahunAjaran(2023).semester("GENAP").build();
+        Lowongan l1 = Lowongan.builder()
+                .id(id1)
+                .mataKuliah("Advanced Programming")
+                .tahunAjaran("2023/2024")
+                .semester("GANJIL")
+                .build();
+
+        Lowongan l2 = Lowongan.builder()
+                .id(id2)
+                .mataKuliah("Web Programming")
+                .tahunAjaran("2023/2024")
+                .semester("GENAP")
+                .build();
 
         List<Lowongan> acceptedLowongan = Arrays.asList(l1, l2);
         when(dashboardRepository.findAcceptedLowonganByMahasiswaId(mahasiswaId)).thenReturn(acceptedLowongan);
@@ -68,16 +78,16 @@ class MahasiswaDashboardStrategyTest {
         assertEquals(2, result.getAcceptedLowonganList().size());
 
         LowonganDTO dto1 = result.getAcceptedLowonganList().get(0);
-        assertEquals(1L, dto1.getId());
+        assertEquals(id1.toString(), dto1.getId());
         assertEquals("Advanced Programming", dto1.getMataKuliahName());
-        assertEquals("CSUI-ADVPROG", dto1.getMataKuliahCode());
+        // Note: mataKuliahCode is not available in the new lowongan model
         assertEquals(2023, dto1.getTahunAjaran());
         assertEquals("GANJIL", dto1.getSemester());
 
         LowonganDTO dto2 = result.getAcceptedLowonganList().get(1);
-        assertEquals(2L, dto2.getId());
+        assertEquals(id2.toString(), dto2.getId());
         assertEquals("Web Programming", dto2.getMataKuliahName());
-        assertEquals("CSUI-WEBPROG", dto2.getMataKuliahCode());
+        // Note: mataKuliahCode is not available in the new lowongan model
         assertEquals(2023, dto2.getTahunAjaran());
         assertEquals("GENAP", dto2.getSemester());
     }

@@ -15,13 +15,13 @@ class DashboardStatisticsStrategyTest {
         // We create a simple implementation to verify the interface
         DashboardStatisticsStrategy<String> testStrategy = new DashboardStatisticsStrategy<String>() {
             @Override
-            public String calculateStatistics(Long userId) {
+            public String calculateStatistics(String userId) {
                 return "Test result";
             }
         };
 
         // Verify the implementation works
-        String result = testStrategy.calculateStatistics(1L);
+        String result = testStrategy.calculateStatistics("1L");
         assertEquals("Test result", result);
     }
 }

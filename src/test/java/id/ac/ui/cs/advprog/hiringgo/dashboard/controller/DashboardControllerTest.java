@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.common.model.User;
-import id.ac.ui.cs.advprog.hiringgo.common.model.UserRole;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
@@ -34,10 +34,7 @@ class DashboardControllerTest {
     @Test
     void getDashboard_WhenUserIsAuthenticated_ShouldReturnStatistics() {
         // Arrange
-        User adminUser = User.builder()
-                .id(1L)
-                .role(UserRole.ADMIN)
-                .build();
+        Users adminUser = createMockUser("1", Role.ADMIN);
 
         AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
                 .totalDosen(10L)
@@ -69,10 +66,7 @@ class DashboardControllerTest {
     @Test
     void getDashboard_WhenServiceThrowsException_ShouldReturnInternalServerError() {
         // Arrange
-        User adminUser = User.builder()
-                .id(1L)
-                .role(UserRole.ADMIN)
-                .build();
+        Users adminUser = createMockUser("1", Role.ADMIN);
 
         when(dashboardService.getStatisticsForUser(adminUser)).thenThrow(new RuntimeException("Test exception"));
 
@@ -86,10 +80,7 @@ class DashboardControllerTest {
     @Test
     void getAdminDashboard_WhenUserIsAdmin_ShouldReturnStatistics() {
         // Arrange
-        User adminUser = User.builder()
-                .id(1L)
-                .role(UserRole.ADMIN)
-                .build();
+        Users adminUser = createMockUser("1", Role.ADMIN);
 
         AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
                 .totalDosen(10L)
@@ -101,7 +92,7 @@ class DashboardControllerTest {
         when(dashboardService.getAdminStatistics()).thenReturn(expectedStats);
 
         // Act
-        ResponseEntity<AdminStatisticsDTO> response = dashboardController.getAdminDashboard(adminUser);
+        ResponseEntity<?> response = dashboardController.getAdminDashboard(adminUser);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -111,13 +102,10 @@ class DashboardControllerTest {
     @Test
     void getAdminDashboard_WhenUserIsNotAdmin_ShouldReturnForbidden() {
         // Arrange
-        User dosenUser = User.builder()
-                .id(1L)
-                .role(UserRole.DOSEN)
-                .build();
+        Users dosenUser = createMockUser("1", Role.DOSEN);
 
         // Act
-        ResponseEntity<AdminStatisticsDTO> response = dashboardController.getAdminDashboard(dosenUser);
+        ResponseEntity<?> response = dashboardController.getAdminDashboard(dosenUser);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -127,10 +115,7 @@ class DashboardControllerTest {
     @Test
     void getDosenDashboard_WhenUserIsDosen_ShouldReturnStatistics() {
         // Arrange
-        User dosenUser = User.builder()
-                .id(1L)
-                .role(UserRole.DOSEN)
-                .build();
+        Users dosenUser = createMockUser("1", Role.DOSEN);
 
         DosenStatisticsDTO expectedStats = DosenStatisticsDTO.builder()
                 .totalMataKuliah(5L)
@@ -141,7 +126,7 @@ class DashboardControllerTest {
         when(dashboardService.getDosenStatistics(dosenUser.getId())).thenReturn(expectedStats);
 
         // Act
-        ResponseEntity<DosenStatisticsDTO> response = dashboardController.getDosenDashboard(dosenUser);
+        ResponseEntity<?> response = dashboardController.getDosenDashboard(dosenUser);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -152,51 +137,45 @@ class DashboardControllerTest {
     @Test
     void getDosenDashboard_WhenUserIsNotDosen_ShouldReturnForbidden() {
         // Arrange
-        User adminUser = User.builder()
-                .id(1L)
-                .role(UserRole.ADMIN)
-                .build();
+        Users adminUser = createMockUser("1", Role.ADMIN);
 
         // Act
-        ResponseEntity<DosenStatisticsDTO> response = dashboardController.getDosenDashboard(adminUser);
+        ResponseEntity<?> response = dashboardController.getDosenDashboard(adminUser);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getDosenStatistics(anyLong());
+        verify(dashboardService, never()).getDosenStatistics(anyString());
     }
 
     @Test
     void getDosenDashboard_WhenUserIsNull_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<DosenStatisticsDTO> response = dashboardController.getDosenDashboard(null);
+        ResponseEntity<?> response = dashboardController.getDosenDashboard(null);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getDosenStatistics(anyLong());
+        verify(dashboardService, never()).getDosenStatistics(anyString());
     }
 
     @Test
     void getMahasiswaDashboard_WhenUserIsMahasiswa_ShouldReturnStatistics() {
         // Arrange
-        User mahasiswaUser = User.builder()
-                .id(1L)
-                .role(UserRole.MAHASISWA)
-                .build();
+        Users mahasiswaUser = createMockUser("1", Role.MAHASISWA);
 
-            MahasiswaStatisticsDTO expectedStats = MahasiswaStatisticsDTO.builder()
-                    .openLowonganCount(5L)
-                    .acceptedLowonganCount(3L)
-                    .rejectedLowonganCount(2L)
-                    .pendingLowonganCount(1L)
-                    .totalLogHours(45.5)
-                    .totalInsentif(500000.0)
-                    .acceptedLowonganList(new ArrayList<>())
-                    .build();
+        MahasiswaStatisticsDTO expectedStats = MahasiswaStatisticsDTO.builder()
+                .openLowonganCount(5L)
+                .acceptedLowonganCount(3L)
+                .rejectedLowonganCount(2L)
+                .pendingLowonganCount(1L)
+                .totalLogHours(45.5)
+                .totalInsentif(500000.0)
+                .acceptedLowonganList(new ArrayList<>())
+                .build();
 
         when(dashboardService.getMahasiswaStatistics(mahasiswaUser.getId())).thenReturn(expectedStats);
 
         // Act
-        ResponseEntity<MahasiswaStatisticsDTO> response = dashboardController.getMahasiswaDashboard(mahasiswaUser);
+        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(mahasiswaUser);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -207,26 +186,53 @@ class DashboardControllerTest {
     @Test
     void getMahasiswaDashboard_WhenUserIsNotMahasiswa_ShouldReturnForbidden() {
         // Arrange
-        User dosenUser = User.builder()
-                .id(1L)
-                .role(UserRole.DOSEN)
-                .build();
+        Users dosenUser = createMockUser("1", Role.DOSEN);
 
         // Act
-        ResponseEntity<MahasiswaStatisticsDTO> response = dashboardController.getMahasiswaDashboard(dosenUser);
+        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(dosenUser);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getMahasiswaStatistics(anyLong());
+        verify(dashboardService, never()).getMahasiswaStatistics(anyString());
     }
 
     @Test
     void getMahasiswaDashboard_WhenUserIsNull_ShouldReturnForbidden() {
         // Act
-        ResponseEntity<MahasiswaStatisticsDTO> response = dashboardController.getMahasiswaDashboard(null);
+        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(null);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getMahasiswaStatistics(anyLong());
+        verify(dashboardService, never()).getMahasiswaStatistics(anyString());
+    }
+
+    // Helper method to create mock Users
+    private Users createMockUser(String id, Role role) {
+        return new Users() {
+            @Override
+            public String getId() {
+                return id;
+            }
+
+            @Override
+            public String getEmail() {
+                return "user@example.com";
+            }
+
+            @Override
+            public String getFullName() {
+                return "Test User";
+            }
+
+            @Override
+            public Role getRole() {
+                return role;
+            }
+
+            @Override
+            public String getPassword() {
+                return "password";
+            }
+        };
     }
 }

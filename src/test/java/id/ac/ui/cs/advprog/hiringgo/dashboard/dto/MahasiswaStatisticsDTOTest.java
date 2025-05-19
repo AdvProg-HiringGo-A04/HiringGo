@@ -12,8 +12,8 @@ class MahasiswaStatisticsDTOTest {
     void testBuilder() {
         // Create sample LowonganDTO list
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO(1L, "Programming", "CS101", 2023, "GANJIL"),
-                new LowonganDTO(2L, "Algorithms", "CS202", 2023, "GENAP")
+                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL"),
+                new LowonganDTO("2L", "Algorithms", "CS202", 2023, "GENAP")
         );
 
         MahasiswaStatisticsDTO dto = MahasiswaStatisticsDTO.builder()
@@ -41,7 +41,7 @@ class MahasiswaStatisticsDTOTest {
     void testNoArgsConstructorAndSetters() {
         MahasiswaStatisticsDTO dto = new MahasiswaStatisticsDTO();
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO(1L, "Programming", "CS101", 2023, "GANJIL")
+                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL")
         );
 
         dto.setOpenLowonganCount(5L);
@@ -64,7 +64,7 @@ class MahasiswaStatisticsDTOTest {
     @Test
     void testAllArgsConstructor() {
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO(1L, "Programming", "CS101", 2023, "GANJIL")
+                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL")
         );
 
         MahasiswaStatisticsDTO dto = new MahasiswaStatisticsDTO(
