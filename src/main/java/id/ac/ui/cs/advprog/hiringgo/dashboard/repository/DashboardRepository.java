@@ -4,7 +4,7 @@ import id.ac.ui.cs.advprog.hiringgo.common.model.Lowongan;
 import java.util.List;
 
 public interface DashboardRepository {
-    // Admin stats
+    // Admin stats0
     long countDosenUsers();
     long countMahasiswaUsers();
     long countMataKuliah();
