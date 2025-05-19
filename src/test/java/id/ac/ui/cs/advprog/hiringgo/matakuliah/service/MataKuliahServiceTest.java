@@ -10,12 +10,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class MataKuliahServiceTest {
@@ -65,5 +70,28 @@ public class MataKuliahServiceTest {
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
         assertNull(mataKuliah);
+    }
+
+    @Test
+    void testFindMataKuliahByKodeSuccess() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.of(mataKuliah1));
+
+        Optional<MataKuliah> mataKuliah = mataKuliahService.findByKode(mataKuliah1.getKodeMataKuliah());
+
+        assertTrue(mataKuliah.isPresent());
+        assertNotNull(mataKuliah1.getKodeMataKuliah(), mataKuliah.get().getKodeMataKuliah());
+    }
+
+    @Test
+    void testFindMataKuliahByKodeWhenKodeIsNotFound() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            mataKuliahService.findByKode(mataKuliah1.getKodeMataKuliah());
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
 }
