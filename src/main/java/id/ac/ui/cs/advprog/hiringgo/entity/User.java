@@ -1,13 +1,16 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@ToString(exclude = "password")
 @Table(name = "users")
 @Entity
 public class User {
@@ -19,5 +22,6 @@ public class User {
 
     private String password;
 
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }

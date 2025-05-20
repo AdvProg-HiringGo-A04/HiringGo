@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.entity;
+package id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,17 +10,16 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@Table(name = "mahasiswa")
+@Table(name = "dosen")
 @Entity
 @ToString
-public class Mahasiswa {
-
+public class Dosen {
     @Id
     private String id;
 
     @Column(name = "nama_lengkap")
     private String namaLengkap;
 
-    @Column(name = "nim")
-    private String NPM;
+    @Column(name = "nip")
+    private String NIP;
 }
