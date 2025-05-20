@@ -5,6 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
@@ -17,16 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Set;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
 @RestController
 public class AuthenticationController {
 
@@ -69,7 +67,7 @@ public class AuthenticationController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         LoginUserResponse loginUserResponse = new LoginUserResponse();
         loginUserResponse.setToken(token);
@@ -118,7 +116,7 @@ public class AuthenticationController {
         user.setId(java.util.UUID.randomUUID().toString());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("MAHASISWA"); // Only mahasiswa role is allowed to register
+        user.setRole(Role.valueOf("MAHASISWA")); // Only mahasiswa role is allowed to register
         userRepository.save(user);
 
         // Create mahasiswa profile
