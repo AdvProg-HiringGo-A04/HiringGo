@@ -11,13 +11,19 @@ public class MahasiswaToDosenStrategy implements UpdateRoleStrategy {
     @Override
     public Users changeRole(Users old, AccountData data) {
         if (data.getIdentifier() == null) {
-            throw new IllegalArgumentException("Identifier (NIP) harus diisi saat mengubah ke DOSEN");
+            throw new IllegalArgumentException(
+                    "Identifier (NIP) must be provided when changing to DOSEN");
         }
         Mahasiswa mhs = (Mahasiswa) old;
-        mhs.setRole(Role.DOSEN);
-        mhs.setIdentifier(data.getIdentifier());
-        mhs.setFullName(data.getFullName());
-        return mhs;
+        Dosen dosen = new Dosen(
+                new AccountData(
+                        data.getIdentifier(),
+                        data.getFullName(),
+                        mhs.getEmail(),
+                        mhs.getPassword()
+                )
+        );
+        dosen.setId(mhs.getId());
+        return dosen;
     }
-
 }
