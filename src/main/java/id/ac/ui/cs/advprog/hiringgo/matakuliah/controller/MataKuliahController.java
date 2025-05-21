@@ -3,8 +3,8 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
-import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -32,7 +32,7 @@ import java.util.Set;
 public class MataKuliahController {
 
     @Autowired
-    private MataKuliahRepository mataKuliahRepository;
+    private MataKuliahService mataKuliahService;
 
     @Autowired
     private Validator validator;
@@ -49,7 +49,7 @@ public class MataKuliahController {
 
         roleRequired(token);
 
-        List<MataKuliah> mataKuliah = mataKuliahRepository.findAll();
+        List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
         WebResponse<List<MataKuliah>> response = WebResponse.<List<MataKuliah>>builder()
                 .data(mataKuliah)
@@ -68,14 +68,10 @@ public class MataKuliahController {
 
         roleRequired(token);
 
-        Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
-
-        if (mataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
+        MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
         WebResponse<MataKuliah> response = WebResponse.<MataKuliah>builder()
-                .data(mataKuliah.get())
+                .data(mataKuliah)
                 .build();
 
         return ResponseEntity.ok(response);
@@ -98,16 +94,7 @@ public class MataKuliahController {
             throw new ConstraintViolationException(constraintViolations);
         }
 
-        if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
-        }
-
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
-        mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        mataKuliahRepository.save(mataKuliah);
+        MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("Created")
@@ -134,25 +121,7 @@ public class MataKuliahController {
             throw new ConstraintViolationException(constraintViolations);
         }
 
-        Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findByKodeMataKuliah(kodeMataKuliah);
-
-        if (optionalMataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        MataKuliah mataKuliah = optionalMataKuliah.get();
-
-        if (request.getNamaMataKuliah() != null) {
-            mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        }
-        if (request.getDeskripsiMataKuliah() != null) {
-            mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        }
-        if (request.getDosenPengampu() != null) {
-            mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        }
-
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahService.updateMataKuliah(kodeMataKuliah, request);
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("OK")
@@ -171,11 +140,7 @@ public class MataKuliahController {
 
         roleRequired(token);
 
-        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        mataKuliahRepository.deleteById(kodeMataKuliah);
+        mataKuliahService.deleteMataKuliah(kodeMataKuliah);
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("OK")
