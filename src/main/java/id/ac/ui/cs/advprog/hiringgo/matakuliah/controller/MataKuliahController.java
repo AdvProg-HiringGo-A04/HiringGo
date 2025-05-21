@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
@@ -43,15 +44,19 @@ public class MataKuliahController {
             path = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses(
+    public ResponseEntity<WebResponse<List<MataKuliahResponse>>> getAllCourses(
             @RequestHeader(name = "Authorization", required = false) String token) {
 
         roleRequired(token);
 
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
-        WebResponse<List<MataKuliah>> response = WebResponse.<List<MataKuliah>>builder()
-                .data(mataKuliah)
+        List<MataKuliahResponse> mataKuliahResponses = mataKuliah.stream()
+                .map(this::toResponse)
+                .toList();
+
+        WebResponse<List<MataKuliahResponse>> response = WebResponse.<List<MataKuliahResponse>>builder()
+                .data(mataKuliahResponses)
                 .build();
 
         return ResponseEntity.ok(response);
@@ -61,7 +66,7 @@ public class MataKuliahController {
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<MataKuliah>> getCoursesByCode(
+    public ResponseEntity<WebResponse<MataKuliahResponse>> getCoursesByCode(
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
 
@@ -69,8 +74,10 @@ public class MataKuliahController {
 
         MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
-        WebResponse<MataKuliah> response = WebResponse.<MataKuliah>builder()
-                .data(mataKuliah)
+        MataKuliahResponse mataKuliahResponse = toResponse(mataKuliah);
+
+        WebResponse<MataKuliahResponse> response = WebResponse.<MataKuliahResponse>builder()
+                .data(mataKuliahResponse)
                 .build();
 
         return ResponseEntity.ok(response);
@@ -164,5 +171,14 @@ public class MataKuliahController {
         if (!role.equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
+    }
+
+    private MataKuliahResponse toResponse(MataKuliah mk) {
+        return MataKuliahResponse.builder()
+                .namaMataKuliah(mk.getNamaMataKuliah())
+                .kodeMataKuliah(mk.getKodeMataKuliah())
+                .deskripsiMataKuliah(mk.getDeskripsiMataKuliah())
+                .dosenPengampu(mk.getDosenPengampu())
+                .build();
     }
 }
