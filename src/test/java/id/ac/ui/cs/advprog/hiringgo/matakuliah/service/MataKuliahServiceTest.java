@@ -58,8 +58,8 @@ public class MataKuliahServiceTest {
 
     @Test
     void testCreateMataKuliahSuccess() {
-        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(Optional.empty());
+        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(false);
 
         Mockito.when(mataKuliahRepository.save(mataKuliah1))
                 .thenReturn(mataKuliah1);
@@ -70,19 +70,21 @@ public class MataKuliahServiceTest {
         assertEquals(mataKuliah1.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
         assertEquals(mataKuliah1.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
         assertEquals(mataKuliah1.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
+        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
         verify(mataKuliahRepository, times(1)).save(mataKuliah1);
     }
 
     @Test
     void testCreateMataKuliahWhenKodeIsDuplicate() {
-        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(Optional.of(mataKuliah1));
+        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(true);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             mataKuliahService.createMataKuliah(mataKuliah1);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
         verify(mataKuliahRepository, times(0)).save(mataKuliah1);
     }
 
