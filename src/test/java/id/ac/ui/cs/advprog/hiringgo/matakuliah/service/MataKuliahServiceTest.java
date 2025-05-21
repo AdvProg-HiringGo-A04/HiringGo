@@ -55,6 +55,37 @@ public class MataKuliahServiceTest {
         mataKuliah2.setDosenPengampu(List.of());
     }
 
+
+    @Test
+    void testCreateMataKuliahSuccess() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.empty());
+
+        Mockito.when(mataKuliahRepository.save(mataKuliah1))
+                .thenReturn(mataKuliah1);
+
+        MataKuliah mataKuliah = mataKuliahService.createMataKuliah(mataKuliah1);
+
+        assertNotNull(mataKuliah);
+        assertEquals(mataKuliah1.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
+        assertEquals(mataKuliah1.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
+        assertEquals(mataKuliah1.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
+        verify(mataKuliahRepository, times(1)).save(mataKuliah1);
+    }
+
+    @Test
+    void testCreateMataKuliahWhenKodeIsDuplicate() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.of(mataKuliah1));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            mataKuliahService.createMataKuliah(mataKuliah1);
+        });
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        verify(mataKuliahRepository, times(0)).save(mataKuliah1);
+    }
+
     @Test
     void testFindAllMataKuliahSuccess() {
         Mockito.when(mataKuliahRepository.findAll())
