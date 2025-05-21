@@ -136,10 +136,10 @@ public class MataKuliahServiceTest {
         Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
                 .thenReturn(Optional.of(mataKuliah1));
 
-        Optional<MataKuliah> mataKuliah = mataKuliahService.findByKode(mataKuliah1.getKodeMataKuliah());
+        MataKuliah mataKuliah = mataKuliahService.findByKode(mataKuliah1.getKodeMataKuliah());
 
-        assertTrue(mataKuliah.isPresent());
-        assertNotNull(mataKuliah1.getKodeMataKuliah(), mataKuliah.get().getKodeMataKuliah());
+        assertNotNull(mataKuliah);
+        assertNotNull(mataKuliah1.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
         verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
     }
 
