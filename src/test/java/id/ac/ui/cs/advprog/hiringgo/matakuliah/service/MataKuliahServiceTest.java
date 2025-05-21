@@ -139,8 +139,8 @@ public class MataKuliahServiceTest {
 
     @Test
     void testUpdateMataKuliahSuccess() {
-        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(Optional.of(mataKuliah1));
+        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(true);
 
         Dosen dosen = new Dosen();
         dosen.setId(UUID.randomUUID().toString());
@@ -162,18 +162,22 @@ public class MataKuliahServiceTest {
         assertEquals(mataKuliahUpdate.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
         assertEquals(mataKuliahUpdate.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
         assertEquals(mataKuliahUpdate.getDosenPengampu().getFirst().getId(), mataKuliah.getDosenPengampu().getFirst().getId());
+        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).save(mataKuliah1);
     }
 
     @Test
     void testUpdateMataKuliahWhenKodeIsNotFound() {
-        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(Optional.empty());
+        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(false);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             mataKuliahService.updateMataKuliah(mataKuliah1.getKodeMataKuliah());
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(0)).save(mataKuliah1);
     }
 
     @Test
