@@ -1,7 +1,8 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.service;
 
-import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +40,8 @@ public class MataKuliahServiceTest {
 
     private MataKuliah mataKuliah2;
 
+    private MataKuliah updatedMataKuliah1;
+
     @BeforeEach
     void setUp() {
         mataKuliah1 = new MataKuliah();
@@ -53,6 +55,12 @@ public class MataKuliahServiceTest {
         mataKuliah2.setNamaMataKuliah("Dasar-dasar Pemrograman 2");
         mataKuliah2.setDeskripsiMataKuliah("Belajar dasar pemrograman 2.");
         mataKuliah2.setDosenPengampu(List.of());
+
+        updatedMataKuliah1 = new MataKuliah();
+        mataKuliah1.setKodeMataKuliah("CSCM602223");
+        mataKuliah1.setNamaMataKuliah("Pemrograman Lanjut" + " Edited");
+        mataKuliah1.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman." + " Edited");
+        mataKuliah1.setDosenPengampu(List.of());
     }
 
 
@@ -64,7 +72,13 @@ public class MataKuliahServiceTest {
         Mockito.when(mataKuliahRepository.save(mataKuliah1))
                 .thenReturn(mataKuliah1);
 
-        MataKuliah mataKuliah = mataKuliahService.createMataKuliah(mataKuliah1);
+        CreateMataKuliahRequest request = new CreateMataKuliahRequest();
+        request.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        request.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        request.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        request.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
+        MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
         assertNotNull(mataKuliah);
         assertEquals(mataKuliah1.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
@@ -79,8 +93,14 @@ public class MataKuliahServiceTest {
         Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
                 .thenReturn(true);
 
+        CreateMataKuliahRequest request = new CreateMataKuliahRequest();
+        request.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        request.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah());
+        request.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah());
+        request.setDosenPengampu(mataKuliah1.getDosenPengampu());
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            mataKuliahService.createMataKuliah(mataKuliah1);
+            mataKuliahService.createMataKuliah(request);
         });
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -142,28 +162,21 @@ public class MataKuliahServiceTest {
         Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
                 .thenReturn(true);
 
-        Dosen dosen = new Dosen();
-        dosen.setId(UUID.randomUUID().toString());
-        dosen.setNIP("198403262023012008");
-        dosen.setNamaLengkap("John Doe");
-
-        MataKuliah mataKuliahUpdate = new MataKuliah();
-        mataKuliahUpdate.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
-        mataKuliahUpdate.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah() + " Edited");
-        mataKuliahUpdate.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah() + " Edited");
-        mataKuliahUpdate.setDosenPengampu(List.of(dosen));
+        UpdateMataKuliahRequest mataKuliahUpdate = new UpdateMataKuliahRequest();
+        mataKuliahUpdate.setNamaMataKuliah(updatedMataKuliah1.getNamaMataKuliah());
+        mataKuliahUpdate.setDeskripsiMataKuliah(updatedMataKuliah1.getDeskripsiMataKuliah());
+        mataKuliahUpdate.setDosenPengampu(updatedMataKuliah1.getDosenPengampu());
 
         Mockito.when(mataKuliahRepository.save(Mockito.any(MataKuliah.class)))
-                .thenReturn(mataKuliahUpdate);
+                .thenReturn(updatedMataKuliah1);
 
-        MataKuliah mataKuliah = mataKuliahService.updateMataKuliah(mataKuliahUpdate.getKodeMataKuliah(), mataKuliahUpdate);
+        MataKuliah mataKuliah = mataKuliahService.updateMataKuliah(mataKuliah1.getKodeMataKuliah(), mataKuliahUpdate);
 
-        assertEquals(mataKuliahUpdate.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
         assertEquals(mataKuliahUpdate.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
         assertEquals(mataKuliahUpdate.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
         assertEquals(mataKuliahUpdate.getDosenPengampu().getFirst().getId(), mataKuliah.getDosenPengampu().getFirst().getId());
         verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(1)).save(mataKuliah1);
+        verify(mataKuliahRepository, times(1)).save(updatedMataKuliah1);
     }
 
     @Test
@@ -171,13 +184,18 @@ public class MataKuliahServiceTest {
         Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
                 .thenReturn(false);
 
+        UpdateMataKuliahRequest mataKuliahUpdate = new UpdateMataKuliahRequest();
+        mataKuliahUpdate.setNamaMataKuliah(updatedMataKuliah1.getNamaMataKuliah());
+        mataKuliahUpdate.setDeskripsiMataKuliah(updatedMataKuliah1.getDeskripsiMataKuliah());
+        mataKuliahUpdate.setDosenPengampu(updatedMataKuliah1.getDosenPengampu());
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-            mataKuliahService.updateMataKuliah(mataKuliah1.getKodeMataKuliah());
+            mataKuliahService.updateMataKuliah(mataKuliah1.getKodeMataKuliah(), mataKuliahUpdate);
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(0)).save(mataKuliah1);
+        verify(mataKuliahRepository, times(0)).save(updatedMataKuliah1);
     }
 
     @Test
