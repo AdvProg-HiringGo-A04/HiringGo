@@ -98,6 +98,7 @@ public class MataKuliahServiceTest {
         assertNotNull(mataKuliah);
         assertEquals(mataKuliah1.getKodeMataKuliah(), mataKuliah.getFirst().getKodeMataKuliah());
         assertEquals(mataKuliah2.getKodeMataKuliah(), mataKuliah.get(1).getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).findAll();
     }
 
     @Test
@@ -108,6 +109,7 @@ public class MataKuliahServiceTest {
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
         assertNull(mataKuliah);
+        verify(mataKuliahRepository, times(1)).findAll();
     }
 
     @Test
@@ -119,6 +121,7 @@ public class MataKuliahServiceTest {
 
         assertTrue(mataKuliah.isPresent());
         assertNotNull(mataKuliah1.getKodeMataKuliah(), mataKuliah.get().getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
     }
 
     @Test
@@ -131,6 +134,7 @@ public class MataKuliahServiceTest {
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
     }
 
     @Test
