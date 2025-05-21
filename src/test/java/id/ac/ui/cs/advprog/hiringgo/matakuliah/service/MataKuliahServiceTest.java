@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.service;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
-import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
