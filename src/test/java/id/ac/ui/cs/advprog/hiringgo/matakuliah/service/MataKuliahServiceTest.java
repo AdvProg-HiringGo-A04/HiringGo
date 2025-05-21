@@ -2,8 +2,8 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.service;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
-import id.ac.ui.cs.advprog.hiringgo.service.MataKuliahService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
