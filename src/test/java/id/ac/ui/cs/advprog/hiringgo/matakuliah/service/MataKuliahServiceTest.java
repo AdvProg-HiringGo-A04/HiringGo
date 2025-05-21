@@ -23,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class MataKuliahServiceTest {
@@ -134,5 +137,26 @@ public class MataKuliahServiceTest {
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void testDeleteMataKuliahSuccess() {
+        doNothing().when(mataKuliahRepository).deleteById(mataKuliah1.getKodeMataKuliah());
+
+        mataKuliahService.deleteMataKuliah(mataKuliah1.getKodeMataKuliah());
+
+        verify(mataKuliahRepository, times(1)).deleteById(mataKuliah1.getKodeMataKuliah());
+    }
+
+    @Test
+    void testDeleteMataKuliahWhenKodeIsNotFound() {
+        doNothing().when(mataKuliahRepository).deleteById(mataKuliah1.getKodeMataKuliah());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            mataKuliahService.deleteMataKuliah(mataKuliah1.getKodeMataKuliah());
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        verify(mataKuliahRepository, times(1)).deleteById(mataKuliah1.getKodeMataKuliah());
     }
 }
