@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
@@ -33,7 +32,7 @@ public class MataKuliahServiceTest {
     private MataKuliahRepository mataKuliahRepository;
 
     @InjectMocks
-    private MataKuliahService mataKuliahService;
+    private MataKuliahServiceImpl mataKuliahService;
 
     private MataKuliah mataKuliah1;
 
@@ -56,19 +55,18 @@ public class MataKuliahServiceTest {
         mataKuliah2.setDosenPengampu(List.of());
 
         updatedMataKuliah1 = new MataKuliah();
-        mataKuliah1.setKodeMataKuliah("CSCM602223");
-        mataKuliah1.setNamaMataKuliah("Pemrograman Lanjut" + " Edited");
-        mataKuliah1.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman." + " Edited");
-        mataKuliah1.setDosenPengampu(List.of());
+        updatedMataKuliah1.setKodeMataKuliah("CSCM602223");
+        updatedMataKuliah1.setNamaMataKuliah("Pemrograman Lanjut" + " Edited");
+        updatedMataKuliah1.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman." + " Edited");
+        updatedMataKuliah1.setDosenPengampu(List.of());
     }
-
 
     @Test
     void testCreateMataKuliahSuccess() {
         Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
                 .thenReturn(false);
 
-        Mockito.when(mataKuliahRepository.save(mataKuliah1))
+        Mockito.when(mataKuliahRepository.save(Mockito.any(MataKuliah.class)))
                 .thenReturn(mataKuliah1);
 
         CreateMataKuliahRequest request = new CreateMataKuliahRequest();
@@ -84,7 +82,7 @@ public class MataKuliahServiceTest {
         assertEquals(mataKuliah1.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
         assertEquals(mataKuliah1.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
         verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(1)).save(mataKuliah1);
+        verify(mataKuliahRepository, times(1)).save(Mockito.any(MataKuliah.class));
     }
 
     @Test
@@ -104,7 +102,7 @@ public class MataKuliahServiceTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(0)).save(mataKuliah1);
+        verify(mataKuliahRepository, times(0)).save(Mockito.any(MataKuliah.class));
     }
 
     @Test
@@ -127,7 +125,7 @@ public class MataKuliahServiceTest {
 
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
-        assertNull(mataKuliah);
+        assertTrue(mataKuliah.isEmpty());
         verify(mataKuliahRepository, times(1)).findAll();
     }
 
@@ -158,8 +156,8 @@ public class MataKuliahServiceTest {
 
     @Test
     void testUpdateMataKuliahSuccess() {
-        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(true);
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.of(mataKuliah1));
 
         UpdateMataKuliahRequest mataKuliahUpdate = new UpdateMataKuliahRequest();
         mataKuliahUpdate.setNamaMataKuliah(updatedMataKuliah1.getNamaMataKuliah());
@@ -173,15 +171,15 @@ public class MataKuliahServiceTest {
 
         assertEquals(mataKuliahUpdate.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
         assertEquals(mataKuliahUpdate.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
-        assertEquals(mataKuliahUpdate.getDosenPengampu().getFirst().getId(), mataKuliah.getDosenPengampu().getFirst().getId());
-        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(1)).save(updatedMataKuliah1);
+        assertEquals(mataKuliahUpdate.getDosenPengampu().size(), mataKuliah.getDosenPengampu().size());
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).save(Mockito.any(MataKuliah.class));
     }
 
     @Test
     void testUpdateMataKuliahWhenKodeIsNotFound() {
-        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(false);
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.empty());
 
         UpdateMataKuliahRequest mataKuliahUpdate = new UpdateMataKuliahRequest();
         mataKuliahUpdate.setNamaMataKuliah(updatedMataKuliah1.getNamaMataKuliah());
@@ -193,8 +191,8 @@ public class MataKuliahServiceTest {
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
-        verify(mataKuliahRepository, times(0)).save(updatedMataKuliah1);
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(0)).save(Mockito.any(MataKuliah.class));
     }
 
     @Test
