@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.service;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import id.ac.ui.cs.advprog.hiringgo.service.MataKuliahService;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -90,6 +92,45 @@ public class MataKuliahServiceTest {
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             mataKuliahService.findByKode(mataKuliah1.getKodeMataKuliah());
+        });
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
+    void testUpdateMataKuliahSuccess() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.of(mataKuliah1));
+
+        Dosen dosen = new Dosen();
+        dosen.setId(UUID.randomUUID().toString());
+        dosen.setNIP("198403262023012008");
+        dosen.setNamaLengkap("John Doe");
+
+        MataKuliah mataKuliahUpdate = new MataKuliah();
+        mataKuliahUpdate.setKodeMataKuliah(mataKuliah1.getKodeMataKuliah());
+        mataKuliahUpdate.setNamaMataKuliah(mataKuliah1.getNamaMataKuliah() + " Edited");
+        mataKuliahUpdate.setDeskripsiMataKuliah(mataKuliah1.getDeskripsiMataKuliah() + " Edited");
+        mataKuliahUpdate.setDosenPengampu(List.of(dosen));
+
+        Mockito.when(mataKuliahRepository.save(Mockito.any(MataKuliah.class)))
+                .thenReturn(mataKuliahUpdate);
+
+        MataKuliah mataKuliah = mataKuliahService.updateMataKuliah(mataKuliahUpdate.getKodeMataKuliah(), mataKuliahUpdate);
+
+        assertEquals(mataKuliahUpdate.getKodeMataKuliah(), mataKuliah.getKodeMataKuliah());
+        assertEquals(mataKuliahUpdate.getNamaMataKuliah(), mataKuliah.getNamaMataKuliah());
+        assertEquals(mataKuliahUpdate.getDeskripsiMataKuliah(), mataKuliah.getDeskripsiMataKuliah());
+        assertEquals(mataKuliahUpdate.getDosenPengampu().getFirst().getId(), mataKuliah.getDosenPengampu().getFirst().getId());
+    }
+
+    @Test
+    void testUpdateMataKuliahWhenKodeIsNotFound() {
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            mataKuliahService.updateMataKuliah(mataKuliah1.getKodeMataKuliah());
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
