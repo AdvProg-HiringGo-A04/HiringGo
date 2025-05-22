@@ -47,7 +47,7 @@ public class Log {
 
     @ManyToOne
     @JoinColumn(name = "mata_kuliah_id", referencedColumnName = "kode_mata_kuliah")
-    private MataKuliah kodeMataKuliah;
+    private MataKuliah mataKuliah;
 
     @ManyToOne
     @JoinColumn(name = "mahasiswa_id", referencedColumnName = "id")
