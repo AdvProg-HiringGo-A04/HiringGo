@@ -9,7 +9,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -30,13 +31,13 @@ public class Log {
     private String kategori;
 
     @Column(name = "waktu_mulai")
-    private String waktuMulai;
+    private LocalTime waktuMulai;
 
     @Column(name = "waktu_selesai")
-    private String waktuSelesai;
+    private LocalTime waktuSelesai;
 
     @Column(name = "tanggal_log")
-    private Date tanggalLog;
+    private LocalDate tanggalLog;
 
     @Column(name = "pesan")
     private String pesan;
@@ -53,8 +54,8 @@ public class Log {
     private Mahasiswa mahasiswa;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDate createdAt;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDate updatedAt;
 }
