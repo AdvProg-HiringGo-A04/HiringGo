@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.strategy.update;
+package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.update;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
