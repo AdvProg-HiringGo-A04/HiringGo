@@ -135,6 +135,8 @@ class HonorControllerTest {
     @AfterEach
     void tearDown() {
         logRepository.deleteAll();
+        mataKuliahRepository.deleteAll();
+        mahasiswaRepository.deleteAll();
         userRepository.deleteAll();
     }
 
