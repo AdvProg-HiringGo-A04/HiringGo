@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.controller;
 
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.HonorResponse;
@@ -118,13 +117,13 @@ class HonorControllerTest {
         log.setKategori("Kuliah");
         log.setWaktuMulai(LocalTime.parse("08:00:00"));
         log.setWaktuSelesai(LocalTime.parse("10:00:00"));
-        log.setTanggalLog(LocalDate.of(2024, 5, 22));
+        log.setTanggalLog(LocalDate.of(2025, 5, 22));
         log.setPesan("Ini hanya log dummy");
         log.setStatus("Selesai");
         log.setMahasiswa(mahasiswa);
-        log.setKodeMataKuliah(mataKuliah);
-        log.setCreatedAt(LocalDate.of(2024, 5, 22));
-        log.setUpdatedAt(LocalDate.of(2024, 5, 22));
+        log.setMataKuliah(mataKuliah);
+        log.setCreatedAt(LocalDate.of(2025, 5, 22));
+        log.setUpdatedAt(LocalDate.of(2025, 5, 22));
         logRepository.save(log);
 
         Duration durasi = Duration.between(log.getWaktuMulai(), log.getWaktuSelesai());
@@ -153,10 +152,10 @@ class HonorControllerTest {
             });
             HonorResponse log = response.getData().getFirst();
 
-            assertEquals(LocalDate.of(2024, 5, 1), log.getTanggalAwal());
-            assertEquals(LocalDate.of(2024, 5, 31), log.getTanggalAwal());
+            assertEquals(LocalDate.of(2025, 5, 1), log.getTanggalAwal());
+            assertEquals(LocalDate.of(2025, 5, 31), log.getTanggalAkhir());
             assertEquals(mahasiswa.getId(), log.getMahasiswa().getId());
-            assertEquals(mataKuliah.getKodeMataKuliah(), log.getMataKuliah().getNamaMataKuliah());
+            assertEquals(mataKuliah.getKodeMataKuliah(), log.getMataKuliah().getKodeMataKuliah());
             assertEquals(totalJam, log.getTotalJam());
             assertEquals(honorPerJam, log.getHonorPerJam());
             assertEquals(totalJam * honorPerJam, log.getTotalPembayaran());
@@ -166,33 +165,24 @@ class HonorControllerTest {
     }
 
     @Test
-    void testFindHonorSuccessWithoutParam() throws Exception {
+    void testFindHonorWithoutParam() throws Exception {
         mockMvc.perform(
                 get("/mahasiswa/" + userId + "/honors")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
         ).andExpectAll(
-                status().isOk()
+                status().isBadRequest()
         ).andDo(result -> {
             WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
-            HonorResponse log = response.getData().getFirst();
-
-            assertEquals(LocalDate.of(2024, 5, 1), log.getTanggalAwal());
-            assertEquals(LocalDate.of(2024, 5, 31), log.getTanggalAwal());
-            assertEquals(mahasiswa.getId(), log.getMahasiswa().getId());
-            assertEquals(mataKuliah.getKodeMataKuliah(), log.getMataKuliah().getNamaMataKuliah());
-            assertEquals(totalJam, log.getTotalJam());
-            assertEquals(honorPerJam, log.getHonorPerJam());
-            assertEquals(totalJam * honorPerJam, log.getTotalPembayaran());
-            assertEquals("Selesai", log.getStatus());
-            assertNull(response.getErrors());
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
         });
     }
 
     @Test
-    void testFindHonorSuccessWhenParamMonthIsInvalid() throws Exception {
+    void testFindHonorWhenParamMonthIsInvalid() throws Exception {
         mockMvc.perform(
                 get("/mahasiswa/" + userId + "/honors?year=2025&month=13")
                         .accept(MediaType.APPLICATION_JSON)
@@ -209,7 +199,7 @@ class HonorControllerTest {
     }
 
     @Test
-    void testFindHonorSuccessWhenParamYearIsInvalid() throws Exception {
+    void testFindHonorWhenParamYearIsInvalid() throws Exception {
         mockMvc.perform(
                 get("/mahasiswa/" + userId + "/honors?year=202X&month=12")
                         .accept(MediaType.APPLICATION_JSON)
@@ -226,36 +216,36 @@ class HonorControllerTest {
     }
 
     @Test
-    void testFindHonorSuccessWithoutParamYear() throws Exception {
+    void testFindHonorWithoutParamYear() throws Exception {
         mockMvc.perform(
                 get("/mahasiswa/" + userId + "/honors?month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
         ).andExpectAll(
-                status().isOk()
+                status().isBadRequest()
         ).andDo(result -> {
             WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
-            assertNotNull(response.getData());
-            assertNull(response.getErrors());
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
         });
     }
 
     @Test
-    void testFindHonorSuccessWithoutParamMonth() throws Exception {
+    void testFindHonorWithoutParamMonth() throws Exception {
         mockMvc.perform(
                 get("/mahasiswa/" + userId + "/honors?year=2025")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
         ).andExpectAll(
-                status().isOk()
+                status().isBadRequest()
         ).andDo(result -> {
             WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
-            assertNotNull(response.getData());
-            assertNull(response.getErrors());
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
         });
     }
 
