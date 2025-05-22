@@ -45,4 +45,9 @@ public class JwtUtilImpl implements JwtUtil {
             return false;
         }
     }
+
+    public String extractId(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
 }
