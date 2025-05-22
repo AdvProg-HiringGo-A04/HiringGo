@@ -1,58 +1,35 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.UserRepository;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountFactory;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AccountData;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AdminDTO;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.DosenDTO;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Admin;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
 
 import java.util.List;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.updaterole.UpdateRoleStrategy;
-import org.springframework.stereotype.Service;
+public interface UserService {
+    User createAdmin(AdminDTO adminDTO);
+    User createDosen(DosenDTO dosenDTO);
 
-@Service
-public class UserService {
-    private final UserRepository repo;
-    private final List<UpdateRoleStrategy> strategies;
+    Object getUserResponseById(String id);
+    List<Object> getAllUsersResponse();
 
-    public UserService(UserRepository repo, List<UpdateRoleStrategy> strategies) {
-        this.repo = repo;
-        this.strategies = strategies;
-    }
+    List<User> getAllUsers();
+    List<Admin> getAllAdmins();
+    List<Dosen> getAllDosens();
+    List<Mahasiswa> getAllMahasiswas();
 
-    public Users createAccount(Role role, AccountData data) {
-        Users acc = AccountFactory.createAccount(role, data);
-        return repo.save(acc);
-    }
+    User getUserById(String id);
+    Admin getAdminById(String id);
+    Dosen getDosenById(String id);
+    Mahasiswa getMahasiswaById(String id);
 
-    public List<Users> findAll() {
-        return repo.findAll();
-    }
+    User updateUserRole(String id, RoleUpdateDTO roleUpdateDTO);
 
-    public Users findById(String id) {
-        return repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-    }
-
-    public void updateRole(String id, String requesterId, Role newRole, AccountData data) {
-        if (id.equals(requesterId)) {
-            throw new IllegalArgumentException("Cannot update own role");
-        }
-        Users old = findById(id);
-        UpdateRoleStrategy strat = strategies.stream()
-                .filter(s -> s.supports(old.getRole(), newRole))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Transition " + old.getRole() + "->" + newRole + " not supported"));
-        Users updated = strat.changeRole(old, data);
-        repo.save(updated);
-    }
-
-    public void deleteAccount(String targetId, String requesterId) {
-        if (targetId.equals(requesterId)) {
-            throw new IllegalArgumentException("Cannot delete self");
-        }
-        repo.deleteById(targetId);
-    }
+    void deleteAdmin(String id);
+    void deleteDosen(String id);
+    void deleteMahasiswa(String id);
 }
