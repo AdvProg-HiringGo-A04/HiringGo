@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -15,7 +15,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class HonorResponse {
 
-    private Date tanggal;
+    private LocalDate tanggalAwal;
+
+    private LocalDate tanggalAkhir;
 
     private Mahasiswa mahasiswa;
 
