@@ -27,6 +27,11 @@ public class JwtUtilImpl implements JwtUtil {
                 .compact();
     }
 
+    public String extractId(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
+
     public String extractEmail(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token).getBody().get("email", String.class);
