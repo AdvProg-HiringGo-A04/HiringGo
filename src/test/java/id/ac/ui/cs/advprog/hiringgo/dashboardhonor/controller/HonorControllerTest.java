@@ -142,7 +142,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccess() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=2025&month=5")
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -168,7 +168,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccessWithoutParam() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor")
+                get("/mahasiswa/" + userId + "/honors")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -194,7 +194,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccessWhenParamMonthIsInvalid() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=2025&month=13")
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=13")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -211,7 +211,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccessWhenParamYearIsInvalid() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=202X&month=12")
+                get("/mahasiswa/" + userId + "/honors?year=202X&month=12")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -228,7 +228,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccessWithoutParamYear() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?month=5")
+                get("/mahasiswa/" + userId + "/honors?month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -245,7 +245,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccessWithoutParamMonth() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=2025")
+                get("/mahasiswa/" + userId + "/honors?year=2025")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -262,7 +262,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorWhenLogIsEmpty() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=2025&month=1")
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -279,7 +279,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorWhenMahasiswaTriesToAccessAnotherUsersData() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId2 + "/honor?year=2025&month=5")
+                get("/mahasiswa/" + userId2 + "/honors?year=2025&month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -296,7 +296,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorWhenUserIsNotAuthenticate() throws Exception {
         mockMvc.perform(
-                get("/mahasiswa/" + userId + "/honor?year=2025&month=1")
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
