@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class BaseUserResponse {
+    private String id;
     private String email;
     private Role role;
 }

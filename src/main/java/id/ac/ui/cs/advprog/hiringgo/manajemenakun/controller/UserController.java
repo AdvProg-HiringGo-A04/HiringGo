@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class UserController {
 
@@ -43,6 +44,7 @@ public class UserController {
                 .map(admin -> {
                     User user = userService.getUserById(admin.getId());
                     AdminUserResponse response = new AdminUserResponse();
+                    response.setId(admin.getId());
                     response.setEmail(user.getEmail());
                     response.setRole(user.getRole());
                     return response;
@@ -58,6 +60,7 @@ public class UserController {
                 .map(dosen -> {
                     User user = userService.getUserById(dosen.getId());
                     DosenUserResponse response = new DosenUserResponse();
+                    response.setId(dosen.getId());
                     response.setEmail(user.getEmail());
                     response.setRole(user.getRole());
                     response.setNamaLengkap(dosen.getNamaLengkap());
@@ -75,6 +78,7 @@ public class UserController {
                 .map(mahasiswa -> {
                     User user = userService.getUserById(mahasiswa.getId());
                     MahasiswaUserResponse response = new MahasiswaUserResponse();
+                    response.setId(mahasiswa.getId());
                     response.setEmail(user.getEmail());
                     response.setRole(user.getRole());
                     response.setNamaLengkap(mahasiswa.getNamaLengkap());
