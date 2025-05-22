@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface LogRepository extends JpaRepository<Log, String> {
 
-    List<Log> findByMahasiswaNPM(String NPM);
+    List<Log> findByMahasiswaId(String mahasiswaId);
 
-    List<Log> findByTanggalLogBetweenAndMahasiswaNPM(LocalDate tanggalLog, LocalDate tanggalLog2, String mahasiswa_NPM);
+    List<Log> findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(LocalDate startDate, LocalDate endDate, String mahasiswaId);
 }
