@@ -142,7 +142,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorSuccess() throws Exception {
         mockMvc.perform(
-                get("/students/" + userId + "/honor?year=2025&month=5")
+                get("/mahasiswa/" + userId + "/honor?year=2025&month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -166,9 +166,103 @@ class HonorControllerTest {
     }
 
     @Test
+    void testFindHonorSuccessWithoutParam() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honor")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            HonorResponse log = response.getData().getFirst();
+
+            assertEquals(LocalDate.of(2024, 5, 1), log.getTanggalAwal());
+            assertEquals(LocalDate.of(2024, 5, 31), log.getTanggalAwal());
+            assertEquals(mahasiswa.getId(), log.getMahasiswa().getId());
+            assertEquals(mataKuliah.getKodeMataKuliah(), log.getMataKuliah().getNamaMataKuliah());
+            assertEquals(totalJam, log.getTotalJam());
+            assertEquals(honorPerJam, log.getHonorPerJam());
+            assertEquals(totalJam * honorPerJam, log.getTotalPembayaran());
+            assertEquals("Selesai", log.getStatus());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorSuccessWhenParamMonthIsInvalid() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honor?year=2025&month=13")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorSuccessWhenParamYearIsInvalid() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honor?year=202X&month=12")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorSuccessWithoutParamYear() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honor?month=5")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getData());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorSuccessWithoutParamMonth() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honor?year=2025")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNotNull(response.getData());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
     void testFindHonorWhenLogIsEmpty() throws Exception {
         mockMvc.perform(
-                get("/students/" + userId + "/honor?year=2025&month=1")
+                get("/mahasiswa/" + userId + "/honor?year=2025&month=1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -185,7 +279,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorWhenMahasiswaTriesToAccessAnotherUsersData() throws Exception {
         mockMvc.perform(
-                get("/students/" + userId2 + "/honor?year=2025&month=5")
+                get("/mahasiswa/" + userId2 + "/honor?year=2025&month=5")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenMahasiswa)
@@ -202,7 +296,7 @@ class HonorControllerTest {
     @Test
     void testFindHonorWhenUserIsNotAuthenticate() throws Exception {
         mockMvc.perform(
-                get("/students/" + userId + "/honor?year=2025&month=1")
+                get("/mahasiswa/" + userId + "/honor?year=2025&month=1")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpectAll(
