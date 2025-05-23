@@ -2,9 +2,10 @@ package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
-import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -25,14 +26,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController
 public class MataKuliahController {
 
     @Autowired
-    private MataKuliahRepository mataKuliahRepository;
+    private MataKuliahService mataKuliahService;
 
     @Autowired
     private Validator validator;
@@ -44,29 +44,19 @@ public class MataKuliahController {
             path = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<List<MataKuliah>>> getAllCourses(
+    public ResponseEntity<WebResponse<List<MataKuliahResponse>>> getAllCourses(
             @RequestHeader(name = "Authorization", required = false) String token) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
+        roleRequired(token);
 
-        token = token.substring(7);
+        List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
+        List<MataKuliahResponse> mataKuliahResponses = mataKuliah.stream()
+                .map(this::toResponse)
+                .toList();
 
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
-
-        List<MataKuliah> mataKuliah = mataKuliahRepository.findAll();
-
-        WebResponse<List<MataKuliah>> response = WebResponse.<List<MataKuliah>>builder()
-                .data(mataKuliah)
+        WebResponse<List<MataKuliahResponse>> response = WebResponse.<List<MataKuliahResponse>>builder()
+                .data(mataKuliahResponses)
                 .build();
 
         return ResponseEntity.ok(response);
@@ -76,34 +66,18 @@ public class MataKuliahController {
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<MataKuliah>> getCoursesByCode(
+    public ResponseEntity<WebResponse<MataKuliahResponse>> getCoursesByCode(
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
+        roleRequired(token);
 
-        token = token.substring(7);
+        MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
+        MataKuliahResponse mataKuliahResponse = toResponse(mataKuliah);
 
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
-
-        Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
-
-        if (mataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        WebResponse<MataKuliah> response = WebResponse.<MataKuliah>builder()
-                .data(mataKuliah.get())
+        WebResponse<MataKuliahResponse> response = WebResponse.<MataKuliahResponse>builder()
+                .data(mataKuliahResponse)
                 .build();
 
         return ResponseEntity.ok(response);
@@ -118,21 +92,7 @@ public class MataKuliahController {
             @RequestHeader(name = "Authorization", required = false) String token,
             @RequestBody CreateMataKuliahRequest request) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
@@ -140,16 +100,7 @@ public class MataKuliahController {
             throw new ConstraintViolationException(constraintViolations);
         }
 
-        if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
-        }
-
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
-        mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        mataKuliahRepository.save(mataKuliah);
+        MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("Created")
@@ -168,21 +119,7 @@ public class MataKuliahController {
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
             @RequestBody UpdateMataKuliahRequest request) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
+        roleRequired(token);
 
         Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
 
@@ -190,25 +127,7 @@ public class MataKuliahController {
             throw new ConstraintViolationException(constraintViolations);
         }
 
-        Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findByKodeMataKuliah(kodeMataKuliah);
-
-        if (optionalMataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        MataKuliah mataKuliah = optionalMataKuliah.get();
-
-        if (request.getNamaMataKuliah() != null) {
-            mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        }
-        if (request.getDeskripsiMataKuliah() != null) {
-            mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        }
-        if (request.getDosenPengampu() != null) {
-            mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        }
-
-        mataKuliahRepository.save(mataKuliah);
+        mataKuliahService.updateMataKuliah(kodeMataKuliah, request);
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("OK")
@@ -225,6 +144,18 @@ public class MataKuliahController {
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
 
+        roleRequired(token);
+
+        mataKuliahService.deleteMataKuliah(kodeMataKuliah);
+
+        WebResponse<String> response = WebResponse.<String>builder()
+                .data("OK")
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    private void roleRequired(String token) {
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
@@ -240,17 +171,14 @@ public class MataKuliahController {
         if (!role.equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
+    }
 
-        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        mataKuliahRepository.deleteById(kodeMataKuliah);
-
-        WebResponse<String> response = WebResponse.<String>builder()
-                .data("OK")
+    private MataKuliahResponse toResponse(MataKuliah mk) {
+        return MataKuliahResponse.builder()
+                .namaMataKuliah(mk.getNamaMataKuliah())
+                .kodeMataKuliah(mk.getKodeMataKuliah())
+                .deskripsiMataKuliah(mk.getDeskripsiMataKuliah())
+                .dosenPengampu(mk.getDosenPengampu())
                 .build();
-
-        return ResponseEntity.ok(response);
     }
 }
