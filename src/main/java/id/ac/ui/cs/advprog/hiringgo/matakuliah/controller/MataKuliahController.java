@@ -8,9 +8,7 @@ import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,7 +25,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import static id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper.mataKuliahToMataKuliahResponse;
 
@@ -36,9 +33,6 @@ public class MataKuliahController {
 
     @Autowired
     private MataKuliahService mataKuliahService;
-
-    @Autowired
-    private Validator validator;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -93,15 +87,9 @@ public class MataKuliahController {
     )
     public ResponseEntity<WebResponse<String>> createCourses(
             @RequestHeader(name = "Authorization", required = false) String token,
-            @RequestBody CreateMataKuliahRequest request) {
+            @Valid @RequestBody CreateMataKuliahRequest request) {
 
         roleRequired(token);
-
-        Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
 
         MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
@@ -120,15 +108,9 @@ public class MataKuliahController {
     public ResponseEntity<WebResponse<String>> updateCourses(
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
-            @RequestBody UpdateMataKuliahRequest request) {
+            @Valid @RequestBody UpdateMataKuliahRequest request) {
 
         roleRequired(token);
-
-        Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
 
         mataKuliahService.updateMataKuliah(kodeMataKuliah, request);
 
