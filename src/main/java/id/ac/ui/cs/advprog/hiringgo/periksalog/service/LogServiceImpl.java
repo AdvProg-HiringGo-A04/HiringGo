@@ -10,12 +10,14 @@ import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class LogServiceImpl implements LogService {
     private final MahasiswaRepository mahasiswaRepository;
     private final MataKuliahService mataKuliahService;
 
+    // Original synchronous methods (unchanged business logic)
     @Override
     public List<LogDTO> getAllLogsByDosenId(String dosenId) {
         List<Log> logs = logRepository.findAllLogsByDosenId(dosenId);
@@ -51,6 +54,41 @@ public class LogServiceImpl implements LogService {
         return logRepository.isLogOwnedByDosen(logId, dosenId);
     }
 
+    // New asynchronous methods (same business logic, async execution)
+    @Async("taskExecutor")
+    @Override
+    public CompletableFuture<List<LogDTO>> getAllLogsByDosenIdAsync(String dosenId) {
+        List<Log> logs = logRepository.findAllLogsByDosenId(dosenId);
+        List<LogDTO> logDTOs = logs.stream()
+                .map(this::convertToDTO)
+                .toList();
+        return CompletableFuture.completedFuture(logDTOs);
+    }
+
+    @Async("taskExecutor")
+    @Override
+    public CompletableFuture<LogDTO> updateLogStatusAsync(String dosenId, LogStatusUpdateDTO logStatusUpdateDTO) {
+        String logId = logStatusUpdateDTO.getLogId();
+
+        validateDosenOwnership(logId, dosenId);
+
+        Log log = findLogById(logId);
+        log.setStatus(logStatusUpdateDTO.getStatus());
+        log.setUpdatedAt(LocalDate.now());
+
+        Log updatedLog = logRepository.save(log);
+        LogDTO logDTO = convertToDTO(updatedLog);
+        return CompletableFuture.completedFuture(logDTO);
+    }
+
+    @Async("taskExecutor")
+    @Override
+    public CompletableFuture<Boolean> isLogOwnedByDosenAsync(String logId, String dosenId) {
+        boolean isOwned = logRepository.isLogOwnedByDosen(logId, dosenId);
+        return CompletableFuture.completedFuture(isOwned);
+    }
+
+    // Private helper methods (unchanged business logic)
     private void validateDosenOwnership(String logId, String dosenId) {
         if (!isLogOwnedByDosen(logId, dosenId)) {
             throw new SecurityException("You don't have permission to update this log");

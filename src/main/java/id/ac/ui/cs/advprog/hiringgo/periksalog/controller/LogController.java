@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/logs")
@@ -20,64 +21,73 @@ public class LogController {
     private final LogService logService;
 
     @GetMapping
-    public ResponseEntity<WebResponse<List<LogDTO>>> getAllLogs(@AuthenticationPrincipal User user) {
+    public CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> getAllLogs(@AuthenticationPrincipal User user) {
         if (!isDosenUser(user)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(WebResponse.<List<LogDTO>>builder()
-                            .errors("Access forbidden: Only lecturers can access logs")
-                            .build());
+            return CompletableFuture.completedFuture(
+                    ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(WebResponse.<List<LogDTO>>builder()
+                                    .errors("Access forbidden: Only lecturers can access logs")
+                                    .build())
+            );
         }
 
-        try {
-            List<LogDTO> logs = logService.getAllLogsByDosenId(user.getId());
-            if (logs.isEmpty()) {
-                return ResponseEntity.ok(WebResponse.<List<LogDTO>>builder()
-                        .data(logs)
-                        .build());
-            }
-            return ResponseEntity.ok(WebResponse.<List<LogDTO>>builder()
-                    .data(logs)
-                    .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(WebResponse.<List<LogDTO>>builder()
-                            .errors("An error occurred while fetching logs: " + e.getMessage())
+        return logService.getAllLogsByDosenIdAsync(user.getId())
+                .thenApply(logs -> {
+                    if (logs.isEmpty()) {
+                        return ResponseEntity.ok(WebResponse.<List<LogDTO>>builder()
+                                .data(logs)
+                                .build());
+                    }
+                    return ResponseEntity.ok(WebResponse.<List<LogDTO>>builder()
+                            .data(logs)
                             .build());
-        }
+                })
+                .exceptionally(e -> {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(WebResponse.<List<LogDTO>>builder()
+                                    .errors("An error occurred while fetching logs: " + e.getCause().getMessage())
+                                    .build());
+                });
     }
 
     @PutMapping("/{logId}/status")
-    public ResponseEntity<WebResponse<LogDTO>> updateLogStatus(
+    public CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> updateLogStatus(
             @AuthenticationPrincipal User user,
             @PathVariable("logId") String logId,
             @RequestBody LogStatusUpdateDTO logStatusUpdateDTO) {
 
         if (!isDosenUser(user)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(WebResponse.<LogDTO>builder()
-                            .errors("Access forbidden: Only lecturers can update log status")
-                            .build());
+            return CompletableFuture.completedFuture(
+                    ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(WebResponse.<LogDTO>builder()
+                                    .errors("Access forbidden: Only lecturers can update log status")
+                                    .build())
+            );
         }
 
         // Ensure the logId in path matches the one in request body
         logStatusUpdateDTO.setLogId(logId);
 
-        try {
-            LogDTO updatedLog = logService.updateLogStatus(user.getId(), logStatusUpdateDTO);
-            return ResponseEntity.ok(WebResponse.<LogDTO>builder()
-                    .data(updatedLog)
-                    .build());
-        } catch (SecurityException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(WebResponse.<LogDTO>builder()
-                            .errors(e.getMessage())
+        return logService.updateLogStatusAsync(user.getId(), logStatusUpdateDTO)
+                .thenApply(updatedLog -> {
+                    return ResponseEntity.ok(WebResponse.<LogDTO>builder()
+                            .data(updatedLog)
                             .build());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(WebResponse.<LogDTO>builder()
-                            .errors("An error occurred while updating log status: " + e.getMessage())
-                            .build());
-        }
+                })
+                .exceptionally(e -> {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof SecurityException) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(WebResponse.<LogDTO>builder()
+                                        .errors(cause.getMessage())
+                                        .build());
+                    } else {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(WebResponse.<LogDTO>builder()
+                                        .errors("An error occurred while updating log status: " + cause.getMessage())
+                                        .build());
+                    }
+                });
     }
 
     private boolean isDosenUser(User user) {
