@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenLog.service;
 
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.repository.AsdosMataKuliahRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.Log;
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.repository.LogRepository;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
@@ -26,6 +27,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidatorFactory;
 @RequiredArgsConstructor
 public class LogServiceImpl implements LogService{
     private final LogRepository logRepository;
+    private final AsdosMataKuliahRepository asdosRepository;
     private final LogValidatorFactory validatorFactory;
     
     @Override
@@ -162,7 +164,7 @@ public class LogServiceImpl implements LogService{
     }
     
     private void validateEnrollment(String mataKuliahId, String mahasiswaId) {
-        if (!logRepository.existsByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId)) {
+        if (!asdosRepository.existsByMahasiswaIdAndMataKuliahId(mahasiswaId, mataKuliahId)) {
             throw new InvalidLogException(Map.of("enrollment", "Mahasiswa tidak terdaftar pada lowongan mata kuliah ini"));
         }
     }

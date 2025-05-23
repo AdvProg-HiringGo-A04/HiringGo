@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenLog.model;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

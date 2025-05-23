@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.repository.AsdosMataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.Log;
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.repository.LogRepository;
@@ -43,6 +44,9 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.validators.TimeValid
 public class LogServiceTest {
     @Mock
     private LogRepository logRepository;
+
+    @Mock
+    private AsdosMataKuliahRepository asdosRepository;
 
     @Mock
     private LogValidatorFactory validatorFactory;
@@ -85,7 +89,7 @@ public class LogServiceTest {
         TimeValidator timeValidator = new TimeValidator();
         when(validatorFactory.createValidators()).thenReturn(Collections.singletonList(timeValidator));
         
-        when(logRepository.existsByMataKuliahIdAndMahasiswaId(anyString(), anyString())).thenReturn(true);
+        when(asdosRepository.existsByMahasiswaIdAndMataKuliahId(anyString(), anyString())).thenReturn(true);
         
         when(logRepository.findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(mataKuliahId, mahasiswaId))
             .thenReturn(Collections.singletonList(log));
@@ -157,7 +161,7 @@ public class LogServiceTest {
     
     @Test
     void testCreateLog_NotEnrolled() {
-        when(logRepository.existsByMataKuliahIdAndMahasiswaId(mataKuliahId, mahasiswaId)).thenReturn(false);
+        when(asdosRepository.existsByMahasiswaIdAndMataKuliahId(mahasiswaId, mataKuliahId)).thenReturn(false);
         
         assertThrows(InvalidLogException.class, () -> logService.createLog(request, mahasiswaId));
         verify(logRepository, never()).save(any(Log.class));

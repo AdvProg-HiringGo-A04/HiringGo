@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.manajemenLog.model;
+package id.ac.ui.cs.advprog.hiringgo.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
