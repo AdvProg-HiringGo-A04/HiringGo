@@ -251,28 +251,28 @@ public class MataKuliahServiceTest {
 
     @Test
     void testDeleteMataKuliahSuccess() {
-        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(true);
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.ofNullable(mataKuliah1));
 
         doNothing().when(mataKuliahRepository).deleteById(mataKuliah1.getKodeMataKuliah());
 
         mataKuliahService.deleteMataKuliah(mataKuliah1.getKodeMataKuliah());
 
-        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
         verify(mataKuliahRepository, times(1)).deleteById(mataKuliah1.getKodeMataKuliah());
     }
 
     @Test
     void testDeleteMataKuliahWhenKodeIsNotFound() {
-        Mockito.when(mataKuliahRepository.existsById(mataKuliah1.getKodeMataKuliah()))
-                .thenReturn(false);
+        Mockito.when(mataKuliahRepository.findById(mataKuliah1.getKodeMataKuliah()))
+                .thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
             mataKuliahService.deleteMataKuliah(mataKuliah1.getKodeMataKuliah());
         });
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        verify(mataKuliahRepository, times(1)).existsById(mataKuliah1.getKodeMataKuliah());
+        verify(mataKuliahRepository, times(1)).findById(mataKuliah1.getKodeMataKuliah());
         verify(mataKuliahRepository, times(0)).deleteById(mataKuliah1.getKodeMataKuliah());
     }
 }
