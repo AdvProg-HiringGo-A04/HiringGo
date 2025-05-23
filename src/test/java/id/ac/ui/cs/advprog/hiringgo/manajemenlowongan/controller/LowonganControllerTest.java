@@ -6,13 +6,16 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service.LowonganService;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -32,15 +35,10 @@ public class LowonganControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @TestConfiguration
-    static class MockConfig {
-        @Bean
-        public LowonganService lowonganService() {
-            return Mockito.mock(LowonganService.class);
-        }
-    }
+    @MockitoBean
+    private JwtUtil jwtUtil;
 
-    @Autowired
+    @MockitoBean
     private LowonganService lowonganService;
 
     @Autowired
@@ -55,9 +53,13 @@ public class LowonganControllerTest {
                 .jumlahDibutuhkan(2)
                 .build());
 
+        when(jwtUtil.validateToken("dummy-token")).thenReturn(true);
+        when(jwtUtil.extractRole("dummy-token")).thenReturn("DOSEN");
         when(lowonganService.getAllLowongan()).thenReturn(dummyList);
 
-        mockMvc.perform(get("/api/lowongan"))
+        mockMvc.perform(get("/lowongan")
+                        .header("Authorization", "Bearer dummy-token")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].mataKuliah").value("PL"))
                 .andExpect(jsonPath("$.data[0].semester").value("Ganjil"))

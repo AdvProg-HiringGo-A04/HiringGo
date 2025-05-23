@@ -48,7 +48,8 @@ public class LowonganController {
 
         String role = jwtUtil.extractRole(token);
 
-        if (!role.equals("MAHASISWA")) {
+        Set<String> allowedRoles = Set.of("ADMIN", "DOSEN");
+        if (!allowedRoles.contains(role)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
     }
@@ -182,7 +183,7 @@ public class LowonganController {
             @PathVariable("id") UUID lowonganId,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token); // Optional: only Dosen can access
+        roleRequired(token);
 
         List<PendaftarLowongan> pendaftarList = lowonganService.getPendaftarByLowongan(lowonganId);
         WebResponse<List<PendaftarLowongan>> response = WebResponse.<List<PendaftarLowongan>>builder()
@@ -202,7 +203,7 @@ public class LowonganController {
             @RequestParam("diterima") boolean diterima,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token); // Optional: only Dosen can accept/reject
+        roleRequired(token);
 
         try {
             lowonganService.setStatusPendaftar(lowonganId, npm, diterima);
