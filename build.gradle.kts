@@ -36,6 +36,7 @@ repositories {
 }
 
 dependencies {
+    implementation ("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")

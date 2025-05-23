@@ -35,5 +35,4 @@ public class MataKuliah {
             inverseJoinColumns = @JoinColumn(name = "id")
     )
     private List<Dosen> dosenPengampu;
-
 }

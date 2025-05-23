@@ -46,7 +46,11 @@ Kami menggunakan teknik Risk Storming untuk membantu tim mengidentifikasi dan me
 ### Container Diagram
 ![Container Diagram](docs/periksalog_component_rahardi.png)
 
+# MODULE 9
+### Component Diagram
+![Component Diagram](docs/dashboardhonor-component-arisha.png)
 ### Code Diagram
+![Code Diagram](docs/dashboardhonor-code-arisha.png)
 ![Code Diagram](docs/periksalog_code_rahardi.png)
 
 ### Dashboard
