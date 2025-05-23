@@ -52,23 +52,17 @@ public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Override
     public MataKuliah updateMataKuliah(String kodeMataKuliah, UpdateMataKuliahRequest request) {
-        Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
+        MataKuliah mataKuliah = mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
 
-        if (optionalMataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
+        Optional.ofNullable(request.getNamaMataKuliah())
+                .ifPresent(mataKuliah::setNamaMataKuliah);
 
-        MataKuliah mataKuliah = optionalMataKuliah.get();
+        Optional.ofNullable(request.getDeskripsiMataKuliah())
+                .ifPresent(mataKuliah::setDeskripsiMataKuliah);
 
-        if (request.getNamaMataKuliah() != null) {
-            mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        }
-        if (request.getDeskripsiMataKuliah() != null) {
-            mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        }
-        if (request.getDosenPengampu() != null) {
-            mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        }
+        Optional.ofNullable(request.getDosenPengampu())
+                .ifPresent(mataKuliah::setDosenPengampu);
 
         return mataKuliahRepository.save(mataKuliah);
     }
