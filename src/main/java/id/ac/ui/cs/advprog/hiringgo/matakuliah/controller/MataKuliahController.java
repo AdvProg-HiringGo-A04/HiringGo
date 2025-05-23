@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
@@ -28,6 +29,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
+import static id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper.mataKuliahToMataKuliahResponse;
+
 @RestController
 public class MataKuliahController {
 
@@ -52,7 +55,7 @@ public class MataKuliahController {
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
         List<MataKuliahResponse> mataKuliahResponses = mataKuliah.stream()
-                .map(this::toResponse)
+                .map(MataKuliahMapper::mataKuliahToMataKuliahResponse)
                 .toList();
 
         WebResponse<List<MataKuliahResponse>> response = WebResponse.<List<MataKuliahResponse>>builder()
@@ -74,7 +77,7 @@ public class MataKuliahController {
 
         MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
-        MataKuliahResponse mataKuliahResponse = toResponse(mataKuliah);
+        MataKuliahResponse mataKuliahResponse = mataKuliahToMataKuliahResponse(mataKuliah);
 
         WebResponse<MataKuliahResponse> response = WebResponse.<MataKuliahResponse>builder()
                 .data(mataKuliahResponse)
@@ -171,14 +174,5 @@ public class MataKuliahController {
         if (!role.equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
-    }
-
-    private MataKuliahResponse toResponse(MataKuliah mk) {
-        return MataKuliahResponse.builder()
-                .namaMataKuliah(mk.getNamaMataKuliah())
-                .kodeMataKuliah(mk.getKodeMataKuliah())
-                .deskripsiMataKuliah(mk.getDeskripsiMataKuliah())
-                .dosenPengampu(mk.getDosenPengampu())
-                .build();
     }
 }
