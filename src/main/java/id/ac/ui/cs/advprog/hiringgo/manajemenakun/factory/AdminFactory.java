@@ -51,7 +51,7 @@ public class AdminFactory implements AccountFactory<AdminDTO> {
         user.setRole(role);
         return userRepository.save(user);
     }
-
+    
     private void validateEmailNotTaken(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");

@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class DeleteDosenStrategy implements DeleteUserStrategy {
         return Role.DOSEN.equals(role);
     }
 
+    @Async
     @Override
     @Transactional
     public void deleteUser(String id) {
