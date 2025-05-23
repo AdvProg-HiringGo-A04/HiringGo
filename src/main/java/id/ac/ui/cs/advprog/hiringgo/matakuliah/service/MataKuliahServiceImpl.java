@@ -18,18 +18,18 @@ public class MataKuliahServiceImpl implements MataKuliahService {
     @Autowired
     private MataKuliahRepository mataKuliahRepository;
 
-
     @Override
     public MataKuliah createMataKuliah(CreateMataKuliahRequest request) {
         if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
         }
 
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
-        mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        mataKuliah.setDosenPengampu(request.getDosenPengampu());
+        MataKuliah mataKuliah = MataKuliah.builder()
+                .namaMataKuliah(request.getNamaMataKuliah())
+                .kodeMataKuliah(request.getKodeMataKuliah())
+                .deskripsiMataKuliah(request.getDeskripsiMataKuliah())
+                .dosenPengampu(request.getDosenPengampu())
+                .build();
 
         return mataKuliahRepository.save(mataKuliah);
     }
