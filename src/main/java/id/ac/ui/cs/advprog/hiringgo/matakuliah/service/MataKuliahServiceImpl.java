@@ -41,13 +41,8 @@ public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Override
     public MataKuliah findByKode(String kodeMataKuliah) {
-        Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
-
-        if (mataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        return mataKuliah.get();
+        return mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
     }
 
     @Override
