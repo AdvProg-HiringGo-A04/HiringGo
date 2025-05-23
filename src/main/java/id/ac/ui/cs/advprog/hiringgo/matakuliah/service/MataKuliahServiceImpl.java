@@ -69,9 +69,8 @@ public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Override
     public void deleteMataKuliah(String kodeMataKuliah) {
-        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
+        mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
 
         mataKuliahRepository.deleteById(kodeMataKuliah);
     }
