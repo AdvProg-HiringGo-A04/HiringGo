@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper.createMataKuliahRequestToMataKuliah;
+
 @Service
 public class MataKuliahServiceImpl implements MataKuliahService {
 
@@ -20,16 +22,13 @@ public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Override
     public MataKuliah createMataKuliah(CreateMataKuliahRequest request) {
-        if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
+        String kode = request.getKodeMataKuliah();
+
+        if (mataKuliahRepository.existsById(kode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mata kuliah dengan kode " + kode + " sudah ada");
         }
 
-        MataKuliah mataKuliah = MataKuliah.builder()
-                .namaMataKuliah(request.getNamaMataKuliah())
-                .kodeMataKuliah(request.getKodeMataKuliah())
-                .deskripsiMataKuliah(request.getDeskripsiMataKuliah())
-                .dosenPengampu(request.getDosenPengampu())
-                .build();
+        MataKuliah mataKuliah = createMataKuliahRequestToMataKuliah(request);
 
         return mataKuliahRepository.save(mataKuliah);
     }
