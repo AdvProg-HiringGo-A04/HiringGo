@@ -1,4 +1,3 @@
-// src/test/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/AdminDashboardStrategyTest.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
@@ -7,6 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -25,7 +27,7 @@ class AdminDashboardStrategyTest {
     }
 
     @Test
-    void calculateStatistics_ShouldReturnCorrectStatistics() {
+    void calculateStatistics_ShouldReturnCorrectStatistics() throws ExecutionException, InterruptedException {
         // Arrange
         when(dashboardRepository.countDosenUsers()).thenReturn(10L);
         when(dashboardRepository.countMahasiswaUsers()).thenReturn(100L);
@@ -33,7 +35,8 @@ class AdminDashboardStrategyTest {
         when(dashboardRepository.countLowongan()).thenReturn(30L);
 
         // Act
-        AdminStatisticsDTO result = strategy.calculateStatistics("1L"); // userId doesn't matter for admin
+        CompletableFuture<AdminStatisticsDTO> futureResult = strategy.calculateStatistics("1L"); // userId doesn't matter for admin
+        AdminStatisticsDTO result = futureResult.get(); // Wait for async result
 
         // Assert
         assertEquals(10L, result.getTotalDosen());

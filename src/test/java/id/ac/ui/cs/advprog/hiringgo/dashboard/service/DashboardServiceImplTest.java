@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -133,9 +134,6 @@ class DashboardServiceImplTest {
         assertEquals(45.5, result.getTotalLogHours());
         assertEquals(1500000.0, result.getTotalInsentif());
         assertEquals(2, result.getAcceptedLowonganList().size());
-
-        // The LowonganDTO conversion is now different, so we can't check for specific fields like before
-        // We'll just verify that 2 items exist in the list which matches our test data
     }
 
     @Test
@@ -148,8 +146,9 @@ class DashboardServiceImplTest {
                 .totalLowongan(30L)
                 .build();
 
-        // Set up the adminStrategy mock to return the expectedStats
-        when(adminStrategy.calculateStatistics(adminUser.getId())).thenReturn(expectedStats);
+        // Set up the adminStrategy mock to return a CompletableFuture
+        when(adminStrategy.calculateStatistics(adminUser.getId()))
+                .thenReturn(CompletableFuture.completedFuture(expectedStats));
 
         // Mock the factory to return our mock strategy
         when(dashboardStrategyFactory.getStrategy(adminUser)).thenReturn((DashboardStatisticsStrategy) adminStrategy);
@@ -178,8 +177,9 @@ class DashboardServiceImplTest {
                 .openLowonganCount(3L)
                 .build();
 
-        // Set up the dosenStrategy mock to return the expectedStats
-        when(dosenStrategy.calculateStatistics(dosenUser.getId())).thenReturn(expectedStats);
+        // Set up the dosenStrategy mock to return a CompletableFuture
+        when(dosenStrategy.calculateStatistics(dosenUser.getId()))
+                .thenReturn(CompletableFuture.completedFuture(expectedStats));
 
         // Mock the factory to return our mock strategy
         when(dashboardStrategyFactory.getStrategy(dosenUser)).thenReturn((DashboardStatisticsStrategy) dosenStrategy);
@@ -213,8 +213,9 @@ class DashboardServiceImplTest {
                 ))
                 .build();
 
-        // Set up the mahasiswaStrategy mock to return the expectedStats
-        when(mahasiswaStrategy.calculateStatistics(mahasiswaUser.getId())).thenReturn(expectedStats);
+        // Set up the mahasiswaStrategy mock to return a CompletableFuture
+        when(mahasiswaStrategy.calculateStatistics(mahasiswaUser.getId()))
+                .thenReturn(CompletableFuture.completedFuture(expectedStats));
 
         // Mock the factory to return our mock strategy
         when(dashboardStrategyFactory.getStrategy(mahasiswaUser)).thenReturn((DashboardStatisticsStrategy) mahasiswaStrategy);

@@ -12,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -30,7 +32,7 @@ class MahasiswaDashboardStrategyTest {
     }
 
     @Test
-    void calculateStatistics_ShouldReturnCorrectStatistics() {
+    void calculateStatistics_ShouldReturnCorrectStatistics() throws ExecutionException, InterruptedException {
         // Arrange
         String mahasiswaId = "1";
 
@@ -64,7 +66,8 @@ class MahasiswaDashboardStrategyTest {
         when(dashboardRepository.findAcceptedLowonganByMahasiswaId(mahasiswaId)).thenReturn(acceptedLowongan);
 
         // Act
-        MahasiswaStatisticsDTO result = strategy.calculateStatistics(mahasiswaId);
+        CompletableFuture<MahasiswaStatisticsDTO> futureResult = strategy.calculateStatistics(mahasiswaId);
+        MahasiswaStatisticsDTO result = futureResult.get(); // Use get() to wait for the async computation to complete
 
         // Assert
         assertEquals(5L, result.getOpenLowonganCount());
@@ -80,14 +83,12 @@ class MahasiswaDashboardStrategyTest {
         LowonganDTO dto1 = result.getAcceptedLowonganList().get(0);
         assertEquals(id1.toString(), dto1.getId());
         assertEquals("Advanced Programming", dto1.getMataKuliahName());
-        // Note: mataKuliahCode is not available in the new lowongan model
         assertEquals(2023, dto1.getTahunAjaran());
         assertEquals("GANJIL", dto1.getSemester());
 
         LowonganDTO dto2 = result.getAcceptedLowonganList().get(1);
         assertEquals(id2.toString(), dto2.getId());
         assertEquals("Web Programming", dto2.getMataKuliahName());
-        // Note: mataKuliahCode is not available in the new lowongan model
         assertEquals(2023, dto2.getTahunAjaran());
         assertEquals("GENAP", dto2.getSemester());
     }

@@ -7,7 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 class DosenDashboardStrategyTest {
@@ -24,19 +28,20 @@ class DosenDashboardStrategyTest {
     }
 
     @Test
-    void calculateStatistics_ShouldReturnCorrectStatistics() {
+    void calculateStatistics_ShouldReturnCorrectStatistics() throws ExecutionException, InterruptedException {
         // Arrange
         String dosenId = "1";
         when(dashboardRepository.countMataKuliahByDosenId(dosenId)).thenReturn(5L);
-        when(dashboardRepository.countMahasiswaAssistantByDosenId(dosenId)).thenReturn(25L);
+        when(dashboardRepository.countMahasiswaAssistantByDosenId(dosenId)).thenReturn(10L);
         when(dashboardRepository.countOpenLowonganByDosenId(dosenId)).thenReturn(3L);
 
         // Act
-        DosenStatisticsDTO result = strategy.calculateStatistics(dosenId);
+        CompletableFuture<DosenStatisticsDTO> futureResult = strategy.calculateStatistics(dosenId);
+        DosenStatisticsDTO result = futureResult.get(); // Wait for async result
 
         // Assert
         assertEquals(5L, result.getTotalMataKuliah());
-        assertEquals(25L, result.getTotalMahasiswaAssistant());
+        assertEquals(10L, result.getTotalMahasiswaAssistant());
         assertEquals(3L, result.getOpenLowonganCount());
     }
 }

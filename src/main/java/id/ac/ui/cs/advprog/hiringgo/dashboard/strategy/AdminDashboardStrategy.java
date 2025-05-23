@@ -1,21 +1,26 @@
-// src/main/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/AdminDashboardStrategy.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+
+import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
 public class AdminDashboardStrategy implements DashboardStatisticsStrategy<AdminStatisticsDTO> {
     private final DashboardRepository dashboardRepository;
 
     @Override
-    public AdminStatisticsDTO calculateStatistics(String userId) {
-        return AdminStatisticsDTO.builder()
+    @Async
+    public CompletableFuture<AdminStatisticsDTO> calculateStatistics(String userId) {
+        AdminStatisticsDTO result = AdminStatisticsDTO.builder()
                 .totalDosen(dashboardRepository.countDosenUsers())
                 .totalMahasiswa(dashboardRepository.countMahasiswaUsers())
                 .totalMataKuliah(dashboardRepository.countMataKuliah())
                 .totalLowongan(dashboardRepository.countLowongan())
                 .build();
+
+        return CompletableFuture.completedFuture(result);
     }
 }

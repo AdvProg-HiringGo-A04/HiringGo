@@ -1,4 +1,3 @@
-// src/main/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/MahasiswaDashboardStrategy.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
@@ -6,7 +5,10 @@ import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.LowonganDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -14,14 +16,15 @@ public class MahasiswaDashboardStrategy implements DashboardStatisticsStrategy<M
     private final DashboardRepository dashboardRepository;
 
     @Override
-    public MahasiswaStatisticsDTO calculateStatistics(String mahasiswaId) {
+    @Async
+    public CompletableFuture<MahasiswaStatisticsDTO> calculateStatistics(String mahasiswaId) {
         List<Lowongan> acceptedLowongan = dashboardRepository.findAcceptedLowonganByMahasiswaId(mahasiswaId);
 
         List<LowonganDTO> lowonganDTOList = acceptedLowongan.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
 
-        return MahasiswaStatisticsDTO.builder()
+        MahasiswaStatisticsDTO result = MahasiswaStatisticsDTO.builder()
                 .openLowonganCount(dashboardRepository.countOpenLowongan())
                 .acceptedLowonganCount(dashboardRepository.countAcceptedLowonganByMahasiswaId(mahasiswaId))
                 .rejectedLowonganCount(dashboardRepository.countRejectedLowonganByMahasiswaId(mahasiswaId))
@@ -30,6 +33,8 @@ public class MahasiswaDashboardStrategy implements DashboardStatisticsStrategy<M
                 .totalInsentif(dashboardRepository.calculateTotalInsentifByMahasiswaId(mahasiswaId))
                 .acceptedLowonganList(lowonganDTOList)
                 .build();
+
+        return CompletableFuture.completedFuture(result);
     }
 
     private LowonganDTO convertToDTO(Lowongan lowongan) {
