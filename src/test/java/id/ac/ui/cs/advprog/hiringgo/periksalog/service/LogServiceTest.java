@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -90,7 +91,7 @@ public class LogServiceTest {
         String dosenId = "dosen-123";
         when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1, log2));
         when(mahasiswaRepository.findById("mahasiswa-123")).thenReturn(Optional.of(mahasiswa));
-        when(mataKuliahService.getMataKuliahByKode("CS-001")).thenReturn(mataKuliah);
+        when(mataKuliahService.findByKode("CS-001")).thenReturn(mataKuliah);
 
         // Act
         List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
@@ -123,7 +124,7 @@ public class LogServiceTest {
         when(logRepository.findById(logId)).thenReturn(Optional.of(log1));
         when(logRepository.save(any(Log.class))).thenAnswer(i -> i.getArguments()[0]);
         when(mahasiswaRepository.findById("mahasiswa-123")).thenReturn(Optional.of(mahasiswa));
-        when(mataKuliahService.getMataKuliahByKode("CS-001")).thenReturn(mataKuliah);
+        when(mataKuliahService.findByKode("CS-001")).thenReturn(mataKuliah);
 
         // Act
         LogDTO result = logService.updateLogStatus(dosenId, updateDTO);

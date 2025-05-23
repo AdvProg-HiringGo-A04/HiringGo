@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.repository.LogRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,7 +69,7 @@ public class LogServiceImpl implements LogService {
         Mahasiswa mahasiswa = mahasiswaRepository.findById(log.getMahasiswaId())
                 .orElseThrow(() -> new NoSuchElementException("Mahasiswa not found with ID: " + log.getMahasiswaId()));
 
-        MataKuliah mataKuliah = mataKuliahService.getMataKuliahByKode(log.getMataKuliahId());
+        MataKuliah mataKuliah = mataKuliahService.findByKode(log.getMataKuliahId());
 
         return LogDTO.builder()
                 .id(log.getId())
