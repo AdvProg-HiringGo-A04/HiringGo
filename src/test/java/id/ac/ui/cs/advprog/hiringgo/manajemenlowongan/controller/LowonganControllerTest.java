@@ -145,15 +145,16 @@ public class LowonganControllerTest {
 
     @Test
     void testSetStatusPendaftar_returnsOk() throws Exception {
-        UUID pendaftarId = UUID.randomUUID();
+        UUID lowonganId = UUID.randomUUID();
+        String npm = "12345678";
 
-        mockMvc.perform(post("/api/lowongan/pendaftar/" + pendaftarId + "/status")
-                .param("diterima", "true"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data").value("Status updated successfully"))
-            .andExpect(jsonPath("$.errors").isEmpty());
+        mockMvc.perform(post("/api/lowongan/" + lowonganId + "/pendaftar/" + npm)
+                        .param("diterima", "true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").doesNotExist())  // since your response is empty (Void)
+                .andExpect(jsonPath("$.errors").isEmpty());
 
-        verify(lowonganService).setStatusPendaftar(pendaftarId, true);
+        verify(lowonganService).setStatusPendaftar(lowonganId, npm, true);
     }
 
 }

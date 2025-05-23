@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,28 +78,40 @@ public class LowonganService {
         return false; // Not found, no deletion
     }
 
+    @Transactional
     public List<PendaftarLowongan> getPendaftarByLowongan(UUID lowonganId) {
         Lowongan lowongan = lowonganRepository.findById(lowonganId)
             .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
-        return lowongan.getPendaftar(); // assumes you have a `getPendaftar()` method
+        return lowongan.getPendaftar();
     }
 
+    @Async
     @Transactional
-    public void setStatusPendaftar(UUID pendaftarId, boolean diterima) {
-        Optional<Lowongan> lowonganOpt = lowonganRepository.findAll().stream()
-            .filter(l -> l.getPendaftar().stream().anyMatch(p -> p.getId().equals(pendaftarId)))
-            .findFirst();
+    public void setStatusPendaftar(UUID lowonganId, String npm, boolean diterima) {
+        // Find the lowongan by id
+        Lowongan lowongan = lowonganRepository.findById(lowonganId)
+                .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
 
-        if (lowonganOpt.isEmpty()) {
-            throw new IllegalArgumentException("Pendaftar tidak ditemukan");
+        // Find the pendaftar inside the lowongan with matching Mahasiswa NPM
+        PendaftarLowongan pendaftar = lowongan.getPendaftar().stream()
+                .filter(p -> p.getMahasiswa().getNPM().equals(npm))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Pendaftar tidak ditemukan"));
+
+        // Cek apakah status berubah
+        boolean statusLama = pendaftar.isDiterima();
+        if (statusLama != diterima) {
+            if (diterima) {
+                lowongan.setJumlahDiterima(lowongan.getJumlahDiterima() + 1);
+            } else {
+                lowongan.setJumlahDiterima(lowongan.getJumlahDiterima() - 1);
+            }
         }
 
-        PendaftarLowongan pendaftar = lowonganOpt.get().getPendaftar().stream()
-            .filter(p -> p.getId().equals(pendaftarId))
-            .findFirst()
-            .orElseThrow(() -> new IllegalArgumentException("Pendaftar tidak ditemukan"));
-
+        // Update status
         pendaftar.setDiterima(diterima);
-        lowonganRepository.save(lowonganOpt.get());
+
+        // Persist the change (optional if cascade = ALL and dirty checking works)
+        lowonganRepository.save(lowongan);
     }
 }
