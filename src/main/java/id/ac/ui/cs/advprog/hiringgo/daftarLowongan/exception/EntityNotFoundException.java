@@ -2,11 +2,11 @@ package id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception;
 
 import java.util.Map;
 
-public class InvalidDataException extends RuntimeException {
+public class EntityNotFoundException extends RuntimeException {
     private final Map<String, String> errors;
 
-    public InvalidDataException(Map<String, String> errors) {
-        super("Data tidak valid");
+    public EntityNotFoundException(Map<String, String> errors) {
+        super("Data tidak ditemukan");
         this.errors = errors;
     }
 
@@ -14,3 +14,4 @@ public class InvalidDataException extends RuntimeException {
         return errors;
     }
 }
+
