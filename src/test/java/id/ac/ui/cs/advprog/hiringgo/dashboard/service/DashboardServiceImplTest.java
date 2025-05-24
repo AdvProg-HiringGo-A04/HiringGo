@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.service;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.LowonganDTO;
@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,9 +41,9 @@ class DashboardServiceImplTest {
     @InjectMocks
     private DashboardServiceImpl dashboardService;
 
-    private Users adminUser;
-    private Users dosenUser;
-    private Users mahasiswaUser;
+    private User adminUser;
+    private User dosenUser;
+    private User mahasiswaUser;
 
     @Mock
     private AdminDashboardStrategy adminStrategy;
@@ -57,16 +58,18 @@ class DashboardServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // Create mock Users objects
+        // Create mock User objects
         adminUser = createMockUser("1", Role.ADMIN);
         dosenUser = createMockUser("2", Role.DOSEN);
         mahasiswaUser = createMockUser("3", Role.MAHASISWA);
     }
 
-    private Users createMockUser(String id, Role role) {
-        Users user = mock(Users.class);
-        when(user.getId()).thenReturn(id);
-        when(user.getRole()).thenReturn(role);
+    private User createMockUser(String id, Role role) {
+        User user = new User();
+        user.setId(id);
+        user.setEmail("user" + id + "@example.com");
+        user.setRole(role);
+        user.setPassword("password");
         return user;
     }
 
@@ -137,7 +140,7 @@ class DashboardServiceImplTest {
     }
 
     @Test
-    void getStatisticsForUser_WhenUserIsAdmin_ShouldReturnAdminStatistics() {
+    void getStatisticsForUser_WhenUserIsAdmin_ShouldReturnAdminStatistics() throws Exception {
         // Arrange
         AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
                 .totalDosen(10L)
@@ -154,7 +157,8 @@ class DashboardServiceImplTest {
         when(dashboardStrategyFactory.getStrategy(adminUser)).thenReturn((DashboardStatisticsStrategy) adminStrategy);
 
         // Act
-        Object result = dashboardService.getStatisticsForUser(adminUser);
+        CompletableFuture<Object> futureResult = dashboardService.getStatisticsForUser(adminUser);
+        Object result = futureResult.get(); // Get the actual result from CompletableFuture
 
         // Assert
         verify(dashboardStrategyFactory).getStrategy(adminUser);
@@ -169,7 +173,7 @@ class DashboardServiceImplTest {
     }
 
     @Test
-    void getStatisticsForUser_WhenUserIsDosen_ShouldReturnDosenStatistics() {
+    void getStatisticsForUser_WhenUserIsDosen_ShouldReturnDosenStatistics() throws ExecutionException, InterruptedException {
         // Arrange
         DosenStatisticsDTO expectedStats = DosenStatisticsDTO.builder()
                 .totalMataKuliah(5L)
@@ -185,7 +189,7 @@ class DashboardServiceImplTest {
         when(dashboardStrategyFactory.getStrategy(dosenUser)).thenReturn((DashboardStatisticsStrategy) dosenStrategy);
 
         // Act
-        Object result = dashboardService.getStatisticsForUser(dosenUser);
+        Object result = dashboardService.getStatisticsForUser(dosenUser).get();
 
         // Assert
         verify(dashboardStrategyFactory).getStrategy(dosenUser);
@@ -199,7 +203,7 @@ class DashboardServiceImplTest {
     }
 
     @Test
-    void getStatisticsForUser_WhenUserIsMahasiswa_ShouldReturnMahasiswaStatistics() {
+    void getStatisticsForUser_WhenUserIsMahasiswa_ShouldReturnMahasiswaStatistics() throws Exception {
         // Arrange
         MahasiswaStatisticsDTO expectedStats = MahasiswaStatisticsDTO.builder()
                 .openLowonganCount(10L)
@@ -221,7 +225,8 @@ class DashboardServiceImplTest {
         when(dashboardStrategyFactory.getStrategy(mahasiswaUser)).thenReturn((DashboardStatisticsStrategy) mahasiswaStrategy);
 
         // Act
-        Object result = dashboardService.getStatisticsForUser(mahasiswaUser);
+        CompletableFuture<Object> futureResult = dashboardService.getStatisticsForUser(mahasiswaUser);
+        Object result = futureResult.get(); // Get the actual result from CompletableFuture
 
         // Assert
         verify(dashboardStrategyFactory).getStrategy(mahasiswaUser);

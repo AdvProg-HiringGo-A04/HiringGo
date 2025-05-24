@@ -1,8 +1,7 @@
-// src/main/java/id/ac/ui/cs/advprog/hiringgo/dashboard/strategy/DashboardStrategyFactory.java
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class DashboardStrategyFactory {
     private final DashboardRepository dashboardRepository;
 
-    public DashboardStatisticsStrategy<?> getStrategy(Users user) {
+    public DashboardStatisticsStrategy<?> getStrategy(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");
         }

@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.service;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.hiringgo.dashboard.strategy.DashboardStatisticsStrate
 import id.ac.ui.cs.advprog.hiringgo.dashboard.strategy.DashboardStrategyFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +18,9 @@ public class DashboardServiceImpl implements DashboardService {
     private final DashboardStrategyFactory dashboardStrategyFactory;
 
     @Override
-    public Object getStatisticsForUser(Users user) {
+    public CompletableFuture<Object> getStatisticsForUser(User user) {
         DashboardStatisticsStrategy<?> strategy = dashboardStrategyFactory.getStrategy(user);
-        return strategy.calculateStatistics(user.getId());
+        return strategy.calculateStatistics(user.getId()).thenApply(result -> (Object) result);
     }
 
     @Override

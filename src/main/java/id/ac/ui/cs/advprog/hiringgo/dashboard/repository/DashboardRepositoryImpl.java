@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -24,7 +24,7 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     private static final double RATE_PER_HOUR = 27500.0;
 
     // Cached query strings for better performance and maintainability
-    private static final String COUNT_USERS_BY_ROLE = "SELECT COUNT(u) FROM Users u WHERE u.role = :role";
+    private static final String COUNT_USERS_BY_ROLE = "SELECT COUNT(u) FROM User u WHERE u.role = :role";
     private static final String COUNT_MATA_KULIAH = "SELECT COUNT(mk) FROM MataKuliah mk";
     private static final String COUNT_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l";
     private static final String COUNT_MATA_KULIAH_BY_DOSEN = "SELECT COUNT(mk) FROM MataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId";

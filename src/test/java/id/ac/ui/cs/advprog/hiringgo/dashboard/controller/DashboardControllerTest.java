@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
@@ -34,7 +34,7 @@ class DashboardControllerTest {
     @Test
     void getDashboard_WhenUserIsAuthenticated_ShouldReturnStatistics() {
         // Arrange
-        Users adminUser = createMockUser("1", Role.ADMIN);
+        User adminUser = createMockUser("1", Role.ADMIN);
 
         AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
                 .totalDosen(10L)
@@ -66,7 +66,7 @@ class DashboardControllerTest {
     @Test
     void getDashboard_WhenServiceThrowsException_ShouldReturnInternalServerError() {
         // Arrange
-        Users adminUser = createMockUser("1", Role.ADMIN);
+        User adminUser = createMockUser("1", Role.ADMIN);
 
         when(dashboardService.getStatisticsForUser(adminUser)).thenThrow(new RuntimeException("Test exception"));
 
@@ -80,7 +80,7 @@ class DashboardControllerTest {
     @Test
     void getAdminDashboard_WhenUserIsAdmin_ShouldReturnStatistics() {
         // Arrange
-        Users adminUser = createMockUser("1", Role.ADMIN);
+        User adminUser = createMockUser("1", Role.ADMIN);
 
         AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
                 .totalDosen(10L)
@@ -102,7 +102,7 @@ class DashboardControllerTest {
     @Test
     void getAdminDashboard_WhenUserIsNotAdmin_ShouldReturnForbidden() {
         // Arrange
-        Users dosenUser = createMockUser("1", Role.DOSEN);
+        User dosenUser = createMockUser("1", Role.DOSEN);
 
         // Act
         ResponseEntity<?> response = dashboardController.getAdminDashboard(dosenUser);
@@ -115,7 +115,7 @@ class DashboardControllerTest {
     @Test
     void getDosenDashboard_WhenUserIsDosen_ShouldReturnStatistics() {
         // Arrange
-        Users dosenUser = createMockUser("1", Role.DOSEN);
+        User dosenUser = createMockUser("1", Role.DOSEN);
 
         DosenStatisticsDTO expectedStats = DosenStatisticsDTO.builder()
                 .totalMataKuliah(5L)
@@ -137,7 +137,7 @@ class DashboardControllerTest {
     @Test
     void getDosenDashboard_WhenUserIsNotDosen_ShouldReturnForbidden() {
         // Arrange
-        Users adminUser = createMockUser("1", Role.ADMIN);
+        User adminUser = createMockUser("1", Role.ADMIN);
 
         // Act
         ResponseEntity<?> response = dashboardController.getDosenDashboard(adminUser);
@@ -160,7 +160,7 @@ class DashboardControllerTest {
     @Test
     void getMahasiswaDashboard_WhenUserIsMahasiswa_ShouldReturnStatistics() {
         // Arrange
-        Users mahasiswaUser = createMockUser("1", Role.MAHASISWA);
+        User mahasiswaUser = createMockUser("1", Role.MAHASISWA);
 
         MahasiswaStatisticsDTO expectedStats = MahasiswaStatisticsDTO.builder()
                 .openLowonganCount(5L)
@@ -186,7 +186,7 @@ class DashboardControllerTest {
     @Test
     void getMahasiswaDashboard_WhenUserIsNotMahasiswa_ShouldReturnForbidden() {
         // Arrange
-        Users dosenUser = createMockUser("1", Role.DOSEN);
+        User dosenUser = createMockUser("1", Role.DOSEN);
 
         // Act
         ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(dosenUser);
@@ -206,33 +206,13 @@ class DashboardControllerTest {
         verify(dashboardService, never()).getMahasiswaStatistics(anyString());
     }
 
-    // Helper method to create mock Users
-    private Users createMockUser(String id, Role role) {
-        return new Users() {
-            @Override
-            public String getId() {
-                return id;
-            }
-
-            @Override
-            public String getEmail() {
-                return "user@example.com";
-            }
-
-            @Override
-            public String getFullName() {
-                return "Test User";
-            }
-
-            @Override
-            public Role getRole() {
-                return role;
-            }
-
-            @Override
-            public String getPassword() {
-                return "password";
-            }
-        };
+    // Helper method to create mock User entities
+    private User createMockUser(String id, Role role) {
+        User user = new User();
+        user.setId(id);
+        user.setEmail("user@example.com");
+        user.setRole(role);
+        user.setPassword("password");
+        return user;
     }
 }

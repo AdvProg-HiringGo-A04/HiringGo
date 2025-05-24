@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.Users;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
@@ -21,7 +21,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping
-    public ResponseEntity<?> getDashboard(@AuthenticationPrincipal Users user) {
+    public ResponseEntity<?> getDashboard(@AuthenticationPrincipal User user) {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
@@ -37,7 +37,7 @@ public class DashboardController {
 
     // These endpoints could be used for testing or direct access to specific statistics
     @GetMapping("/admin")
-    public ResponseEntity<AdminStatisticsDTO> getAdminDashboard(@AuthenticationPrincipal Users user) {
+    public ResponseEntity<AdminStatisticsDTO> getAdminDashboard(@AuthenticationPrincipal User user) {
         if (user == null || user.getRole() != Role.ADMIN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -45,7 +45,7 @@ public class DashboardController {
     }
 
     @GetMapping("/dosen")
-    public ResponseEntity<DosenStatisticsDTO> getDosenDashboard(@AuthenticationPrincipal Users user) {
+    public ResponseEntity<DosenStatisticsDTO> getDosenDashboard(@AuthenticationPrincipal User user) {
         if (user == null || user.getRole() != Role.DOSEN) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -53,7 +53,7 @@ public class DashboardController {
     }
 
     @GetMapping("/mahasiswa")
-    public ResponseEntity<MahasiswaStatisticsDTO> getMahasiswaDashboard(@AuthenticationPrincipal Users user) {
+    public ResponseEntity<MahasiswaStatisticsDTO> getMahasiswaDashboard(@AuthenticationPrincipal User user) {
         if (user == null || user.getRole() != Role.MAHASISWA) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
