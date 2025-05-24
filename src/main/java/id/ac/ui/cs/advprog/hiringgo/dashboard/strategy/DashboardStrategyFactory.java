@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.strategy;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
