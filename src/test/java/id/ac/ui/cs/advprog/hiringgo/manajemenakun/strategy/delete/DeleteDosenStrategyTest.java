@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.delete;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

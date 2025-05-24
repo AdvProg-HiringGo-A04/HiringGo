@@ -1,15 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.update;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Dosen;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.AdminRepository;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.AdminRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;

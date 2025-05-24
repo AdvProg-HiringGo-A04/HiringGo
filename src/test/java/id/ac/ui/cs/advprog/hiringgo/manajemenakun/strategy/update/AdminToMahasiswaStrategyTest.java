@@ -2,10 +2,9 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.update;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.AdminRepository;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.update.AdminToMahasiswaStrategy;
+import id.ac.ui.cs.advprog.hiringgo.repository.AdminRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;

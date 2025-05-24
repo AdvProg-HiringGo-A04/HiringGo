@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.model;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;

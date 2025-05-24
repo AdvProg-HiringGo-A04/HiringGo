@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.delete;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;

@@ -2,10 +2,10 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.strategy.update;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Dosen;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

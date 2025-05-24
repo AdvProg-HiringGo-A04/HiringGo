@@ -1,13 +1,13 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.util;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Dosen;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AdminUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.DosenUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.MahasiswaUserResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.DosenRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.DosenRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

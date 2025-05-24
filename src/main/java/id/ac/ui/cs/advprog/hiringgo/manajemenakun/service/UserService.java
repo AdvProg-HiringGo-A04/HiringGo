@@ -3,8 +3,8 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenakun.service;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AdminDTO;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.DosenDTO;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Admin;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Dosen;
+import id.ac.ui.cs.advprog.hiringgo.entity.Admin;
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
 

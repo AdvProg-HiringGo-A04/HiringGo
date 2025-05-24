@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.Admin;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
