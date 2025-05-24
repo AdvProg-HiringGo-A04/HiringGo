@@ -32,21 +32,49 @@ class DashboardControllerTest {
     }
 
     @Test
-    void getDashboard_WhenUserIsAuthenticated_ShouldReturnStatistics() {
+    void getDashboard_WhenUserIsAdmin_ShouldReturnAdminStatistics() {
         // Arrange
         User adminUser = createMockUser("1", Role.ADMIN);
-
-        AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
-                .totalDosen(10L)
-                .totalMahasiswa(100L)
-                .totalMataKuliah(20L)
-                .totalLowongan(30L)
-                .build();
+        AdminStatisticsDTO expectedStats = new AdminStatisticsDTO(10L, 100L, 20L, 30L);
 
         when(dashboardService.getStatisticsForUser(adminUser)).thenReturn(expectedStats);
 
         // Act
         ResponseEntity<?> response = dashboardController.getDashboard(adminUser);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedStats, response.getBody());
+    }
+
+    @Test
+    void getDashboard_WhenUserIsDosen_ShouldReturnDosenStatistics() {
+        // Arrange
+        User dosenUser = createMockUser("1", Role.DOSEN);
+        DosenStatisticsDTO expectedStats = new DosenStatisticsDTO(5L, 10L, 50L);
+
+        when(dashboardService.getStatisticsForUser(dosenUser)).thenReturn(expectedStats);
+
+        // Act
+        ResponseEntity<?> response = dashboardController.getDashboard(dosenUser);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedStats, response.getBody());
+    }
+
+    @Test
+    void getDashboard_WhenUserIsMahasiswa_ShouldReturnMahasiswaStatistics() {
+        // Arrange
+        User mahasiswaUser = createMockUser("1", Role.MAHASISWA);
+        MahasiswaStatisticsDTO expectedStats = new MahasiswaStatisticsDTO(
+                5L, 3L, 2L, 1L, 45.5, 500000.0, new ArrayList<>()
+        );
+
+        when(dashboardService.getStatisticsForUser(mahasiswaUser)).thenReturn(expectedStats);
+
+        // Act
+        ResponseEntity<?> response = dashboardController.getDashboard(mahasiswaUser);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -64,146 +92,29 @@ class DashboardControllerTest {
     }
 
     @Test
-    void getDashboard_WhenServiceThrowsException_ShouldReturnInternalServerError() {
+    void getDashboard_WhenServiceThrowsIllegalArgument_ShouldReturnBadRequest() {
         // Arrange
-        User adminUser = createMockUser("1", Role.ADMIN);
-
-        when(dashboardService.getStatisticsForUser(adminUser)).thenThrow(new RuntimeException("Test exception"));
+        User user = createMockUser("1", Role.ADMIN);
+        when(dashboardService.getStatisticsForUser(user)).thenThrow(new IllegalArgumentException("Invalid user"));
 
         // Act
-        ResponseEntity<?> response = dashboardController.getDashboard(adminUser);
+        ResponseEntity<?> response = dashboardController.getDashboard(user);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
+    void getDashboard_WhenServiceThrowsException_ShouldReturnInternalServerError() {
+        // Arrange
+        User user = createMockUser("1", Role.ADMIN);
+        when(dashboardService.getStatisticsForUser(user)).thenThrow(new RuntimeException("Test exception"));
+
+        // Act
+        ResponseEntity<?> response = dashboardController.getDashboard(user);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    }
-
-    @Test
-    void getAdminDashboard_WhenUserIsAdmin_ShouldReturnStatistics() {
-        // Arrange
-        User adminUser = createMockUser("1", Role.ADMIN);
-
-        AdminStatisticsDTO expectedStats = AdminStatisticsDTO.builder()
-                .totalDosen(10L)
-                .totalMahasiswa(100L)
-                .totalMataKuliah(20L)
-                .totalLowongan(30L)
-                .build();
-
-        when(dashboardService.getAdminStatistics()).thenReturn(expectedStats);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getAdminDashboard(adminUser);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedStats, response.getBody());
-    }
-
-    @Test
-    void getAdminDashboard_WhenUserIsNotAdmin_ShouldReturnForbidden() {
-        // Arrange
-        User dosenUser = createMockUser("1", Role.DOSEN);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getAdminDashboard(dosenUser);
-
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getAdminStatistics();
-    }
-
-    @Test
-    void getDosenDashboard_WhenUserIsDosen_ShouldReturnStatistics() {
-        // Arrange
-        User dosenUser = createMockUser("1", Role.DOSEN);
-
-        DosenStatisticsDTO expectedStats = DosenStatisticsDTO.builder()
-                .totalMataKuliah(5L)
-                .openLowonganCount(10L)
-                .totalMahasiswaAssistant(50L)
-                .build();
-
-        when(dashboardService.getDosenStatistics(dosenUser.getId())).thenReturn(expectedStats);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getDosenDashboard(dosenUser);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedStats, response.getBody());
-        verify(dashboardService).getDosenStatistics(dosenUser.getId());
-    }
-
-    @Test
-    void getDosenDashboard_WhenUserIsNotDosen_ShouldReturnForbidden() {
-        // Arrange
-        User adminUser = createMockUser("1", Role.ADMIN);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getDosenDashboard(adminUser);
-
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getDosenStatistics(anyString());
-    }
-
-    @Test
-    void getDosenDashboard_WhenUserIsNull_ShouldReturnForbidden() {
-        // Act
-        ResponseEntity<?> response = dashboardController.getDosenDashboard(null);
-
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getDosenStatistics(anyString());
-    }
-
-    @Test
-    void getMahasiswaDashboard_WhenUserIsMahasiswa_ShouldReturnStatistics() {
-        // Arrange
-        User mahasiswaUser = createMockUser("1", Role.MAHASISWA);
-
-        MahasiswaStatisticsDTO expectedStats = MahasiswaStatisticsDTO.builder()
-                .openLowonganCount(5L)
-                .acceptedLowonganCount(3L)
-                .rejectedLowonganCount(2L)
-                .pendingLowonganCount(1L)
-                .totalLogHours(45.5)
-                .totalInsentif(500000.0)
-                .acceptedLowonganList(new ArrayList<>())
-                .build();
-
-        when(dashboardService.getMahasiswaStatistics(mahasiswaUser.getId())).thenReturn(expectedStats);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(mahasiswaUser);
-
-        // Assert
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedStats, response.getBody());
-        verify(dashboardService).getMahasiswaStatistics(mahasiswaUser.getId());
-    }
-
-    @Test
-    void getMahasiswaDashboard_WhenUserIsNotMahasiswa_ShouldReturnForbidden() {
-        // Arrange
-        User dosenUser = createMockUser("1", Role.DOSEN);
-
-        // Act
-        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(dosenUser);
-
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getMahasiswaStatistics(anyString());
-    }
-
-    @Test
-    void getMahasiswaDashboard_WhenUserIsNull_ShouldReturnForbidden() {
-        // Act
-        ResponseEntity<?> response = dashboardController.getMahasiswaDashboard(null);
-
-        // Assert
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        verify(dashboardService, never()).getMahasiswaStatistics(anyString());
     }
 
     // Helper method to create mock User entities

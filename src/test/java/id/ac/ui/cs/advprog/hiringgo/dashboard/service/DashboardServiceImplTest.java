@@ -212,7 +212,7 @@ class DashboardServiceImplTest {
         try {
             dashboardService.getStatisticsForUser(null);
         } catch (IllegalArgumentException e) {
-            assertEquals("User and user role cannot be null", e.getMessage());
+            assertEquals("User cannot be null", e.getMessage());
         }
     }
 
@@ -227,7 +227,7 @@ class DashboardServiceImplTest {
         try {
             dashboardService.getStatisticsForUser(userWithNullRole);
         } catch (IllegalArgumentException e) {
-            assertEquals("User and user role cannot be null", e.getMessage());
+            assertEquals("User role cannot be null", e.getMessage());
         }
     }
 
