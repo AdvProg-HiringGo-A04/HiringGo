@@ -1,12 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo.daftarLowongan.command;
 
+import java.util.UUID;
+
 public class DaftarLowonganCommand {
     private final int sks;
     private final double ipk;
-    private final Long lowonganId;
-    private final Long mahasiswaId;
+    private final String lowonganId;
+    private final String mahasiswaId;
 
-    public DaftarLowonganCommand(int sks, double ipk, Long lowonganId, Long mahasiswaId) {
+    public DaftarLowonganCommand(int sks, double ipk, String lowonganId, String mahasiswaId) {
         this.sks = sks;
         this.ipk = ipk;
         this.lowonganId = lowonganId;
@@ -15,6 +17,6 @@ public class DaftarLowonganCommand {
 
     public int getSks() { return sks; }
     public double getIpk() { return ipk; }
-    public Long getLowonganId() { return lowonganId; }
-    public Long getMahasiswaId() { return mahasiswaId; }
+    public String getLowonganId() { return lowonganId; }
+    public String getMahasiswaId() { return mahasiswaId; }
 }
