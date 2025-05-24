@@ -6,11 +6,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Table(name = "mahasiswa")
 @Entity
+@ToString
 public class Mahasiswa {
 
     @Id

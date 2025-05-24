@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
@@ -82,7 +83,7 @@ public class MataKuliahControllerTest {
         user.setId(id);
         user.setEmail("dosen@hiringgo.com");
         user.setPassword("securepassword");
-        user.setRole("DOSEN");
+        user.setRole(Role.DOSEN);
         userRepository.save(user);
 
         Dosen dosen = new Dosen();
