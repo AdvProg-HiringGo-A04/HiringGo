@@ -5,7 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.*;
 import id.ac.ui.cs.advprog.hiringgo.entity.Admin;
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.entity;
+package id.ac.ui.cs.advprog.hiringgo.enums;
 
 public enum Role {
     ADMIN, DOSEN, MAHASISWA;

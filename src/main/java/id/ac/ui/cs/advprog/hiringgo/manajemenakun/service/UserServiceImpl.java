@@ -6,7 +6,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.DosenDTO;
 import id.ac.ui.cs.advprog.hiringgo.entity.Admin;
 import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.factory.AccountFactory;
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.RoleUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.repository.AdminRepository;

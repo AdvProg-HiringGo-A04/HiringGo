@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
