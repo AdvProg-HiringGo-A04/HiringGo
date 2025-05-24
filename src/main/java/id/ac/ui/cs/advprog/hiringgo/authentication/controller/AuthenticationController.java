@@ -10,6 +10,7 @@ import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import id.ac.ui.cs.advprog.hiringgo.security.annotation.AllowedRoles;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -48,7 +50,8 @@ public class AuthenticationController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<LoginUserResponse>> login(@RequestBody(required = false) LoginUserRequest request) {
+    public ResponseEntity<WebResponse<LoginUserResponse>> login(
+            @RequestBody(required = false) LoginUserRequest request) {
 
         if (request == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
@@ -86,7 +89,8 @@ public class AuthenticationController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> register(@RequestBody(required = false) RegisterMahasiswaRequest request) {
+    public ResponseEntity<WebResponse<String>> register(
+            @RequestBody(required = false) RegisterMahasiswaRequest request) {
 
         if (request == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
@@ -98,30 +102,25 @@ public class AuthenticationController {
             throw new ConstraintViolationException(constraintViolations);
         }
 
-        // Check if passwords match
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password and confirm password must match");
         }
 
-        // Check if email is already taken
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");
         }
 
-        // Check if NPM is already taken
         if (mahasiswaRepository.findByNPM(request.getNPM()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NPM is already taken");
         }
 
-        // Create user
         User user = new User();
-        user.setId(java.util.UUID.randomUUID().toString());
+        user.setId(UUID.randomUUID().toString());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf("MAHASISWA")); // Only mahasiswa role is allowed to register
+        user.setRole(Role.MAHASISWA);
         userRepository.save(user);
 
-        // Create mahasiswa profile
         Mahasiswa mahasiswa = new Mahasiswa();
         mahasiswa.setId(user.getId());
         mahasiswa.setNamaLengkap(request.getNamaLengkap());
@@ -137,23 +136,15 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN, Role.MAHASISWA})
     @PostMapping(
             path = "/auth/logout",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<String>> logout(@RequestHeader(name = "Authorization", required = false) String token) {
+    public ResponseEntity<WebResponse<String>> logout(
+            @RequestHeader(name = "Authorization", required = false) String token) {
 
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        log.info("User logged out: {}", jwtUtil.extractEmail(token));
+        log.info("User logged out: {}", jwtUtil.extractEmail(token.substring(7)));
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("OK")
