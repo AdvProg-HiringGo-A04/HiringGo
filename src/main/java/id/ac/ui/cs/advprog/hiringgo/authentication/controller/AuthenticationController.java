@@ -13,6 +13,7 @@ import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Set;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
+@Slf4j
 @RestController
 public class AuthenticationController {
 
@@ -71,6 +72,8 @@ public class AuthenticationController {
 
         LoginUserResponse loginUserResponse = new LoginUserResponse();
         loginUserResponse.setToken(token);
+
+        log.info("Authentication successful for user: {}", user.getEmail());
 
         WebResponse<LoginUserResponse> response = WebResponse.<LoginUserResponse>builder()
                 .data(loginUserResponse)
@@ -126,6 +129,8 @@ public class AuthenticationController {
         mahasiswa.setNPM(request.getNPM());
         mahasiswaRepository.save(mahasiswa);
 
+        log.info("New user registered with email: {}", user.getEmail());
+
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("Registration successful")
                 .build();
@@ -148,6 +153,8 @@ public class AuthenticationController {
         if (!jwtUtil.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
+
+        log.info("User logged out: {}", jwtUtil.extractEmail(token));
 
         WebResponse<String> response = WebResponse.<String>builder()
                 .data("OK")
