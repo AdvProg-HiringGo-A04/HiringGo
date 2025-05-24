@@ -11,9 +11,7 @@ import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
 import id.ac.ui.cs.advprog.hiringgo.security.annotation.AllowedRoles;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -37,9 +34,6 @@ public class AuthenticationController {
     private MahasiswaRepository mahasiswaRepository;
 
     @Autowired
-    private Validator validator;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -51,17 +45,7 @@ public class AuthenticationController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<LoginUserResponse>> login(
-            @RequestBody(required = false) LoginUserRequest request) {
-
-        if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
-        }
-
-        Set<ConstraintViolation<LoginUserRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
+            @Valid @RequestBody LoginUserRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
@@ -90,17 +74,7 @@ public class AuthenticationController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<String>> register(
-            @RequestBody(required = false) RegisterMahasiswaRequest request) {
-
-        if (request == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
-        }
-
-        Set<ConstraintViolation<RegisterMahasiswaRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
+            @Valid @RequestBody RegisterMahasiswaRequest request) {
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password and confirm password must match");
