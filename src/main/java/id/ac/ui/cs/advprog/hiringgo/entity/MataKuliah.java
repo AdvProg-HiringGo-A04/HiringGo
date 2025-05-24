@@ -7,13 +7,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "mata_kuliah")
 public class MataKuliah {
@@ -35,5 +41,4 @@ public class MataKuliah {
             inverseJoinColumns = @JoinColumn(name = "id")
     )
     private List<Dosen> dosenPengampu;
-
 }

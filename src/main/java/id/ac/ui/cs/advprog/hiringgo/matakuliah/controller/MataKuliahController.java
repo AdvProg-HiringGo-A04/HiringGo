@@ -1,15 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,16 +25,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
+
+import static id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper.mataKuliahToMataKuliahResponse;
 
 @RestController
 public class MataKuliahController {
 
     @Autowired
     private MataKuliahService mataKuliahService;
-
-    @Autowired
-    private Validator validator;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -52,7 +49,7 @@ public class MataKuliahController {
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
         List<MataKuliahResponse> mataKuliahResponses = mataKuliah.stream()
-                .map(this::toResponse)
+                .map(MataKuliahMapper::mataKuliahToMataKuliahResponse)
                 .toList();
 
         WebResponse<List<MataKuliahResponse>> response = WebResponse.<List<MataKuliahResponse>>builder()
@@ -74,7 +71,7 @@ public class MataKuliahController {
 
         MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
-        MataKuliahResponse mataKuliahResponse = toResponse(mataKuliah);
+        MataKuliahResponse mataKuliahResponse = mataKuliahToMataKuliahResponse(mataKuliah);
 
         WebResponse<MataKuliahResponse> response = WebResponse.<MataKuliahResponse>builder()
                 .data(mataKuliahResponse)
@@ -90,15 +87,9 @@ public class MataKuliahController {
     )
     public ResponseEntity<WebResponse<String>> createCourses(
             @RequestHeader(name = "Authorization", required = false) String token,
-            @RequestBody CreateMataKuliahRequest request) {
+            @Valid @RequestBody CreateMataKuliahRequest request) {
 
         roleRequired(token);
-
-        Set<ConstraintViolation<CreateMataKuliahRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
 
         MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
@@ -117,15 +108,9 @@ public class MataKuliahController {
     public ResponseEntity<WebResponse<String>> updateCourses(
             @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
-            @RequestBody UpdateMataKuliahRequest request) {
+            @Valid @RequestBody UpdateMataKuliahRequest request) {
 
         roleRequired(token);
-
-        Set<ConstraintViolation<UpdateMataKuliahRequest>> constraintViolations = validator.validate(request);
-
-        if (!constraintViolations.isEmpty()) {
-            throw new ConstraintViolationException(constraintViolations);
-        }
 
         mataKuliahService.updateMataKuliah(kodeMataKuliah, request);
 
@@ -171,14 +156,5 @@ public class MataKuliahController {
         if (!role.equals("ADMIN")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
         }
-    }
-
-    private MataKuliahResponse toResponse(MataKuliah mk) {
-        return MataKuliahResponse.builder()
-                .namaMataKuliah(mk.getNamaMataKuliah())
-                .kodeMataKuliah(mk.getKodeMataKuliah())
-                .deskripsiMataKuliah(mk.getDeskripsiMataKuliah())
-                .dosenPengampu(mk.getDosenPengampu())
-                .build();
     }
 }
