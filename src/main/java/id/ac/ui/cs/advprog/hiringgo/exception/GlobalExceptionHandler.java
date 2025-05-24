@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.exception;
 
+import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.EntityNotFoundException;
+import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
@@ -11,7 +13,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -88,6 +89,23 @@ public class GlobalExceptionHandler {
         response.put("errors", ex.getErrors());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidDataException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidDataException(InvalidDataException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Data tidak valid");
+        response.put("errors", ex.getErrors());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleEntityNotFoundException(EntityNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Data tidak ditemukan");
+        response.put("errors", ex.getErrors());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
