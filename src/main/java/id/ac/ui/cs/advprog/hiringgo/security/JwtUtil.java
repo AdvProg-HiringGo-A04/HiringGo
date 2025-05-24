@@ -9,4 +9,6 @@ public interface JwtUtil {
     String extractRole(String token);
 
     boolean validateToken(String token);
+
+    String extractId(String token);
 }
