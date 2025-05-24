@@ -12,8 +12,8 @@ class MahasiswaStatisticsDTOTest {
     void testBuilder() {
         // Create sample LowonganDTO list
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL"),
-                new LowonganDTO("2L", "Algorithms", "CS202", 2023, "GENAP")
+                new LowonganDTO("1L", "Programming", 2023, "GANJIL"),
+                new LowonganDTO("2L", "Algorithms", 2023, "GENAP")
         );
 
         MahasiswaStatisticsDTO dto = MahasiswaStatisticsDTO.builder()
@@ -34,14 +34,13 @@ class MahasiswaStatisticsDTOTest {
         assertEquals(701250.0, dto.getTotalInsentif());
         assertEquals(2, dto.getAcceptedLowonganList().size());
         assertEquals("Programming", dto.getAcceptedLowonganList().get(0).getMataKuliahName());
-        assertEquals("CS202", dto.getAcceptedLowonganList().get(1).getMataKuliahCode());
     }
 
     @Test
     void testNoArgsConstructorAndSetters() {
         MahasiswaStatisticsDTO dto = new MahasiswaStatisticsDTO();
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL")
+                new LowonganDTO("1L", "Programming", 2023, "GANJIL")
         );
 
         dto.setOpenLowonganCount(5L);
@@ -64,7 +63,7 @@ class MahasiswaStatisticsDTOTest {
     @Test
     void testAllArgsConstructor() {
         List<LowonganDTO> acceptedLowonganList = Arrays.asList(
-                new LowonganDTO("1L", "Programming", "CS101", 2023, "GANJIL")
+                new LowonganDTO("1L", "Programming", 2023, "GANJIL")
         );
 
         MahasiswaStatisticsDTO dto = new MahasiswaStatisticsDTO(

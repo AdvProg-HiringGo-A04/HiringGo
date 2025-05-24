@@ -1,26 +1,35 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.service;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.AdminStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.DosenStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.MahasiswaStatisticsDTO;
 import id.ac.ui.cs.advprog.hiringgo.dashboard.repository.DashboardRepository;
-import id.ac.ui.cs.advprog.hiringgo.dashboard.strategy.DashboardStatisticsStrategy;
-import id.ac.ui.cs.advprog.hiringgo.dashboard.strategy.DashboardStrategyFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
     private final DashboardRepository dashboardRepository;
-    private final DashboardStrategyFactory dashboardStrategyFactory;
 
     @Override
-    public CompletableFuture<Object> getStatisticsForUser(User user) {
-        DashboardStatisticsStrategy<?> strategy = dashboardStrategyFactory.getStrategy(user);
-        return strategy.calculateStatistics(user.getId()).thenApply(result -> (Object) result);
+    public Object getStatisticsForUser(User user) {
+        if (user == null || user.getRole() == null) {
+            throw new IllegalArgumentException("User and user role cannot be null");
+        }
+
+        switch (user.getRole()) {
+            case ADMIN:
+                return getAdminStatistics();
+            case DOSEN:
+                return getDosenStatistics(user.getId());
+            case MAHASISWA:
+                return getMahasiswaStatistics(user.getId());
+            default:
+                throw new IllegalArgumentException("Unknown user role: " + user.getRole());
+        }
     }
 
     @Override

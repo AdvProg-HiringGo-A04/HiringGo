@@ -32,8 +32,8 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     private static final String COUNT_OPEN_LOWONGAN_BY_DOSEN = "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan AND l.mataKuliah IN (SELECT mk.id FROM MataKuliah mk JOIN mk.dosenPengampu d WHERE d.id = :dosenId)";
     private static final String COUNT_OPEN_LOWONGAN = "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan";
     private static final String COUNT_ACCEPTED_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
-    private static final String COUNT_REJECTED_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = false";
-    private static final String COUNT_PENDING_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId";
+    private static final String COUNT_REJECTED_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = false AND pl.diterima IS NOT NULL";
+    private static final String COUNT_PENDING_LOWONGAN = "SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima IS NULL";
     private static final String FIND_LOG_HOURS = "SELECT log.waktuMulai, log.waktuSelesai FROM Log log WHERE log.mahasiswaId = :mahasiswaId AND log.status = :status";
     private static final String FIND_ACCEPTED_LOWONGAN = "SELECT pl.lowongan FROM PendaftarLowongan pl WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
 
