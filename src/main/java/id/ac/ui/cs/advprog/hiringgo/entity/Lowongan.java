@@ -16,10 +16,11 @@ import java.util.UUID;
 public class Lowongan {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    private String id;
 
-    private String mataKuliah;
+    @ManyToOne
+    @JoinColumn(name = "kode_mata_kuliah", referencedColumnName = "kode_mata_kuliah")
+    private MataKuliah mataKuliah;
 
     private String tahunAjaran;
 

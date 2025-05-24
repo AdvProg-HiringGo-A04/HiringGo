@@ -1,8 +1,8 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.service;
 
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.HonorResponse;
-import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.repository.HonorRepository;
 import id.ac.ui.cs.advprog.hiringgo.entity.Log;
+import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class HonorService {
 
     @Autowired
-    private HonorRepository honorRepository;
+    private LogRepository logRepository;
 
     private static final double HONOR_PER_JAM = 27500.0;
 
@@ -26,7 +26,7 @@ public class HonorService {
             LocalDate start = ym.atDay(1);
             LocalDate end = ym.atEndOfMonth();
 
-            List<Log> logs = honorRepository.findLogsByMahasiswaAndPeriod(mahasiswaId, start, end);
+            List<Log> logs = logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(start, end, mahasiswaId);
 
             if (logs == null || logs.isEmpty()) {
                 return List.of();
@@ -72,7 +72,7 @@ public class HonorService {
     private String getMataKuliahName(Log log) {
         try {
             if (log.getLowongan() != null && log.getLowongan().getMataKuliah() != null) {
-                return log.getLowongan().getMataKuliah();
+                return log.getLowongan().getMataKuliah().getNamaMataKuliah();
             }
             if (log.getMataKuliah() != null && log.getMataKuliah().getNamaMataKuliah() != null) {
                 return log.getMataKuliah().getNamaMataKuliah();
