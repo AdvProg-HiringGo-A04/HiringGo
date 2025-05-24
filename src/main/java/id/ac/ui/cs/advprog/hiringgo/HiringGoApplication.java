@@ -7,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class HiringGoApplication {
 
     public static void main(String[] args) {
-        EnvironmentConfig environmentConfig = new EnvironmentConfig();
-        environmentConfig.loadEnvVariables();
         SpringApplication.run(HiringGoApplication.class, args);
     }
 }

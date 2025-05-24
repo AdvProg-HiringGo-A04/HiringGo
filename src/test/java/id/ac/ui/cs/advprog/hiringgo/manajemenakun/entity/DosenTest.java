@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.Dosen;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

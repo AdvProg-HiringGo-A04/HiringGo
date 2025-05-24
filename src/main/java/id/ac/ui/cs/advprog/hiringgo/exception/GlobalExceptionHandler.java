@@ -7,10 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.stream.Collectors;
@@ -59,32 +58,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<WebResponse<?>> handleMissingParams(MissingServletRequestParameterException ex) {
-        String name = ex.getParameterName();
-        String message = "Required parameter '" + name + "'";
-        WebResponse<?> response = WebResponse.builder()
-                .errors(message)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<WebResponse<?>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String paramName = ex.getName();
-        String message = "Parameter '" + paramName + "' is invalid";
-        WebResponse<?> response = WebResponse.builder()
-                .errors(message)
-                .build();
-
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<WebResponse<?>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         WebResponse<?> response = WebResponse.builder()
                 .errors("Request body is missing or malformed")
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<WebResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+        String errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+
+        WebResponse<?> response = WebResponse.builder()
+                .errors(errors)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

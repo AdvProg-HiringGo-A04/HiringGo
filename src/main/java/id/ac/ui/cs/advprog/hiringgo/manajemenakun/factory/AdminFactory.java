@@ -1,10 +1,10 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenakun.factory;
 
 import id.ac.ui.cs.advprog.hiringgo.manajemenakun.model.AdminDTO;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Admin;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.entity.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Admin;
+import id.ac.ui.cs.advprog.hiringgo.entity.Role;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
-import id.ac.ui.cs.advprog.hiringgo.manajemenakun.repository.AdminRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.AdminRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,7 +51,7 @@ public class AdminFactory implements AccountFactory<AdminDTO> {
         user.setRole(role);
         return userRepository.save(user);
     }
-
+    
     private void validateEmailNotTaken(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is already taken");

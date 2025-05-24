@@ -12,24 +12,23 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+import static id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper.createMataKuliahRequestToMataKuliah;
+
 @Service
 public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Autowired
     private MataKuliahRepository mataKuliahRepository;
 
-
     @Override
     public MataKuliah createMataKuliah(CreateMataKuliahRequest request) {
-        if (mataKuliahRepository.existsById(request.getKodeMataKuliah())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate");
+        String kode = request.getKodeMataKuliah();
+
+        if (mataKuliahRepository.existsById(kode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mata kuliah dengan kode " + kode + " sudah ada");
         }
 
-        MataKuliah mataKuliah = new MataKuliah();
-        mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        mataKuliah.setKodeMataKuliah(request.getKodeMataKuliah());
-        mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        mataKuliah.setDosenPengampu(request.getDosenPengampu());
+        MataKuliah mataKuliah = createMataKuliahRequestToMataKuliah(request);
 
         return mataKuliahRepository.save(mataKuliah);
     }
@@ -41,43 +40,31 @@ public class MataKuliahServiceImpl implements MataKuliahService {
 
     @Override
     public MataKuliah findByKode(String kodeMataKuliah) {
-        Optional<MataKuliah> mataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
-
-        if (mataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
-
-        return mataKuliah.get();
+        return mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
     }
 
     @Override
     public MataKuliah updateMataKuliah(String kodeMataKuliah, UpdateMataKuliahRequest request) {
-        Optional<MataKuliah> optionalMataKuliah = mataKuliahRepository.findById(kodeMataKuliah);
+        MataKuliah mataKuliah = mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
 
-        if (optionalMataKuliah.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
+        Optional.ofNullable(request.getNamaMataKuliah())
+                .ifPresent(mataKuliah::setNamaMataKuliah);
 
-        MataKuliah mataKuliah = optionalMataKuliah.get();
+        Optional.ofNullable(request.getDeskripsiMataKuliah())
+                .ifPresent(mataKuliah::setDeskripsiMataKuliah);
 
-        if (request.getNamaMataKuliah() != null) {
-            mataKuliah.setNamaMataKuliah(request.getNamaMataKuliah());
-        }
-        if (request.getDeskripsiMataKuliah() != null) {
-            mataKuliah.setDeskripsiMataKuliah(request.getDeskripsiMataKuliah());
-        }
-        if (request.getDosenPengampu() != null) {
-            mataKuliah.setDosenPengampu(request.getDosenPengampu());
-        }
+        Optional.ofNullable(request.getDosenPengampu())
+                .ifPresent(mataKuliah::setDosenPengampu);
 
         return mataKuliahRepository.save(mataKuliah);
     }
 
     @Override
     public void deleteMataKuliah(String kodeMataKuliah) {
-        if (!mataKuliahRepository.existsById(kodeMataKuliah)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found");
-        }
+        mataKuliahRepository.findById(kodeMataKuliah)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"));
 
         mataKuliahRepository.deleteById(kodeMataKuliah);
     }
