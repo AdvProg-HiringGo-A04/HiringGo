@@ -1,16 +1,16 @@
 package id.ac.ui.cs.advprog.hiringgo.matakuliah.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.mapper.MataKuliahMapper;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.CreateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.MataKuliahResponse;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.model.UpdateMataKuliahRequest;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
-import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import id.ac.ui.cs.advprog.hiringgo.security.annotation.AllowedRoles;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,9 +19,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.List;
@@ -34,17 +32,12 @@ public class MataKuliahController {
     @Autowired
     private MataKuliahService mataKuliahService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
+    @AllowedRoles({Role.ADMIN})
     @GetMapping(
             path = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<WebResponse<List<MataKuliahResponse>>> getAllCourses(
-            @RequestHeader(name = "Authorization", required = false) String token) {
-
-        roleRequired(token);
+    public ResponseEntity<WebResponse<List<MataKuliahResponse>>> getAllCourses() {
 
         List<MataKuliah> mataKuliah = mataKuliahService.findAll();
 
@@ -59,15 +52,13 @@ public class MataKuliahController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN})
     @GetMapping(
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<MataKuliahResponse>> getCoursesByCode(
-            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
-
-        roleRequired(token);
 
         MataKuliah mataKuliah = mataKuliahService.findByKode(kodeMataKuliah);
 
@@ -80,16 +71,14 @@ public class MataKuliahController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN})
     @PostMapping(
             path = "/courses",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<String>> createCourses(
-            @RequestHeader(name = "Authorization", required = false) String token,
             @Valid @RequestBody CreateMataKuliahRequest request) {
-
-        roleRequired(token);
 
         MataKuliah mataKuliah = mataKuliahService.createMataKuliah(request);
 
@@ -100,17 +89,15 @@ public class MataKuliahController {
         return ResponseEntity.created(URI.create("/courses/" + mataKuliah.getKodeMataKuliah())).body(response);
     }
 
+    @AllowedRoles({Role.ADMIN})
     @PatchMapping(
             path = "/courses/{kodeMataKuliah}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<String>> updateCourses(
-            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah,
             @Valid @RequestBody UpdateMataKuliahRequest request) {
-
-        roleRequired(token);
 
         mataKuliahService.updateMataKuliah(kodeMataKuliah, request);
 
@@ -121,15 +108,13 @@ public class MataKuliahController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN})
     @DeleteMapping(
             path = "/courses/{kodeMataKuliah}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<String>> deleteCourses(
-            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("kodeMataKuliah") String kodeMataKuliah) {
-
-        roleRequired(token);
 
         mataKuliahService.deleteMataKuliah(kodeMataKuliah);
 
@@ -138,23 +123,5 @@ public class MataKuliahController {
                 .build();
 
         return ResponseEntity.ok(response);
-    }
-
-    private void roleRequired(String token) {
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        if (!role.equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
     }
 }
