@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+
 @Entity
 @Getter
 @Setter
@@ -16,10 +18,11 @@ import java.util.UUID;
 public class Lowongan {
 
     @Id
-    @GeneratedValue
-    private UUID id;
+    private String id;
 
-    private String mataKuliah;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kode_mata_kuliah", nullable = false) // FK to MataKuliah
+    private MataKuliah mataKuliah;
 
     private String tahunAjaran; // Contoh "2024/2025"
 
@@ -27,12 +30,16 @@ public class Lowongan {
 
     private int jumlahDibutuhkan;
 
-    private int jumlahPendaftar;
-
-    private int jumlahDiterima;
-
     @Builder.Default
     @OneToMany(mappedBy = "lowongan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PendaftarLowongan> pendaftar = new ArrayList<>();
+
+    public int getJumlahPendaftar() {
+        return pendaftar.size();
+    }
+
+    public int getJumlahDiterima() {
+        return (int) pendaftar.stream().filter(PendaftarLowongan::isDiterima).count();
+    }
 
 }

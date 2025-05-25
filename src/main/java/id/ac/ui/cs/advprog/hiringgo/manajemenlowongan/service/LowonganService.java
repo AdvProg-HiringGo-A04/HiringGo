@@ -1,11 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.dto.LowonganForm;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
+import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.List;
@@ -17,7 +20,11 @@ public class LowonganService {
 
     private final LowonganRepository lowonganRepository;
 
-    public LowonganService(LowonganRepository lowonganRepository) {
+    @Autowired
+    private MataKuliahService mataKuliahService;
+
+    public LowonganService(LowonganRepository lowonganRepository, MataKuliahService mataKuliahService) {
+        this.mataKuliahService = mataKuliahService;
         this.lowonganRepository = lowonganRepository;
     }
 
@@ -25,21 +32,23 @@ public class LowonganService {
         return lowonganRepository.findAll();
     }
 
-    public Optional<Lowongan> getLowonganById(UUID id) {
+    public Optional<Lowongan> getLowonganById(String id) {
         return lowonganRepository.findById(id);
     }
 
     @Transactional
     public Lowongan createLowongan(LowonganForm form) {
+        MataKuliah mk = mataKuliahService.findByKode(form.getKodeMataKuliah());
         boolean exists = lowonganRepository.existsByMataKuliahAndSemesterAndTahunAjaran(
-            form.getMataKuliah(), form.getSemester(), form.getTahunAjaran());
+            mk, form.getSemester(), form.getTahunAjaran());
 
         if (exists) {
             throw new IllegalArgumentException("Lowongan dengan kombinasi ini sudah ada!");
         }
-
         Lowongan lowongan = new Lowongan();
-        lowongan.setMataKuliah(form.getMataKuliah());
+        
+        lowongan.setId(UUID.randomUUID().toString());
+        lowongan.setMataKuliah(mk);
         lowongan.setSemester(form.getSemester());
         lowongan.setTahunAjaran(form.getTahunAjaran());
         lowongan.setJumlahDibutuhkan(form.getJumlahAsistenDibutuhkan());
@@ -48,20 +57,23 @@ public class LowonganService {
     }
 
     @Transactional
-    public Lowongan updateLowongan(UUID id, LowonganForm form) {
+    public Lowongan updateLowongan(String id, LowonganForm form) {
         Lowongan lowongan = lowonganRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
 
+        MataKuliah mk = mataKuliahService.findByKode(form.getKodeMataKuliah());
         boolean exists = lowonganRepository.existsByMataKuliahAndSemesterAndTahunAjaran(
-            form.getMataKuliah(), form.getSemester(), form.getTahunAjaran());
+            mk, form.getSemester(), form.getTahunAjaran());
 
-        if (exists && !(lowongan.getMataKuliah().equals(form.getMataKuliah()) &&
+        
+
+        if (exists && !(lowongan.getMataKuliah().equals(mk) &&
                         lowongan.getSemester().equals(form.getSemester()) &&
                         lowongan.getTahunAjaran().equals(form.getTahunAjaran()))) {
             throw new IllegalArgumentException("Lowongan dengan kombinasi ini sudah ada!");
         }
 
-        lowongan.setMataKuliah(form.getMataKuliah());
+        lowongan.setMataKuliah(mk);
         lowongan.setSemester(form.getSemester());
         lowongan.setTahunAjaran(form.getTahunAjaran());
         lowongan.setJumlahDibutuhkan(form.getJumlahAsistenDibutuhkan());
@@ -70,7 +82,7 @@ public class LowonganService {
     }
 
     @Transactional
-    public boolean deleteLowongan(UUID id) {
+    public boolean deleteLowongan(String id) {
         if (lowonganRepository.existsById(id)) {
             lowonganRepository.deleteById(id);
             return true; // Successfully deleted
@@ -79,7 +91,7 @@ public class LowonganService {
     }
 
     @Transactional
-    public List<PendaftarLowongan> getPendaftarByLowongan(UUID lowonganId) {
+    public List<PendaftarLowongan> getPendaftarByLowongan(String lowonganId) {
         Lowongan lowongan = lowonganRepository.findById(lowonganId)
             .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
         return lowongan.getPendaftar();
@@ -87,7 +99,7 @@ public class LowonganService {
 
     @Async
     @Transactional
-    public void setStatusPendaftar(UUID lowonganId, String npm, boolean diterima) {
+    public void setStatusPendaftar(String lowonganId, String npm, boolean diterima) {
         // Find the lowongan by id
         Lowongan lowongan = lowonganRepository.findById(lowonganId)
                 .orElseThrow(() -> new IllegalArgumentException("Lowongan tidak ditemukan"));
@@ -98,19 +110,9 @@ public class LowonganService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Pendaftar tidak ditemukan"));
 
-        // Cek apakah status berubah
-        boolean statusLama = pendaftar.isDiterima();
-        if (statusLama != diterima) {
-            if (diterima) {
-                lowongan.setJumlahDiterima(lowongan.getJumlahDiterima() + 1);
-            } else {
-                lowongan.setJumlahDiterima(lowongan.getJumlahDiterima() - 1);
-            }
-        }
-
         // Update status
         pendaftar.setDiterima(diterima);
-
+        
         // Persist the change (optional if cascade = ALL and dirty checking works)
         lowonganRepository.save(lowongan);
     }

@@ -74,7 +74,7 @@ public class LowonganController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<Lowongan>> getLowonganById(
-            @PathVariable("id") UUID id,
+            @PathVariable("id") String id,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
         roleRequired(token);
@@ -129,7 +129,7 @@ public class LowonganController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<Lowongan>> updateLowongan(
-            @PathVariable("id") UUID id,
+            @PathVariable("id") String id,
             @RequestBody(required = false) LowonganForm form,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
@@ -161,7 +161,7 @@ public class LowonganController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<Void>> deleteLowongan(
-            @PathVariable("id") UUID id,
+            @PathVariable("id") String id,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
         roleRequired(token);
@@ -180,7 +180,7 @@ public class LowonganController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<List<PendaftarLowongan>>> getPendaftar(
-            @PathVariable("id") UUID lowonganId,
+            @PathVariable("id") String lowonganId,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
         roleRequired(token);
@@ -198,7 +198,7 @@ public class LowonganController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<WebResponse<Void>> setStatusPendaftar(
-            @PathVariable("id") UUID lowonganId,
+            @PathVariable("id") String lowonganId,
             @PathVariable("npm") String npm,
             @RequestParam("diterima") boolean diterima,
             @RequestHeader(name = "Authorization", required = false) String token

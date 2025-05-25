@@ -12,7 +12,7 @@ import lombok.Setter;
 public class LowonganForm {
 
     @NotBlank
-    private String mataKuliah;
+    private String kodeMataKuliah;
 
     @NotBlank
     private String tahunAjaran;
