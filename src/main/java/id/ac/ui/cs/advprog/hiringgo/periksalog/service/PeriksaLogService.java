@@ -1,0 +1,12 @@
+package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
+
+import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
+import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
+import java.util.List;
+
+public interface PeriksaLogService {
+
+    List<LogDTO> getAllLogsByDosenId(String dosenId);
+    LogDTO updateLogStatus(String dosenId, LogStatusUpdateDTO logStatusUpdateDTO);
+    boolean isLogOwnedByDosen(String logId, String dosenId);
+}

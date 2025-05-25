@@ -5,6 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,9 +63,8 @@ class HonorServiceTest {
         testLog1.setTanggalLog(LocalDate.of(2024, 5, 1));
         testLog1.setWaktuMulai(LocalTime.of(8, 0));
         testLog1.setWaktuSelesai(LocalTime.of(12, 0));
-        testLog1.setStatus("APPROVED");
+        testLog1.setStatus(StatusLog.DITERIMA);
         testLog1.setMahasiswa(testMahasiswa);
-        testLog1.setMataKuliah(testMataKuliah);
         testLog1.setLowongan(testLowongan);
 
         testLog2 = new Log();
@@ -72,9 +72,8 @@ class HonorServiceTest {
         testLog2.setTanggalLog(LocalDate.of(2024, 5, 2));
         testLog2.setWaktuMulai(LocalTime.of(14, 0));
         testLog2.setWaktuSelesai(LocalTime.of(17, 0));
-        testLog2.setStatus("APPROVED");
+        testLog2.setStatus(StatusLog.DITERIMA);
         testLog2.setMahasiswa(testMahasiswa);
-        testLog2.setMataKuliah(testMataKuliah);
         testLog2.setLowongan(testLowongan);
     }
 
@@ -85,7 +84,7 @@ class HonorServiceTest {
         int month = 5;
 
         List<Log> mockLogs = Arrays.asList(testLog1, testLog2);
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(mockLogs);
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -100,14 +99,14 @@ class HonorServiceTest {
         assertEquals(4.0, honor1.getTotalJam());
         assertEquals(27500.0, honor1.getHonorPerJam());
         assertEquals(110000.0, honor1.getTotalPembayaran());
-        assertEquals("APPROVED", honor1.getStatus());
+        assertEquals("DIPROSES", honor1.getStatus());
 
         HonorResponse honor2 = result.get(1);
         assertEquals(LocalDate.of(2024, 5, 2), honor2.getTanggalLog());
         assertEquals(3.0, honor2.getTotalJam());
         assertEquals(82500.0, honor2.getTotalPembayaran());
 
-        verify(logRepository, times(1)).findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(
+        verify(logRepository, times(1)).findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(
                 eq(LocalDate.of(2024, 5, 1)),
                 eq(LocalDate.of(2024, 5, 31)),
                 eq(mahasiswaId)
@@ -120,7 +119,7 @@ class HonorServiceTest {
         int year = 2024;
         int month = 5;
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Collections.emptyList());
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -135,7 +134,7 @@ class HonorServiceTest {
         int year = 2024;
         int month = 5;
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(null);
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -150,7 +149,7 @@ class HonorServiceTest {
         int year = 2024;
         int month = 5;
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenThrow(new RuntimeException("Database error"));
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -170,11 +169,11 @@ class HonorServiceTest {
         logWithNullTimes.setTanggalLog(LocalDate.of(2024, 5, 3));
         logWithNullTimes.setWaktuMulai(null);
         logWithNullTimes.setWaktuSelesai(null);
-        logWithNullTimes.setStatus("APPROVED");
+        logWithNullTimes.setStatus(StatusLog.DITERIMA);
         logWithNullTimes.setMahasiswa(testMahasiswa);
         logWithNullTimes.setLowongan(testLowongan);
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Arrays.asList(logWithNullTimes));
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -196,19 +195,18 @@ class HonorServiceTest {
         logWithNullLowongan.setTanggalLog(LocalDate.of(2024, 5, 4));
         logWithNullLowongan.setWaktuMulai(LocalTime.of(9, 0));
         logWithNullLowongan.setWaktuSelesai(LocalTime.of(11, 0));
-        logWithNullLowongan.setStatus("APPROVED");
+        logWithNullLowongan.setStatus(StatusLog.DITERIMA);
         logWithNullLowongan.setMahasiswa(testMahasiswa);
-        logWithNullLowongan.setMataKuliah(testMataKuliah);
         logWithNullLowongan.setLowongan(null); // Null lowongan
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Arrays.asList(logWithNullLowongan));
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Struktur Data", result.get(0).getMataKuliahNama());
+        assertEquals("Unknown", result.get(0).getMataKuliahNama());
         assertEquals(2.0, result.get(0).getTotalJam());
     }
 
@@ -223,12 +221,11 @@ class HonorServiceTest {
         logWithNullMataKuliah.setTanggalLog(LocalDate.of(2024, 5, 5));
         logWithNullMataKuliah.setWaktuMulai(LocalTime.of(10, 0));
         logWithNullMataKuliah.setWaktuSelesai(LocalTime.of(12, 0));
-        logWithNullMataKuliah.setStatus("APPROVED");
+        logWithNullMataKuliah.setStatus(StatusLog.DITERIMA);
         logWithNullMataKuliah.setMahasiswa(testMahasiswa);
-        logWithNullMataKuliah.setMataKuliah(null);
         logWithNullMataKuliah.setLowongan(null);
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Arrays.asList(logWithNullMataKuliah));
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -244,12 +241,12 @@ class HonorServiceTest {
         int year = 2024;
         int month = 2;
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Collections.emptyList());
 
         honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
 
-        verify(logRepository, times(1)).findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(
+        verify(logRepository, times(1)).findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(
                 eq(LocalDate.of(2024, 2, 1)),
                 eq(LocalDate.of(2024, 2, 29)),
                 eq(mahasiswaId)
@@ -263,7 +260,7 @@ class HonorServiceTest {
         int month = 5;
 
         List<Log> logsWithNull = Arrays.asList(testLog1, null, testLog2, null);
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(logsWithNull);
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);
@@ -285,11 +282,11 @@ class HonorServiceTest {
         logWithHalfHour.setTanggalLog(LocalDate.of(2024, 5, 6));
         logWithHalfHour.setWaktuMulai(LocalTime.of(9, 0));
         logWithHalfHour.setWaktuSelesai(LocalTime.of(11, 30));
-        logWithHalfHour.setStatus("APPROVED");
+        logWithHalfHour.setStatus(StatusLog.DITERIMA);
         logWithHalfHour.setMahasiswa(testMahasiswa);
         logWithHalfHour.setLowongan(testLowongan);
 
-        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
+        when(logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(any(LocalDate.class), any(LocalDate.class), eq(mahasiswaId)))
                 .thenReturn(Arrays.asList(logWithHalfHour));
 
         List<HonorResponse> result = honorService.getHonorsByMahasiswaAndPeriod(mahasiswaId, year, month);

@@ -24,6 +24,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidatorFactory;
 import id.ac.ui.cs.advprog.hiringgo.repository.AsdosMataKuliahRepository;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
