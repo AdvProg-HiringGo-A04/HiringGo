@@ -3,8 +3,8 @@ package id.ac.ui.cs.advprog.hiringgo.daftarLowongan.service;
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.command.DaftarLowonganCommand;
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataException;
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.EntityNotFoundException;
+import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,11 +49,10 @@ public class DaftarLowonganService {
 
 
         // Cek mahasiswa sudah daftar
-        boolean sudahDaftar = lowongan.getPendaftar().stream()
-                .anyMatch(p -> p.getMahasiswa().getId().equals(mahasiswa.getId()));
+        Optional<PendaftarLowongan> existingPendaftar = lowonganRepository.findPendaftarByLowonganAndMahasiswa(lowonganId, mahasiswaId);
 
-        if (sudahDaftar) {
-            throw new IllegalStateException("Mahasiswa sudah mendaftar ke lowongan ini");
+        if (existingPendaftar.isPresent()) {
+            throw new EntityNotFoundException(Map.of("mahasiswaID", "Mahasiswa sudah mendaftar ke lowongan ini"));
         }
 
         // Buat pendaftar baru
@@ -66,7 +66,6 @@ public class DaftarLowonganService {
                 .build();
 
         lowongan.getPendaftar().add(pendaftar);
-        lowongan.setJumlahPendaftar(lowongan.getJumlahPendaftar() + 1);
         lowonganRepository.save(lowongan);
     }
 }
