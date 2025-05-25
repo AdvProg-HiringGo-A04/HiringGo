@@ -1,10 +1,13 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,13 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -42,45 +44,63 @@ public class LogControllerTest {
 
     @BeforeEach
     void setUp() {
+        // Fix: Use enum instead of string for role
         dosen = new User();
         dosen.setId("dosen-123");
         dosen.setEmail("dosen@test.com");
-        dosen.setRole("DOSEN");
+        dosen.setRole(Role.DOSEN); // Use enum instead of string
 
         mahasiswa = new User();
         mahasiswa.setId("mahasiswa-123");
         mahasiswa.setEmail("mahasiswa@test.com");
-        mahasiswa.setRole("MAHASISWA");
+        mahasiswa.setRole(Role.MAHASISWA); // Use enum instead of string
 
         logDTO1 = LogDTO.builder()
                 .id("log-1")
                 .judul("Log Test 1")
+                .keterangan("Test description")
+                .kategori(TipeKategori.values()[0]) // Use actual enum value
+                .waktuMulai(LocalTime.of(9, 0))
+                .waktuSelesai(LocalTime.of(10, 0))
+                .tanggalLog(LocalDate.now())
+                .pesanUntukDosen("Test message")
+                .status(StatusLog.values()[0]) // Use actual enum value
                 .mahasiswaName("Mahasiswa Test")
+                .mataKuliahName("Test Course")
+                .mataKuliahCode("TEST101")
+                .durationInHours(1.0)
                 .build();
 
         logDTO2 = LogDTO.builder()
                 .id("log-2")
                 .judul("Log Test 2")
+                .keterangan("Test description 2")
+                .kategori(TipeKategori.values()[0])
+                .waktuMulai(LocalTime.of(10, 0))
+                .waktuSelesai(LocalTime.of(11, 0))
+                .tanggalLog(LocalDate.now())
+                .pesanUntukDosen("Test message 2")
+                .status(StatusLog.values()[0])
                 .mahasiswaName("Mahasiswa Test")
+                .mataKuliahName("Test Course 2")
+                .mataKuliahCode("TEST102")
+                .durationInHours(1.0)
                 .build();
 
         updateDTO = LogStatusUpdateDTO.builder()
                 .logId("log-1")
+                .status(StatusLog.values()[0]) // Use actual enum value
                 .build();
     }
 
     @Test
-    void getAllLogs_WithDosenRole_ShouldReturnLogs() throws ExecutionException, InterruptedException, TimeoutException {
+    void getAllLogs_WithDosenRole_ShouldReturnLogs() {
         // Arrange
         List<LogDTO> expectedLogs = Arrays.asList(logDTO1, logDTO2);
-        when(logService.getAllLogsByDosenIdAsync(dosen.getId()))
-                .thenReturn(CompletableFuture.completedFuture(expectedLogs));
+        when(logService.getAllLogsByDosenId(dosen.getId())).thenReturn(expectedLogs);
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(dosen);
-        ResponseEntity<WebResponse<List<LogDTO>>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -88,16 +108,13 @@ public class LogControllerTest {
         assertNotNull(response.getBody().getData());
         assertEquals(2, response.getBody().getData().size());
         assertNull(response.getBody().getErrors());
-        verify(logService).getAllLogsByDosenIdAsync(dosen.getId());
+        verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 
     @Test
-    void getAllLogs_WithNullUser_ShouldReturnForbidden() throws ExecutionException, InterruptedException, TimeoutException {
+    void getAllLogs_WithNullUser_ShouldReturnForbidden() {
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(null);
-        ResponseEntity<WebResponse<List<LogDTO>>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(null);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -105,16 +122,13 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Access forbidden"));
-        verify(logService, never()).getAllLogsByDosenIdAsync(anyString());
+        verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
-    void getAllLogs_WithNonDosenRole_ShouldReturnForbidden() throws ExecutionException, InterruptedException, TimeoutException {
+    void getAllLogs_WithNonDosenRole_ShouldReturnForbidden() {
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(mahasiswa);
-        ResponseEntity<WebResponse<List<LogDTO>>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(mahasiswa);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -122,41 +136,33 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Access forbidden"));
-        verify(logService, never()).getAllLogsByDosenIdAsync(anyString());
+        verify(logService, never()).getAllLogsByDosenId(anyString());
     }
 
     @Test
-    void getAllLogs_WithEmptyList_ShouldReturnOkWithEmptyList() throws ExecutionException, InterruptedException, TimeoutException {
+    void getAllLogs_WithEmptyList_ShouldReturnOkWithEmptyList() {
         // Arrange
-        when(logService.getAllLogsByDosenIdAsync(dosen.getId()))
-                .thenReturn(CompletableFuture.completedFuture(new ArrayList<>()));
+        when(logService.getAllLogsByDosenId(dosen.getId())).thenReturn(new ArrayList<>());
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(dosen);
-        ResponseEntity<WebResponse<List<LogDTO>>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertNotNull(response.getBody().getData());
         assertTrue(response.getBody().getData().isEmpty());
-        verify(logService).getAllLogsByDosenIdAsync(dosen.getId());
+        verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 
     @Test
-    void getAllLogs_WhenServiceThrowsException_ShouldReturnInternalServerError() throws ExecutionException, InterruptedException, TimeoutException {
+    void getAllLogs_WhenServiceThrowsException_ShouldReturnInternalServerError() {
         // Arrange
-        CompletableFuture<List<LogDTO>> failedFuture = new CompletableFuture<>();
-        failedFuture.completeExceptionally(new RuntimeException("Service error"));
-        when(logService.getAllLogsByDosenIdAsync(dosen.getId())).thenReturn(failedFuture);
+        when(logService.getAllLogsByDosenId(dosen.getId()))
+                .thenThrow(new RuntimeException("Service error"));
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(dosen);
-        ResponseEntity<WebResponse<List<LogDTO>>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -164,21 +170,18 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Service error"));
-        verify(logService).getAllLogsByDosenIdAsync(dosen.getId());
+        verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 
     @Test
-    void updateLogStatus_WithDosenRole_ShouldUpdateAndReturnLog() throws ExecutionException, InterruptedException, TimeoutException {
+    void updateLogStatus_WithDosenRole_ShouldUpdateAndReturnLog() {
         // Arrange
         String logId = "log-1";
-        when(logService.updateLogStatusAsync(dosen.getId(), updateDTO))
-                .thenReturn(CompletableFuture.completedFuture(logDTO1));
+        when(logService.updateLogStatus(dosen.getId(), updateDTO)).thenReturn(logDTO1);
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
-                logController.updateLogStatus(dosen, logId, updateDTO);
         ResponseEntity<WebResponse<LogDTO>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+                logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -186,17 +189,16 @@ public class LogControllerTest {
         assertNotNull(response.getBody().getData());
         assertEquals(logDTO1, response.getBody().getData());
         assertNull(response.getBody().getErrors());
-        verify(logService).updateLogStatusAsync(dosen.getId(), updateDTO);
+        assertEquals(logId, updateDTO.getLogId()); // Verify logId was set
+        verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 
     @Test
-    void updateLogStatus_WithNullUser_ShouldReturnForbidden() throws ExecutionException, InterruptedException, TimeoutException {
+    void updateLogStatus_WithNullUser_ShouldReturnForbidden() {
         // Act
         String logId = "log-1";
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
+        ResponseEntity<WebResponse<LogDTO>> response =
                 logController.updateLogStatus(null, logId, updateDTO);
-        ResponseEntity<WebResponse<LogDTO>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -204,17 +206,15 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Access forbidden"));
-        verify(logService, never()).updateLogStatusAsync(anyString(), any());
+        verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
-    void updateLogStatus_WithNonDosenRole_ShouldReturnForbidden() throws ExecutionException, InterruptedException, TimeoutException {
+    void updateLogStatus_WithNonDosenRole_ShouldReturnForbidden() {
         // Act
         String logId = "log-1";
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
-                logController.updateLogStatus(mahasiswa, logId, updateDTO);
         ResponseEntity<WebResponse<LogDTO>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+                logController.updateLogStatus(mahasiswa, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -222,22 +222,19 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Access forbidden"));
-        verify(logService, never()).updateLogStatusAsync(anyString(), any());
+        verify(logService, never()).updateLogStatus(anyString(), any());
     }
 
     @Test
-    void updateLogStatus_WhenSecurityException_ShouldReturnForbidden() throws ExecutionException, InterruptedException, TimeoutException {
+    void updateLogStatus_WhenSecurityException_ShouldReturnForbidden() {
         // Arrange
         String logId = "log-1";
-        CompletableFuture<LogDTO> failedFuture = new CompletableFuture<>();
-        failedFuture.completeExceptionally(new SecurityException("Permission denied"));
-        when(logService.updateLogStatusAsync(dosen.getId(), updateDTO)).thenReturn(failedFuture);
+        when(logService.updateLogStatus(dosen.getId(), updateDTO))
+                .thenThrow(new SecurityException("Permission denied"));
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
-                logController.updateLogStatus(dosen, logId, updateDTO);
         ResponseEntity<WebResponse<LogDTO>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+                logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
@@ -245,22 +242,19 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertEquals("Permission denied", response.getBody().getErrors());
-        verify(logService).updateLogStatusAsync(dosen.getId(), updateDTO);
+        verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 
     @Test
-    void updateLogStatus_WhenGenericException_ShouldReturnInternalServerError() throws ExecutionException, InterruptedException, TimeoutException {
+    void updateLogStatus_WhenGenericException_ShouldReturnInternalServerError() {
         // Arrange
         String logId = "log-1";
-        CompletableFuture<LogDTO> failedFuture = new CompletableFuture<>();
-        failedFuture.completeExceptionally(new RuntimeException("Some error"));
-        when(logService.updateLogStatusAsync(dosen.getId(), updateDTO)).thenReturn(failedFuture);
+        when(logService.updateLogStatus(dosen.getId(), updateDTO))
+                .thenThrow(new RuntimeException("Some error"));
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
-                logController.updateLogStatus(dosen, logId, updateDTO);
         ResponseEntity<WebResponse<LogDTO>> response =
-                futureResponse.get(5, TimeUnit.SECONDS);
+                logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
@@ -268,41 +262,58 @@ public class LogControllerTest {
         assertNull(response.getBody().getData());
         assertNotNull(response.getBody().getErrors());
         assertTrue(response.getBody().getErrors().contains("Some error"));
-        verify(logService).updateLogStatusAsync(dosen.getId(), updateDTO);
-    }
-
-    // Helper method for testing async operations without timeout
-    @Test
-    void getAllLogs_AsyncBehavior_ShouldCompleteImmediately() {
-        // Arrange
-        List<LogDTO> expectedLogs = Arrays.asList(logDTO1, logDTO2);
-        when(logService.getAllLogsByDosenIdAsync(dosen.getId()))
-                .thenReturn(CompletableFuture.completedFuture(expectedLogs));
-
-        // Act
-        CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> futureResponse =
-                logController.getAllLogs(dosen);
-
-        // Assert
-        assertTrue(futureResponse.isDone(), "Future should complete immediately for valid dosen");
-        assertFalse(futureResponse.isCancelled());
-        assertFalse(futureResponse.isCompletedExceptionally());
+        verify(logService).updateLogStatus(dosen.getId(), updateDTO);
     }
 
     @Test
-    void updateLogStatus_AsyncBehavior_ShouldCompleteImmediately() {
+    void updateLogStatus_WhenNoSuchElementException_ShouldReturnInternalServerError() {
         // Arrange
         String logId = "log-1";
-        when(logService.updateLogStatusAsync(dosen.getId(), updateDTO))
-                .thenReturn(CompletableFuture.completedFuture(logDTO1));
+        when(logService.updateLogStatus(dosen.getId(), updateDTO))
+                .thenThrow(new NoSuchElementException("Log not found"));
 
         // Act
-        CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> futureResponse =
+        ResponseEntity<WebResponse<LogDTO>> response =
                 logController.updateLogStatus(dosen, logId, updateDTO);
 
         // Assert
-        assertTrue(futureResponse.isDone(), "Future should complete immediately for valid update");
-        assertFalse(futureResponse.isCancelled());
-        assertFalse(futureResponse.isCompletedExceptionally());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertNotNull(response.getBody().getErrors());
+        assertTrue(response.getBody().getErrors().contains("Log not found"));
+        verify(logService).updateLogStatus(dosen.getId(), updateDTO);
+    }
+
+    @Test
+    void updateLogStatus_ShouldSetLogIdFromPathVariable() {
+        // Arrange
+        String logId = "different-log-id";
+        LogStatusUpdateDTO dtoWithoutId = LogStatusUpdateDTO.builder()
+                .status(StatusLog.values()[0])
+                .build();
+        when(logService.updateLogStatus(dosen.getId(), dtoWithoutId)).thenReturn(logDTO1);
+
+        // Act
+        logController.updateLogStatus(dosen, logId, dtoWithoutId);
+
+        // Assert
+        assertEquals(logId, dtoWithoutId.getLogId());
+        verify(logService).updateLogStatus(dosen.getId(), dtoWithoutId);
+    }
+
+    @Test
+    void getAllLogs_WhenServiceReturnsNull_ShouldHandleGracefully() {
+        // Arrange
+        when(logService.getAllLogsByDosenId(dosen.getId())).thenReturn(null);
+
+        // Act
+        ResponseEntity<WebResponse<List<LogDTO>>> response = logController.getAllLogs(dosen);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData()); // Null is acceptable for data
+        verify(logService).getAllLogsByDosenId(dosen.getId());
     }
 }
