@@ -1,28 +1,22 @@
 package id.ac.ui.cs.advprog.hiringgo.exception;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -97,34 +91,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(LogNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleLogNotFoundException(LogNotFoundException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Validasi log gagal");
-        response.put("errors", ex.getErrors());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(InvalidLogException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidLogException(InvalidLogException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Validasi log gagal");
-        response.put("errors", ex.getErrors());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+    public ResponseEntity<WebResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
+        String errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "Validasi gagal");
-        response.put("errors", errors);
+        WebResponse<?> response = WebResponse.builder()
+                .errors(errors)
+                .build();
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
