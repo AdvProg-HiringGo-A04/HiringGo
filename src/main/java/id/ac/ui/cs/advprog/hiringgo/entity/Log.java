@@ -24,30 +24,30 @@ public class Log {
     @Column(name = "id", nullable = false, length = 36)
     private String id;
     
-    @Column(nullable = false)
+    @Column(name = "judul", nullable = false)
     private String judul;
     
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "keterangan", columnDefinition = "TEXT")
     private String keterangan;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "kategori", nullable = false)
     private TipeKategori kategori;
     
-    @Column(nullable = false)
+    @Column(name = "waktu_mulai", nullable = false)
     private LocalTime waktuMulai;
     
-    @Column(nullable = false)
+    @Column(name = "waktu_selesai", nullable = false)
     private LocalTime waktuSelesai;
     
-    @Column(nullable = false)
+    @Column(name = "tanggal_log", nullable = false)
     private LocalDate tanggalLog;
     
     @Column(name = "pesan")
     private String pesan;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private StatusLog status;
 
     @ManyToOne
@@ -63,9 +63,9 @@ public class Log {
     @JoinColumn(name = "lowongan_id", referencedColumnName = "id")
     private Lowongan lowongan;
     
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
-    
-    @Column
+
+    @Column(name = "updated_at")
     private LocalDate updatedAt;
 }
