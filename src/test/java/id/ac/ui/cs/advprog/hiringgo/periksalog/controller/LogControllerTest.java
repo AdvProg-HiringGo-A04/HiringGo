@@ -2,12 +2,14 @@ package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,12 +61,12 @@ public class LogControllerTest {
                 .id("log-1")
                 .judul("Log Test 1")
                 .keterangan("Test description")
-                .kategori(TipeKategori.values()[0]) // Use actual enum value
+                .kategori(TipeKategori.ASISTENSI) // Use specific enum value
                 .waktuMulai(LocalTime.of(9, 0))
                 .waktuSelesai(LocalTime.of(10, 0))
                 .tanggalLog(LocalDate.now())
                 .pesanUntukDosen("Test message")
-                .status(StatusLog.values()[0]) // Use actual enum value
+                .status(StatusLog.DIPROSES) // Use specific enum value
                 .mahasiswaName("Mahasiswa Test")
                 .mataKuliahName("Test Course")
                 .mataKuliahCode("TEST101")
@@ -75,12 +77,12 @@ public class LogControllerTest {
                 .id("log-2")
                 .judul("Log Test 2")
                 .keterangan("Test description 2")
-                .kategori(TipeKategori.values()[0])
+                .kategori(TipeKategori.MENGOREKSI) // Use different enum value
                 .waktuMulai(LocalTime.of(10, 0))
                 .waktuSelesai(LocalTime.of(11, 0))
                 .tanggalLog(LocalDate.now())
                 .pesanUntukDosen("Test message 2")
-                .status(StatusLog.values()[0])
+                .status(StatusLog.DITERIMA) // Use different enum value
                 .mahasiswaName("Mahasiswa Test")
                 .mataKuliahName("Test Course 2")
                 .mataKuliahCode("TEST102")
@@ -89,7 +91,7 @@ public class LogControllerTest {
 
         updateDTO = LogStatusUpdateDTO.builder()
                 .logId("log-1")
-                .status(StatusLog.values()[0]) // Use actual enum value
+                .status(StatusLog.DITERIMA) // Use specific enum value
                 .build();
     }
 
@@ -290,7 +292,7 @@ public class LogControllerTest {
         // Arrange
         String logId = "different-log-id";
         LogStatusUpdateDTO dtoWithoutId = LogStatusUpdateDTO.builder()
-                .status(StatusLog.values()[0])
+                .status(StatusLog.DITERIMA)
                 .build();
         when(logService.updateLogStatus(dosen.getId(), dtoWithoutId)).thenReturn(logDTO1);
 
