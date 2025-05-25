@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
 
 public class LogRequestTest {
-    // Pakai Validator
+
     private Validator validator;
 
     @BeforeEach
@@ -37,6 +37,7 @@ public class LogRequestTest {
                 .tanggalLog(LocalDate.now())
                 .pesan("Semangat ya")
                 .mataKuliahId("matakuliah1")
+                .lowonganId("lowongan1")
                 .build();
 
         Set<ConstraintViolation<LogRequest>> violations = validator.validate(request);
@@ -52,6 +53,7 @@ public class LogRequestTest {
                 .waktuSelesai(LocalTime.of(11, 0))
                 .tanggalLog(LocalDate.now())
                 .mataKuliahId("IF1234")
+                .lowonganId("lowongan1")
                 .build();
 
         Set<ConstraintViolation<LogRequest>> violations = validator.validate(request);
@@ -65,10 +67,15 @@ public class LogRequestTest {
 
     @Test
     public void testNullFields_ValidationErrors() {
-        LogRequest request = new LogRequest(); // semua field null
+        LogRequest request = new LogRequest();
 
         Set<ConstraintViolation<LogRequest>> violations = validator.validate(request);
 
         assertTrue(violations.size() >= 1);
+
+        // Check specific violations
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("judul")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("mataKuliahId")));
+        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath().toString().equals("lowonganId")));
     }
 }
