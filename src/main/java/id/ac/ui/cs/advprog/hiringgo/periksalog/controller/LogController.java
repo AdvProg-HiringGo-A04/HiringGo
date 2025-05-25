@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
@@ -29,6 +30,61 @@ public class LogController {
     private static final String UPDATE_FORBIDDEN_MESSAGE = "Access forbidden: Only lecturers can update log status";
 
     private final LogService logService;
+
+    @GetMapping("/async")
+    public CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> getAllLogsAsync(
+            @AuthenticationPrincipal User user) {
+        log.info("Async: Attempting to fetch all logs for user: {}", getUserIdSafely(user));
+
+        if (!isDosenUser(user)) {
+            log.warn("Async: Unauthorized access attempt by user: {} with role: {}",
+                    getUserIdSafely(user), getUserRoleSafely(user));
+            return CompletableFuture.completedFuture(createForbiddenResponse(ACCESS_FORBIDDEN_MESSAGE));
+        }
+
+        return logService.getAllLogsByDosenIdAsync(user.getId())
+                .thenApply(this::createSuccessResponse)
+                .exceptionally(this::handleAsyncException);
+    }
+
+    @PutMapping("/{logId}/status/async")
+    public CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> updateLogStatusAsync(
+            @AuthenticationPrincipal User user,
+            @PathVariable("logId") @NotBlank String logId,
+            @RequestBody @Valid LogStatusUpdateDTO logStatusUpdateDTO) {
+
+        log.info("Async: Attempting to update log status for logId: {} by user: {}",
+                logId, getUserIdSafely(user));
+
+        if (!isDosenUser(user)) {
+            log.warn("Async: Unauthorized status update attempt by user: {} with role: {} for logId: {}",
+                    getUserIdSafely(user), getUserRoleSafely(user), logId);
+            return CompletableFuture.completedFuture(createForbiddenResponse(UPDATE_FORBIDDEN_MESSAGE));
+        }
+
+        logStatusUpdateDTO.setLogId(logId);
+
+        return logService.updateLogStatusAsync(user.getId(), logStatusUpdateDTO)
+                .thenApply(updatedLog -> {
+                    log.info("Async: Successfully updated log status for logId: {} to status: {}",
+                            logId, logStatusUpdateDTO.getStatus());
+                    return createSuccessResponse(updatedLog);
+                })
+                .exceptionally(throwable -> {
+                    if (throwable.getCause() instanceof SecurityException) {
+                        log.warn("Async: Security exception while updating log status for logId: {}", logId, throwable);
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(WebResponse.<LogDTO>builder()
+                                        .errors(throwable.getCause().getMessage())
+                                        .build());
+                    }
+                    log.error("Async: Error occurred while updating log status for logId: {}", logId, throwable);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(WebResponse.<LogDTO>builder()
+                                    .errors(getErrorMessage(throwable, "An error occurred while updating log status"))
+                                    .build());
+                });
+    }
 
     @GetMapping
     public ResponseEntity<WebResponse<List<LogDTO>>> getAllLogs(
@@ -126,6 +182,23 @@ public class LogController {
                 .body(WebResponse.<List<LogDTO>>builder()
                         .errors(errorMessage)
                         .build());
+    }
+
+    private ResponseEntity<WebResponse<List<LogDTO>>> handleAsyncException(Throwable throwable) {
+        log.error("Async error occurred while fetching logs", throwable);
+        String errorMessage = getErrorMessage(throwable, "An error occurred while fetching logs");
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(WebResponse.<List<LogDTO>>builder()
+                        .errors(errorMessage)
+                        .build());
+    }
+
+    private String getErrorMessage(Throwable throwable, String defaultMessage) {
+        if (throwable.getMessage() != null) {
+            return defaultMessage + ": " + throwable.getMessage();
+        }
+        return defaultMessage;
     }
 
     private String getErrorMessage(Exception exception, String defaultMessage) {
