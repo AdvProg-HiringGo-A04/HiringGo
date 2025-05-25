@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.entity.Log;  // Fixed import - use the entity package
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
@@ -72,27 +72,28 @@ public class LogServiceTest {
         log1.setId("log-1");
         log1.setJudul("Asistensi Lab 1");
         log1.setKeterangan("Membantu mahasiswa dengan lab 1");
-        log1.setKategori(TipeKategori.ASISTENSI.name()); // Store as string in entity
+        log1.setKategori(TipeKategori.ASISTENSI.name());
         log1.setWaktuMulai(LocalTime.of(10, 0));
         log1.setWaktuSelesai(LocalTime.of(12, 0));
         log1.setTanggalLog(LocalDate.now());
-        log1.setStatus(StatusLog.DIPROSES.name()); // Store as string in entity
-        log1.setMahasiswa(mahasiswa); // Use relationship instead of ID
-        log1.setLowongan(lowongan); // Use relationship instead of direct mata kuliah ID
+        log1.setStatus(StatusLog.DIPROSES.name());
+        log1.setMahasiswa(mahasiswa);
+        log1.setLowongan(lowongan);
         log1.setCreatedAt(LocalDate.now());
+        log1.setPesan("Test message");
 
         // Setup Log 2 with proper entity relationships
         log2 = new Log();
         log2.setId("log-2");
         log2.setJudul("Koreksi Tugas");
         log2.setKeterangan("Mengoreksi tugas 1");
-        log2.setKategori(TipeKategori.MENGOREKSI.name()); // Store as string in entity
+        log2.setKategori(TipeKategori.MENGOREKSI.name());
         log2.setWaktuMulai(LocalTime.of(13, 0));
         log2.setWaktuSelesai(LocalTime.of(15, 0));
         log2.setTanggalLog(LocalDate.now());
-        log2.setStatus(StatusLog.DIPROSES.name()); // Store as string in entity
-        log2.setMahasiswa(mahasiswa); // Use relationship instead of ID
-        log2.setLowongan(lowongan); // Use relationship instead of direct mata kuliah ID
+        log2.setStatus(StatusLog.DIPROSES.name());
+        log2.setMahasiswa(mahasiswa);
+        log2.setLowongan(lowongan);
         log2.setCreatedAt(LocalDate.now());
     }
 
@@ -117,6 +118,7 @@ public class LogServiceTest {
         assertEquals("CS-001", result.get(0).getMataKuliahCode());
         assertEquals(TipeKategori.ASISTENSI, result.get(0).getKategori());
         assertEquals(StatusLog.DIPROSES, result.get(0).getStatus());
+        assertEquals("Test message", result.get(0).getPesanUntukDosen());
 
         verify(logRepository).findAllLogsByDosenId(dosenId);
     }
@@ -125,7 +127,7 @@ public class LogServiceTest {
     void getAllLogsByDosenId_WithNullMahasiswa_ShouldReturnUnknownStudent() {
         // Arrange
         String dosenId = "dosen-123";
-        log1.setMahasiswa(null); // Set mahasiswa to null
+        log1.setMahasiswa(null);
         when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
 
         // Act
@@ -141,7 +143,24 @@ public class LogServiceTest {
     void getAllLogsByDosenId_WithNullLowongan_ShouldReturnUnknownCourse() {
         // Arrange
         String dosenId = "dosen-123";
-        log1.setLowongan(null); // Set lowongan to null
+        log1.setLowongan(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Unknown Course", result.get(0).getMataKuliahName());
+        assertEquals("Unknown Code", result.get(0).getMataKuliahCode());
+    }
+
+    @Test
+    void getAllLogsByDosenId_WithLowonganButNullMataKuliah_ShouldReturnUnknownCourse() {
+        // Arrange
+        String dosenId = "dosen-123";
+        lowongan.setMataKuliah(null);
         when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
 
         // Act
@@ -169,8 +188,8 @@ public class LogServiceTest {
         when(logRepository.findById(logId)).thenReturn(Optional.of(log1));
         when(logRepository.save(any(Log.class))).thenAnswer(i -> {
             Log savedLog = (Log) i.getArguments()[0];
-            // Verify that the status was updated to string format
             assertEquals(StatusLog.DITERIMA.name(), savedLog.getStatus());
+            assertEquals(LocalDate.now(), savedLog.getUpdatedAt());
             return savedLog;
         });
 
@@ -289,6 +308,17 @@ public class LogServiceTest {
     }
 
     @Test
+    void getAllLogsByDosenId_WithWhitespaceOnlyDosenId_ShouldThrowIllegalArgumentException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.getAllLogsByDosenId("   ");
+        });
+
+        assertEquals("Dosen ID cannot be null or empty", exception.getMessage());
+        verify(logRepository, never()).findAllLogsByDosenId(anyString());
+    }
+
+    @Test
     void updateLogStatus_WithNullDTO_ShouldThrowIllegalArgumentException() {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -314,8 +344,72 @@ public class LogServiceTest {
     }
 
     @Test
+    void updateLogStatus_WithEmptyLogId_ShouldThrowIllegalArgumentException() {
+        // Arrange
+        LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
+        updateDTO.setLogId("");
+        updateDTO.setStatus(StatusLog.DITERIMA);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.updateLogStatus("dosen-123", updateDTO);
+        });
+
+        assertEquals("Log ID cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void updateLogStatus_WithNullLogId_ShouldThrowIllegalArgumentException() {
+        // Arrange
+        LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
+        updateDTO.setLogId(null);
+        updateDTO.setStatus(StatusLog.DITERIMA);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.updateLogStatus("dosen-123", updateDTO);
+        });
+
+        assertEquals("Log ID cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void updateLogStatus_WithEmptyDosenId_ShouldThrowIllegalArgumentException() {
+        // Arrange
+        LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
+        updateDTO.setLogId("log-1");
+        updateDTO.setStatus(StatusLog.DITERIMA);
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.updateLogStatus("", updateDTO);
+        });
+
+        assertEquals("Dosen ID cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void isLogOwnedByDosen_WithEmptyLogId_ShouldThrowIllegalArgumentException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.isLogOwnedByDosen("", "dosen-123");
+        });
+
+        assertEquals("Log ID cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
+    void isLogOwnedByDosen_WithEmptyDosenId_ShouldThrowIllegalArgumentException() {
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            logService.isLogOwnedByDosen("log-1", "");
+        });
+
+        assertEquals("Dosen ID cannot be null or empty", exception.getMessage());
+    }
+
+    @Test
     void parseKategoriFromString_WithInvalidValue_ShouldReturnDefault() {
-        // This is testing the private method indirectly through convertToDTO
         // Arrange
         String dosenId = "dosen-123";
         log1.setKategori("INVALID_KATEGORI");
@@ -327,13 +421,43 @@ public class LogServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        // Should return the first enum value as default
+        assertEquals(TipeKategori.values()[0], result.get(0).getKategori());
+    }
+
+    @Test
+    void parseKategoriFromString_WithEmptyValue_ShouldReturnDefault() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setKategori("");
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(TipeKategori.values()[0], result.get(0).getKategori());
+    }
+
+    @Test
+    void parseKategoriFromString_WithNullValue_ShouldReturnDefault() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setKategori(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
         assertEquals(TipeKategori.values()[0], result.get(0).getKategori());
     }
 
     @Test
     void parseStatusFromString_WithInvalidValue_ShouldReturnDefault() {
-        // This is testing the private method indirectly through convertToDTO
         // Arrange
         String dosenId = "dosen-123";
         log1.setStatus("INVALID_STATUS");
@@ -345,7 +469,135 @@ public class LogServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        // Should return the first enum value as default
         assertEquals(StatusLog.values()[0], result.get(0).getStatus());
+    }
+
+    @Test
+    void parseStatusFromString_WithEmptyValue_ShouldReturnDefault() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setStatus("");
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(StatusLog.values()[0], result.get(0).getStatus());
+    }
+
+    @Test
+    void parseStatusFromString_WithNullValue_ShouldReturnDefault() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setStatus(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(StatusLog.values()[0], result.get(0).getStatus());
+    }
+
+    @Test
+    void convertToDTO_WithNullLog_ShouldReturnNull() {
+        // Arrange
+        String dosenId = "dosen-123";
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList((Log) null));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertNull(result.get(0));
+    }
+
+    @Test
+    void calculateDurationInHours_WithNullStartTime_ShouldReturnZero() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setWaktuMulai(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(0.0, result.get(0).getDurationInHours());
+    }
+
+    @Test
+    void calculateDurationInHours_WithNullEndTime_ShouldReturnZero() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setWaktuSelesai(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(0.0, result.get(0).getDurationInHours());
+    }
+
+    @Test
+    void calculateDurationInHours_WithBothTimesNull_ShouldReturnZero() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setWaktuMulai(null);
+        log1.setWaktuSelesai(null);
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(0.0, result.get(0).getDurationInHours());
+    }
+
+    @Test
+    void convertToDTO_WhenExceptionOccurs_ShouldRethrowException() {
+        // Arrange
+        String dosenId = "dosen-123";
+        Log problematicLog = spy(log1);
+        when(problematicLog.getId()).thenThrow(new RuntimeException("Test exception"));
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(problematicLog));
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            logService.getAllLogsByDosenId(dosenId);
+        });
+
+        assertEquals("Test exception", exception.getMessage());
+    }
+
+    @Test
+    void calculateDurationInHours_WithValidTimes_ShouldCalculateCorrectly() {
+        // Arrange
+        String dosenId = "dosen-123";
+        log1.setWaktuMulai(LocalTime.of(9, 30));
+        log1.setWaktuSelesai(LocalTime.of(11, 45));
+        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
+
+        // Act
+        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(2.25, result.get(0).getDurationInHours(), 0.01); // 2 hours 15 minutes = 2.25 hours
     }
 }

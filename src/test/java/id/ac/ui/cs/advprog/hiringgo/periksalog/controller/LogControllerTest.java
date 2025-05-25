@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
-import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
@@ -40,33 +39,39 @@ public class LogControllerTest {
 
     private User dosen;
     private User mahasiswa;
+    private User admin;
     private LogDTO logDTO1;
     private LogDTO logDTO2;
     private LogStatusUpdateDTO updateDTO;
 
     @BeforeEach
     void setUp() {
-        // Fix: Use enum instead of string for role
+        // Setup different user roles
         dosen = new User();
         dosen.setId("dosen-123");
         dosen.setEmail("dosen@test.com");
-        dosen.setRole(Role.DOSEN); // Use enum instead of string
+        dosen.setRole(Role.DOSEN);
 
         mahasiswa = new User();
         mahasiswa.setId("mahasiswa-123");
         mahasiswa.setEmail("mahasiswa@test.com");
-        mahasiswa.setRole(Role.MAHASISWA); // Use enum instead of string
+        mahasiswa.setRole(Role.MAHASISWA);
+
+        admin = new User();
+        admin.setId("admin-123");
+        admin.setEmail("admin@test.com");
+        admin.setRole(Role.ADMIN);
 
         logDTO1 = LogDTO.builder()
                 .id("log-1")
                 .judul("Log Test 1")
                 .keterangan("Test description")
-                .kategori(TipeKategori.ASISTENSI) // Use specific enum value
+                .kategori(TipeKategori.ASISTENSI)
                 .waktuMulai(LocalTime.of(9, 0))
                 .waktuSelesai(LocalTime.of(10, 0))
                 .tanggalLog(LocalDate.now())
                 .pesanUntukDosen("Test message")
-                .status(StatusLog.DIPROSES) // Use specific enum value
+                .status(StatusLog.DIPROSES)
                 .mahasiswaName("Mahasiswa Test")
                 .mataKuliahName("Test Course")
                 .mataKuliahCode("TEST101")
@@ -77,12 +82,12 @@ public class LogControllerTest {
                 .id("log-2")
                 .judul("Log Test 2")
                 .keterangan("Test description 2")
-                .kategori(TipeKategori.MENGOREKSI) // Use different enum value
+                .kategori(TipeKategori.MENGOREKSI)
                 .waktuMulai(LocalTime.of(10, 0))
                 .waktuSelesai(LocalTime.of(11, 0))
                 .tanggalLog(LocalDate.now())
                 .pesanUntukDosen("Test message 2")
-                .status(StatusLog.DITERIMA) // Use different enum value
+                .status(StatusLog.DITERIMA)
                 .mahasiswaName("Mahasiswa Test")
                 .mataKuliahName("Test Course 2")
                 .mataKuliahCode("TEST102")
@@ -91,7 +96,7 @@ public class LogControllerTest {
 
         updateDTO = LogStatusUpdateDTO.builder()
                 .logId("log-1")
-                .status(StatusLog.DITERIMA) // Use specific enum value
+                .status(StatusLog.DITERIMA)
                 .build();
     }
 

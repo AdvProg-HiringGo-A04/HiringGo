@@ -191,28 +191,28 @@ public class LogServiceImpl implements LogService {
     private TipeKategori parseKategoriFromString(String kategori) {
         if (!StringUtils.hasText(kategori)) {
             log.warn("Empty kategori string, returning default value");
-            return TipeKategori.values()[0]; // Return first enum value as default
+            return TipeKategori.values()[0];
         }
 
         try {
             return TipeKategori.valueOf(kategori.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid kategori value: {}, returning default", kategori);
-            return TipeKategori.values()[0]; // Return first enum value as default
+            return TipeKategori.values()[0];
         }
     }
 
     private StatusLog parseStatusFromString(String status) {
         if (!StringUtils.hasText(status)) {
             log.warn("Empty status string, returning default value");
-            return StatusLog.values()[0]; // Return first enum value as default
+            return StatusLog.values()[0];
         }
 
         try {
             return StatusLog.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             log.warn("Invalid status value: {}, returning default", status);
-            return StatusLog.values()[0]; // Return first enum value as default
+            return StatusLog.values()[0];
         }
     }
 }
