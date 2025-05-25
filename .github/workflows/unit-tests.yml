@@ -24,4 +24,11 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run unit tests with H2 profile
-        run: ./gradlew test -Dspring.profiles.active=test
+        run: ./gradlew test
+
+      - name: Trigger deploy workflow if on main branch
+        if: success() && github.ref == 'refs/heads/main'
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: deploy.yml
+          ref: main
