@@ -11,6 +11,7 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -30,6 +32,70 @@ public class LogServiceImpl implements LogService {
     private static final double MINUTES_PER_HOUR = 60.0;
 
     private final LogRepository logRepository;
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<List<LogDTO>> getAllLogsByDosenIdAsync(String dosenId) {
+        return CompletableFuture.supplyAsync(() -> {
+            validateDosenId(dosenId);
+            log.info("Async: Fetching all logs for dosen ID: {}", dosenId);
+
+            List<Log> logs = logRepository.findAllLogsByDosenId(dosenId);
+            log.info("Async: Found {} logs for dosen ID: {}", logs.size(), dosenId);
+
+            return logs.parallelStream() // Use parallel stream for processing multiple logs
+                    .map(this::convertToDTO)
+                    .toList();
+        }).exceptionally(throwable -> {
+            log.error("Async error while fetching logs for dosen ID: {}", dosenId, throwable);
+            throw new RuntimeException("Failed to fetch logs", throwable);
+        });
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<LogDTO> updateLogStatusAsync(String dosenId, LogStatusUpdateDTO logStatusUpdateDTO) {
+        return CompletableFuture.supplyAsync(() -> {
+            validateInputs(dosenId, logStatusUpdateDTO);
+
+            String logId = logStatusUpdateDTO.getLogId();
+            log.info("Async: Updating log status for logId: {} by dosen: {} to status: {}",
+                    logId, dosenId, logStatusUpdateDTO.getStatus());
+
+            validateDosenOwnership(logId, dosenId);
+
+            Log logEntity = findLogById(logId);
+            updateLogFields(logEntity, logStatusUpdateDTO);
+
+            Log updatedLog = logRepository.save(logEntity);
+            log.info("Async: Successfully updated log status for logId: {}", logId);
+
+            return convertToDTO(updatedLog);
+        }).exceptionally(throwable -> {
+            log.error("Async error while updating log status for logId: {}", logStatusUpdateDTO.getLogId(), throwable);
+            if (throwable.getCause() instanceof SecurityException) {
+                throw (SecurityException) throwable.getCause();
+            }
+            throw new RuntimeException("Failed to update log status", throwable);
+        });
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<Boolean> isLogOwnedByDosenAsync(String logId, String dosenId) {
+        return CompletableFuture.supplyAsync(() -> {
+            validateLogId(logId);
+            validateDosenId(dosenId);
+
+            boolean isOwned = logRepository.isLogOwnedByDosen(logId, dosenId);
+            log.debug("Async: Log ownership check - logId: {}, dosenId: {}, isOwned: {}", logId, dosenId, isOwned);
+
+            return isOwned;
+        }).exceptionally(throwable -> {
+            log.error("Async error while checking log ownership for logId: {} and dosenId: {}", logId, dosenId, throwable);
+            return false; // Default to false for security
+        });
+    }
 
     @Override
     public List<LogDTO> getAllLogsByDosenId(String dosenId) {
@@ -74,6 +140,16 @@ public class LogServiceImpl implements LogService {
         return isOwned;
     }
 
+    private CompletableFuture<Void> validateDosenOwnershipAsync(String logId, String dosenId) {
+        return isLogOwnedByDosenAsync(logId, dosenId)
+                .thenAccept(isOwned -> {
+                    if (!isOwned) {
+                        log.warn("Permission denied: Dosen {} attempted to access log {}", dosenId, logId);
+                        throw new SecurityException(PERMISSION_DENIED_MESSAGE);
+                    }
+                });
+    }
+
     private void validateDosenId(String dosenId) {
         if (!StringUtils.hasText(dosenId)) {
             throw new IllegalArgumentException("Dosen ID cannot be null or empty");
@@ -116,7 +192,7 @@ public class LogServiceImpl implements LogService {
     }
 
     private void updateLogFields(Log logEntity, LogStatusUpdateDTO logStatusUpdateDTO) {
-        logEntity.setStatus(logStatusUpdateDTO.getStatus().name()); // Convert enum to string
+        logEntity.setStatus(logStatusUpdateDTO.getStatus().name());
         logEntity.setUpdatedAt(LocalDate.now());
     }
 
@@ -129,13 +205,11 @@ public class LogServiceImpl implements LogService {
         try {
             double durationInHours = calculateDurationInHours(logEntity.getWaktuMulai(), logEntity.getWaktuSelesai());
 
-            // Get mahasiswa from the relationship
             Mahasiswa mahasiswa = logEntity.getMahasiswa();
             if (mahasiswa == null) {
                 log.warn("No mahasiswa found for log ID: {}", logEntity.getId());
             }
 
-            // Get mata kuliah from lowongan relationship
             MataKuliah mataKuliah = null;
             if (logEntity.getLowongan() != null) {
                 mataKuliah = logEntity.getLowongan().getMataKuliah();
