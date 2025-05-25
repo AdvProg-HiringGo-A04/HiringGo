@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  if: ${{ github.event.workflow_run.conclusion == 'success' }}
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
