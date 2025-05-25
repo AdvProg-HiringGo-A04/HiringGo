@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
 
 public class LogRequestTest {
 

@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
+import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import jakarta.persistence.*;
 import lombok.*;
 

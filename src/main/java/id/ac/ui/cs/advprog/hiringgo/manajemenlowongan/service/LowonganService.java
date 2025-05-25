@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.dto.LowonganForm;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
+import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.matakuliah.service.MataKuliahService;
 import jakarta.transaction.Transactional;

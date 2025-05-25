@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums;
+package id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums;
 
 public enum StatusLog {
     DIPROSES("Diproses"),

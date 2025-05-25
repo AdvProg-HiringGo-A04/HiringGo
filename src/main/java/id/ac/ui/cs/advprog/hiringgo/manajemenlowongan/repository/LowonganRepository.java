@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
+import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

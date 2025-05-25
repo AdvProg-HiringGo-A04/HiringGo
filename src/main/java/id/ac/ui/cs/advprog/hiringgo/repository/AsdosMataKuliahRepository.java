@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.manajemenLog.repository;
+package id.ac.ui.cs.advprog.hiringgo.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.MahasiswaDiterimaLowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.MahasiswaDiterimaLowonganId;

@@ -5,7 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataExceptio
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.EntityNotFoundException;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.entity.PendaftarLowongan;
+import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import jakarta.transaction.Transactional;

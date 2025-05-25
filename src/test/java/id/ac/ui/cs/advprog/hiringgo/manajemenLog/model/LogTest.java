@@ -10,8 +10,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
 
 public class LogTest {
 
