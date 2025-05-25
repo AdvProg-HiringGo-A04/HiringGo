@@ -5,10 +5,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.Log;
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 
 @Repository
 public interface LogRepository extends JpaRepository<Log, String> {
     List<Log> findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(String mataKuliahId, String mahasiswaId);
-    boolean existsByMataKuliahIdAndMahasiswaId(String courseId, String studentId);
 }

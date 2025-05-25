@@ -11,7 +11,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -46,16 +45,10 @@ public class Log {
     @Column(name = "status")
     private String status;
 
-    // Keep existing MataKuliah for backward compatibility
-    @ManyToOne
-    @JoinColumn(name = "mata_kuliah_id", referencedColumnName = "kode_mata_kuliah")
-    private MataKuliah mataKuliah;
-
     @ManyToOne
     @JoinColumn(name = "mahasiswa_id", referencedColumnName = "id")
     private Mahasiswa mahasiswa;
-
-    // NEW: Add reference to Lowongan
+    
     @ManyToOne
     @JoinColumn(name = "lowongan_id", referencedColumnName = "id")
     private Lowongan lowongan;
