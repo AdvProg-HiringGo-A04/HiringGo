@@ -26,7 +26,7 @@ public class HonorService {
             LocalDate start = ym.atDay(1);
             LocalDate end = ym.atEndOfMonth();
 
-            List<Log> logs = logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByMataKuliahNamaMataKuliahAsc(start, end, mahasiswaId);
+            List<Log> logs = logRepository.findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(start, end, mahasiswaId);
 
             if (logs == null || logs.isEmpty()) {
                 return List.of();
@@ -74,8 +74,8 @@ public class HonorService {
             if (log.getLowongan() != null && log.getLowongan().getMataKuliah() != null) {
                 return log.getLowongan().getMataKuliah().getNamaMataKuliah();
             }
-            if (log.getMataKuliah() != null && log.getMataKuliah().getNamaMataKuliah() != null) {
-                return log.getMataKuliah().getNamaMataKuliah();
+            if (log.getLowongan().getMataKuliah() != null && log.getLowongan().getMataKuliah().getNamaMataKuliah() != null) {
+                return log.getLowongan().getMataKuliah().getNamaMataKuliah();
             }
             return "Unknown";
         } catch (Exception e) {
