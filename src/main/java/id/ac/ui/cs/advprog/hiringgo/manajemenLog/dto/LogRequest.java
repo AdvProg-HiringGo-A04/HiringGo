@@ -35,7 +35,10 @@ public class LogRequest {
     private LocalDate tanggalLog;
     
     private String pesan;
-    
+
     @NotNull(message = "ID Mata Kuliah tidak boleh kosong")
     private String mataKuliahId;
+
+    @NotNull(message = "ID lowongan tidak boleh kosong")
+    private String lowonganId;
 }

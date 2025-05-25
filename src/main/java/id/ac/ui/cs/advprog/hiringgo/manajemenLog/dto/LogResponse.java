@@ -29,6 +29,7 @@ public class LogResponse {
     private String statusDisplayName;
     private String mataKuliahId;
     private String mahasiswaId;
+    private String lowonganId;
     private LocalDate createdAt;
     private LocalDate updatedAt;
 }

@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.hiringgo.authentication.model.LoginUserResponse;
 import id.ac.ui.cs.advprog.hiringgo.authentication.model.RegisterMahasiswaRequest;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
@@ -56,21 +57,21 @@ public class AuthenticationControllerTest {
         admin.setId("admin");
         admin.setEmail("admin@hiringgo.com");
         admin.setPassword(passwordEncoder.encode("securepassword"));
-        admin.setRole("ADMIN");
+        admin.setRole(Role.valueOf("ADMIN"));
         userRepository.save(admin);
 
         User dosen = new User();
         dosen.setId("dosen");
         dosen.setEmail("dosen@hiringgo.com");
         dosen.setPassword(passwordEncoder.encode("securepassword"));
-        dosen.setRole("DOSEN");
+        dosen.setRole(Role.valueOf("DOSEN"));
         userRepository.save(dosen);
 
         User mahasiswa = new User();
         mahasiswa.setId("mahasiswa");
         mahasiswa.setEmail("mahasiswa@hiringgo.com");
         mahasiswa.setPassword(passwordEncoder.encode("securepassword"));
-        mahasiswa.setRole("MAHASISWA");
+        mahasiswa.setRole(Role.valueOf("MAHASISWA"));
         userRepository.save(mahasiswa);
 
         Mahasiswa mahasiswa2 = new Mahasiswa();
@@ -411,9 +412,9 @@ public class AuthenticationControllerTest {
         user.setId("admin");
         user.setEmail("admin@hiringgo.com");
         user.setPassword(passwordEncoder.encode("securepassword"));
-        user.setRole("ADMIN");
+        user.setRole(Role.valueOf("ADMIN"));
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
 
         mockMvc.perform(
                 post("/auth/logout")
