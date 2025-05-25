@@ -1,11 +1,14 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 
 @Entity
 @Getter
@@ -18,22 +21,26 @@ public class Lowongan {
     @Id
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "kode_mata_kuliah", referencedColumnName = "kode_mata_kuliah")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "kode_mata_kuliah", nullable = false) // FK to MataKuliah
     private MataKuliah mataKuliah;
 
-    private String tahunAjaran;
+    private String tahunAjaran; // Contoh "2024/2025"
 
-    private String semester;
+    private String semester; // GANJIL or GENAP
 
     private int jumlahDibutuhkan;
-
-    private int jumlahPendaftar;
-
-    private int jumlahDiterima;
 
     @Builder.Default
     @OneToMany(mappedBy = "lowongan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PendaftarLowongan> pendaftar = new ArrayList<>();
+
+    public int getJumlahPendaftar() {
+        return pendaftar.size();
+    }
+
+    public int getJumlahDiterima() {
+        return (int) pendaftar.stream().filter(PendaftarLowongan::isDiterima).count();
+    }
 
 }

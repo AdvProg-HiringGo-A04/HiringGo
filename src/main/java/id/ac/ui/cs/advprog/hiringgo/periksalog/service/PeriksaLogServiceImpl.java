@@ -6,8 +6,8 @@ import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LogServiceImpl implements LogService {
+public class PeriksaLogServiceImpl implements PeriksaLogService {
 
     private static final String LOG_NOT_FOUND_MESSAGE = "Log not found with ID: %s";
     private static final String PERMISSION_DENIED_MESSAGE = "You don't have permission to update this log";
@@ -192,7 +192,7 @@ public class LogServiceImpl implements LogService {
     }
 
     private void updateLogFields(Log logEntity, LogStatusUpdateDTO logStatusUpdateDTO) {
-        logEntity.setStatus(logStatusUpdateDTO.getStatus().name());
+        logEntity.setStatus(StatusLog.valueOf(logStatusUpdateDTO.getStatus().name())); // Convert enum to string
         logEntity.setUpdatedAt(LocalDate.now());
     }
 
@@ -223,12 +223,12 @@ public class LogServiceImpl implements LogService {
                     .id(logEntity.getId())
                     .judul(logEntity.getJudul())
                     .keterangan(logEntity.getKeterangan())
-                    .kategori(parseKategoriFromString(logEntity.getKategori()))
+                    .kategori(parseKategoriFromString(String.valueOf(logEntity.getKategori())))
                     .waktuMulai(logEntity.getWaktuMulai())
                     .waktuSelesai(logEntity.getWaktuSelesai())
                     .tanggalLog(logEntity.getTanggalLog())
                     .pesanUntukDosen(logEntity.getPesan())
-                    .status(parseStatusFromString(logEntity.getStatus()))
+                    .status(parseStatusFromString(String.valueOf(logEntity.getStatus())))
                     .mahasiswaName(getMahasiswaName(mahasiswa))
                     .mataKuliahName(getMataKuliahName(mataKuliah))
                     .mataKuliahCode(getMataKuliahCode(mataKuliah))

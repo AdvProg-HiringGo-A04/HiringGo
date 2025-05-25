@@ -1,59 +1,69 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Getter
-@Setter
-@Table(name = "log")
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
+
 @Entity
+@Table(name = "log")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Log {
 
     @Id
+    @Column(name = "id", nullable = false, length = 36)
     private String id;
 
-    @Column(name = "judul")
+    @Column(name = "judul", nullable = false)
     private String judul;
 
-    @Column(name = "keterangan")
+    @Column(name = "keterangan", columnDefinition = "TEXT")
     private String keterangan;
 
-    @Column(name = "kategori")
-    private String kategori;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kategori", nullable = false)
+    private TipeKategori kategori;
 
-    @Column(name = "waktu_mulai")
+    @Column(name = "waktu_mulai", nullable = false)
     private LocalTime waktuMulai;
 
-    @Column(name = "waktu_selesai")
+    @Column(name = "waktu_selesai", nullable = false)
     private LocalTime waktuSelesai;
 
-    @Column(name = "tanggal_log")
+    @Column(name = "tanggal_log", nullable = false)
     private LocalDate tanggalLog;
 
     @Column(name = "pesan")
     private String pesan;
 
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private StatusLog status;
+
+    @ManyToOne
+    @JoinColumn(name = "mata_kuliah_id", referencedColumnName = "kode_mata_kuliah")
+    private MataKuliah mataKuliah;
 
     @ManyToOne
     @JoinColumn(name = "mahasiswa_id", referencedColumnName = "id")
     private Mahasiswa mahasiswa;
-    
+
+    // NEW: Add reference to Lowongan
     @ManyToOne
     @JoinColumn(name = "lowongan_id", referencedColumnName = "id")
     private Lowongan lowongan;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
 
     @Column(name = "updated_at")

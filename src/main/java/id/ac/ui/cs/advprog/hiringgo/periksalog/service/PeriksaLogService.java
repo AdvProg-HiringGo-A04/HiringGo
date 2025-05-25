@@ -5,7 +5,7 @@ import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface LogService {
+public interface PeriksaLogService {
 
     CompletableFuture<List<LogDTO>> getAllLogsByDosenIdAsync(String dosenId);
     CompletableFuture<LogDTO> updateLogStatusAsync(String dosenId, LogStatusUpdateDTO logStatusUpdateDTO);

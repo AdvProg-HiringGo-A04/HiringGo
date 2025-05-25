@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MahasiswaRepository extends JpaRepository<Mahasiswa, String> {
 
     Optional<Mahasiswa> findByNPM(String npm);
+    Optional<Mahasiswa> findById(String id);
 }

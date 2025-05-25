@@ -9,8 +9,8 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AsdosMataKuliahId implements Serializable {
+public class MahasiswaDiterimaLowonganId implements Serializable {
     private String mahasiswaId;
-    private String mataKuliahId;
+    private String lowonganId;
 }
 

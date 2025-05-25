@@ -4,7 +4,7 @@ import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
-import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
+import id.ac.ui.cs.advprog.hiringgo.periksalog.service.PeriksaLogService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +24,12 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/api/logs")
 @RequiredArgsConstructor
 @Validated
-public class LogController {
+public class PeriksaLogController {
 
     private static final String ACCESS_FORBIDDEN_MESSAGE = "Access forbidden: Only lecturers can access logs";
     private static final String UPDATE_FORBIDDEN_MESSAGE = "Access forbidden: Only lecturers can update log status";
 
-    private final LogService logService;
+    private final PeriksaLogService logService;
 
     @GetMapping("/async")
     public CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> getAllLogsAsync(
