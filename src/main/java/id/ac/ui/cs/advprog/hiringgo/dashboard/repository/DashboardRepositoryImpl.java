@@ -59,7 +59,7 @@ public class DashboardRepositoryImpl implements DashboardRepository {
                         "WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima IS NULL";
         static final String FIND_LOG_HOURS =
                 "SELECT log.waktuMulai, log.waktuSelesai FROM Log log " +
-                        "WHERE log.mahasiswaId = :mahasiswaId AND log.status = :status";
+                        "WHERE log.mahasiswa.id = :mahasiswaId AND log.status = :status";
         static final String FIND_ACCEPTED_LOWONGAN =
                 "SELECT pl.lowongan FROM PendaftarLowongan pl " +
                         "WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
