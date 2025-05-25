@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 
 @Entity
@@ -34,10 +36,12 @@ public class Lowongan {
     @OneToMany(mappedBy = "lowongan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PendaftarLowongan> pendaftar = new ArrayList<>();
 
+    @JsonProperty("jumlahPendaftar")
     public int getJumlahPendaftar() {
         return pendaftar.size();
     }
 
+    @JsonProperty("jumlahDiterima")
     public int getJumlahDiterima() {
         return (int) pendaftar.stream().filter(PendaftarLowongan::isDiterima).count();
     }

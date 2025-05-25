@@ -10,6 +10,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
@@ -23,7 +25,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Optional;
 
+@Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:8000", allowedHeaders = "*")
 public class LowonganController {
 
     @Autowired
