@@ -1,52 +1,55 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.UUID;
 
-@Getter
-@Setter
-@Table(name = "log")
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+
 @Entity
+@Table(name = "log")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Log {
-
+    
     @Id
+    @Column(name = "id", nullable = false, length = 36)
     private String id;
-
-    @Column(name = "judul")
+    
+    @Column(nullable = false)
     private String judul;
-
-    @Column(name = "keterangan")
+    
+    @Column(columnDefinition = "TEXT")
     private String keterangan;
-
-    @Column(name = "kategori")
-    private String kategori;
-
-    @Column(name = "waktu_mulai")
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipeKategori kategori;
+    
+    @Column(nullable = false)
     private LocalTime waktuMulai;
-
-    @Column(name = "waktu_selesai")
+    
+    @Column(nullable = false)
     private LocalTime waktuSelesai;
-
-    @Column(name = "tanggal_log")
+    
+    @Column(nullable = false)
     private LocalDate tanggalLog;
-
+    
     @Column(name = "pesan")
     private String pesan;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusLog status;
 
-    @Column(name = "status")
-    private String status;
-
-    // Keep existing MataKuliah for backward compatibility
     @ManyToOne
     @JoinColumn(name = "mata_kuliah_id", referencedColumnName = "kode_mata_kuliah")
     private MataKuliah mataKuliah;
@@ -59,10 +62,10 @@ public class Log {
     @ManyToOne
     @JoinColumn(name = "lowongan_id", referencedColumnName = "id")
     private Lowongan lowongan;
-
-    @Column(name = "created_at")
+    
+    @Column(nullable = false)
     private LocalDate createdAt;
-
-    @Column(name = "updated_at")
+    
+    @Column
     private LocalDate updatedAt;
 }
