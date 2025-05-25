@@ -30,15 +30,15 @@ public class LogController {
 
     // list log per matkul
     @AllowedRoles({Role.MAHASISWA})
-    @GetMapping("/matakuliah/{mataKuliahId}")
+    @GetMapping("/matakuliah/{lowonganId}")
     public ResponseEntity<ApiResponse<List<LogResponse>>> getAllLogs(
-            @PathVariable("mataKuliahId") String mataKuliahId) {
+            @PathVariable("lowonganId") String lowonganId) {
 
         String mahasiswaId = currentUserProvider.getCurrentUserId();
-        List<LogResponse> logs = logService.getAllLogs(mataKuliahId, mahasiswaId);
+        List<LogResponse> logs = logService.getAllLogs(lowonganId, mahasiswaId);
 
         log.info("User with email '{}' and role '{}' fetched all logs for mata kuliah '{}'",
-                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), mataKuliahId);
+                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), lowonganId);
 
         return ResponseEntity.ok(new ApiResponse<>("Successfully fetched all logs", logs));
     }
@@ -87,16 +87,16 @@ public class LogController {
     }
 
     @AllowedRoles({Role.MAHASISWA})
-    @DeleteMapping("{mataKuliahId}/{logId}")
+    @DeleteMapping("{lowonganId}/{logId}")
     public ResponseEntity<ApiResponse<String>> deleteLog(
-            @PathVariable("mataKuliahId") String mataKuliahId,
+            @PathVariable("lowonganId") String lowonganId,
             @PathVariable("logId") String logId) {
 
         String mahasiswaId = currentUserProvider.getCurrentUserId();
-        logService.deleteLog(logId, mataKuliahId, mahasiswaId);
+        logService.deleteLog(logId, lowonganId, mahasiswaId);
 
         log.info("User with email '{}' and role '{}' deleted log '{}' from mata kuliah '{}'",
-                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), logId, mataKuliahId);
+                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), logId, lowonganId);
 
         return ResponseEntity.ok(new ApiResponse<>("Successfully deleted log", null));
     }

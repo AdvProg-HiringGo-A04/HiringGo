@@ -9,5 +9,5 @@ import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 
 @Repository
 public interface LogRepository extends JpaRepository<Log, String> {
-    List<Log> findByMataKuliahIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(String mataKuliahId, String mahasiswaId);
+    List<Log> findByLowonganIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(String lowonganId, String mahasiswaId);
 }
