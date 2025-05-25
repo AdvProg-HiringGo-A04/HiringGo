@@ -102,16 +102,16 @@ public class LogController {
     }
 
     @AllowedRoles({Role.MAHASISWA})
-    @GetMapping("/total/{mataKuliahId}")
+    @GetMapping("/total/{lowonganId}")
     public Map<String, Double> getTotalJamPerBulan(
-            @PathVariable("mataKuliahId") String mataKuliahId) {
+            @PathVariable("lowonganId") String lowonganId) {
 
         String mahasiswaId = currentUserProvider.getCurrentUserId();
 
         log.info("User with email '{}' and role '{}' fetched total jam per bulan for mata kuliah '{}'",
-                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), mataKuliahId);
+                currentUserProvider.getCurrentUserEmail(), currentUserProvider.getCurrentUserRole(), lowonganId);
 
-        return logService.getTotalJamPerBulan(mataKuliahId, mahasiswaId);
+        return logService.getTotalJamPerBulan(lowonganId, mahasiswaId);
     }
     
 }
