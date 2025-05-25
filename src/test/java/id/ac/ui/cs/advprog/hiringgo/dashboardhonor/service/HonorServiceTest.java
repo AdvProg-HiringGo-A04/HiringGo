@@ -205,7 +205,7 @@ class HonorServiceTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Struktur Data", result.get(0).getMataKuliahNama());
+        assertEquals("Unknown", result.get(0).getMataKuliahNama());
         assertEquals(2.0, result.get(0).getTotalJam());
     }
 

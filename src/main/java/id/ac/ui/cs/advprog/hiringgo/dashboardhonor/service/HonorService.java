@@ -74,9 +74,6 @@ public class HonorService {
             if (log.getLowongan() != null && log.getLowongan().getMataKuliah() != null) {
                 return log.getLowongan().getMataKuliah().getNamaMataKuliah();
             }
-            if (log.getLowongan().getMataKuliah() != null && log.getLowongan().getMataKuliah().getNamaMataKuliah() != null) {
-                return log.getLowongan().getMataKuliah().getNamaMataKuliah();
-            }
             return "Unknown";
         } catch (Exception e) {
             return "Unknown";
