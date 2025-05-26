@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @CrossOrigin(origins = "http://localhost:8000", allowedHeaders = "*")
@@ -35,41 +36,58 @@ public class DaftarLowonganController {
 
     @AllowedRoles({Role.MAHASISWA})
     @PostMapping("/{lowonganId}/daftar")
-    public ResponseEntity<ApiResponse<String>> daftarLowongan(
+    public CompletableFuture<ResponseEntity<ApiResponse<Object>>> daftarLowongan(
             @PathVariable String lowonganId,
             @Valid @RequestBody DaftarLowonganRequest request
     ) {
 
         String mahasiswaId = currentUserProvider.getCurrentUserId();
+        String userEmail = currentUserProvider.getCurrentUserEmail();
+        String userRole = currentUserProvider.getCurrentUserRole();
 
-        // Cari mahasiswa berdasarkan NPM
-        Optional<Mahasiswa> mahasiswaOpt = mahasiswaRepository.findById(mahasiswaId);
-        if (mahasiswaOpt.isEmpty()) {
-            throw new EntityNotFoundException(
-                    Map.of("mahasiswaId", "Mahasiswa dengan id " + mahasiswaId + " tidak ditemukan")
-            );
-        }
+        log.info("Starting async registration process for mahasiswa: {} to lowongan: {}", mahasiswaId, lowonganId);
 
-        Mahasiswa mahasiswa = mahasiswaOpt.get();
+        return CompletableFuture
+                .supplyAsync(() -> {
+                    // Validate mahasiswa exists
+                    Optional<Mahasiswa> mahasiswaOpt = mahasiswaRepository.findById(mahasiswaId);
+                    if (mahasiswaOpt.isEmpty()) {
+                        throw new EntityNotFoundException(
+                                Map.of("mahasiswaId", "Mahasiswa dengan id " + mahasiswaId + " tidak ditemukan")
+                        );
+                    }
+                    return mahasiswaOpt.get();
+                })
+                .thenCompose(mahasiswa -> {
+                    // Create command and execute registration
+                    DaftarLowonganCommand command = new DaftarLowonganCommand(
+                            request.getSks(),
+                            request.getIpk(),
+                            lowonganId,
+                            mahasiswa.getId()
+                    );
 
-        DaftarLowonganCommand command = new DaftarLowonganCommand(
-                request.getSks(),
-                request.getIpk(),
-                lowonganId,
-                mahasiswa.getId()
-        );
+                    return daftarLowonganService.executeAsync(command);
+                })
+                .thenApply(result -> {
+                    log.info("User with email '{}' and role '{}' successfully registered for lowongan '{}'",
+                            userEmail, userRole, lowonganId);
 
-        daftarLowonganService.execute(command);
+                    return new ResponseEntity<>(
+                            new ApiResponse<>("Berhasil mendaftar ke lowongan", null),
+                            HttpStatus.CREATED
+                    );
+                })
+                .exceptionally(throwable -> {
+                    log.error("Error during async registration for mahasiswa: {} to lowongan: {}",
+                            mahasiswaId, lowonganId, throwable);
 
-        log.info("User with email '{}' and role '{}' registered for lowongan '{}'",
-                currentUserProvider.getCurrentUserEmail(),
-                currentUserProvider.getCurrentUserRole(),
-                lowonganId);
+                    if (throwable.getCause() instanceof EntityNotFoundException) {
+                        throw (EntityNotFoundException) throwable.getCause();
+                    }
 
-        return new ResponseEntity<ApiResponse<String>>(
-                new ApiResponse<>("Berhasil mendaftar ke lowongan", null),
-                HttpStatus.CREATED
-        );
+                    throw new RuntimeException("Registration failed", throwable);
+                });
 
     }
 }

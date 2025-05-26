@@ -10,13 +10,17 @@ import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganReposit
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DaftarLowonganService {
@@ -25,18 +29,45 @@ public class DaftarLowonganService {
 
     @Transactional
     public void execute(DaftarLowonganCommand command) {
+        validateCommand(command);
+        processRegistration(command);
+    }
+
+    @Async("databaseTaskExecutor")
+    @Transactional
+    public CompletableFuture<Void> executeAsync(DaftarLowonganCommand command) {
+        log.info("Starting async execution for lowongan registration: {}", command.getLowonganId());
+
+        try {
+            validateCommand(command);
+            processRegistration(command);
+
+            log.info("Successfully completed async registration for lowongan: {}", command.getLowonganId());
+            return CompletableFuture.completedFuture(null);
+
+        } catch (Exception e) {
+            log.error("Error during async registration for lowongan: {}", command.getLowonganId(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    private void validateCommand(DaftarLowonganCommand command) {
+        Map<String, String> errors = new HashMap<>();
+
         if (command.getIpk() < 0 || command.getIpk() > 4) {
-            Map<String, String> errors = new HashMap<>();
             errors.put("ipk", "IPK harus antara 0 dan 4");
-            throw new InvalidDataException(errors);
         }
 
         if (command.getSks() < 0) {
-            Map<String, String> errors = new HashMap<>();
             errors.put("sks", "SKS tidak boleh negatif");
-            throw new InvalidDataException(errors);
         }
 
+        if (!errors.isEmpty()) {
+            throw new InvalidDataException(errors);
+        }
+    }
+
+    private void processRegistration(DaftarLowonganCommand command) {
         // Ambil lowongan
         String lowonganId = command.getLowonganId();
         Lowongan lowongan = lowonganRepository.findById(lowonganId)
@@ -47,12 +78,11 @@ public class DaftarLowonganService {
         Mahasiswa mahasiswa = mahasiswaRepository.findById(mahasiswaId)
                 .orElseThrow(() -> new EntityNotFoundException(Map.of("mahasiswaId", "Mahasiswa tidak ditemukan")));
 
-
         // Cek mahasiswa sudah daftar
         Optional<PendaftarLowongan> existingPendaftar = lowonganRepository.findPendaftarByLowonganAndMahasiswa(lowonganId, mahasiswaId);
 
         if (existingPendaftar.isPresent()) {
-            throw new EntityNotFoundException(Map.of("mahasiswaID", "Mahasiswa sudah mendaftar ke lowongan ini"));
+            throw new EntityNotFoundException(Map.of("mahasiswaId", "Mahasiswa sudah mendaftar ke lowongan ini"));
         }
 
         // Buat pendaftar baru
@@ -67,5 +97,33 @@ public class DaftarLowonganService {
 
         lowongan.getPendaftar().add(pendaftar);
         lowonganRepository.save(lowongan);
+
+        log.info("Registration processed successfully for mahasiswa: {} to lowongan: {}", mahasiswaId, lowonganId);
+    }
+
+    // Batch processing method - useful untuk bulk operations
+    @Async("databaseTaskExecutor")
+    public CompletableFuture<Map<String, String>> executeAsyncBatch(java.util.List<DaftarLowonganCommand> commands) {
+        log.info("Starting batch async execution for {} registration commands", commands.size());
+
+        Map<String, String> results = new HashMap<>();
+
+        for (DaftarLowonganCommand command : commands) {
+            try {
+                validateCommand(command);
+                processRegistration(command);
+                results.put(command.getLowonganId(), "SUCCESS");
+
+            } catch (Exception e) {
+                log.error("Error processing command in batch for lowongan: {}", command.getLowonganId(), e);
+                results.put(command.getLowonganId(), "FAILED: " + e.getMessage());
+            }
+        }
+
+        log.info("Completed batch async execution. Success: {}, Failed: {}",
+                results.values().stream().mapToInt(v -> v.equals("SUCCESS") ? 1 : 0).sum(),
+                results.values().stream().mapToInt(v -> v.startsWith("FAILED") ? 1 : 0).sum());
+
+        return CompletableFuture.completedFuture(results);
     }
 }
