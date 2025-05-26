@@ -9,6 +9,8 @@ import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.LowonganRepository;
@@ -129,12 +131,12 @@ class HonorControllerTest {
         log.setId(UUID.randomUUID().toString());
         log.setJudul("Log Test");
         log.setKeterangan("Keterangan log test");
-        log.setKategori("Kuliah");
+        log.setKategori(TipeKategori.MENGAWAS);
         log.setWaktuMulai(LocalTime.parse("08:00:00"));
         log.setWaktuSelesai(LocalTime.parse("10:00:00"));
         log.setTanggalLog(LocalDate.of(2025, 5, 22));
         log.setPesan("Ini hanya log dummy");
-        log.setStatus("Selesai");
+        log.setStatus(StatusLog.DITERIMA);
         log.setMahasiswa(mahasiswa);
         log.setLowongan(lowongan);
         log.setCreatedAt(LocalDate.of(2025, 5, 22));
@@ -149,10 +151,10 @@ class HonorControllerTest {
 
     @AfterEach
     void tearDown() {
+        mahasiswaRepository.deleteAll();
         logRepository.deleteAll();
         lowonganRepository.deleteAll();
         mataKuliahRepository.deleteAll();
-        mahasiswaRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -176,7 +178,7 @@ class HonorControllerTest {
             assertEquals(totalJam, log.getTotalJam());
             assertEquals(honorPerJam, log.getHonorPerJam());
             assertEquals(totalJam * honorPerJam, log.getTotalPembayaran());
-            assertEquals("Selesai", log.getStatus());
+            assertEquals("DITERIMA", log.getStatus());
             assertNull(response.getErrors());
         });
     }
