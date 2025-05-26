@@ -57,12 +57,10 @@ CREATE TABLE IF NOT EXISTS log (
     tanggal_log DATE NOT NULL,
     pesan VARCHAR(255),
     status VARCHAR(10) NOT NULL,
-    mata_kuliah_id VARCHAR(10) NOT NULL,
     lowongan_id CHAR(36) NOT NULL,
     mahasiswa_id CHAR(36) NOT NULL,
     created_at DATE NOT NULL,
     updated_at DATE,
-    FOREIGN KEY (mata_kuliah_id) REFERENCES mata_kuliah(kode_mata_kuliah) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (lowongan_id) REFERENCES lowongan(id)
 );
