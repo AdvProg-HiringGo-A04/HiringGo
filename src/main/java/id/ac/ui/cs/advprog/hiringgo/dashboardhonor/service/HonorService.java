@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.service;
 
 import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.HonorResponse;
 import id.ac.ui.cs.advprog.hiringgo.entity.Log;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class HonorService {
                                 .totalJam(jam)
                                 .honorPerJam(HONOR_PER_JAM)
                                 .totalPembayaran(bayar)
-                                .status(String.valueOf(StatusLog.DIPROSES))
+                                .status(String.valueOf(log.getStatus()))
                                 .build();
                     })
                     .collect(Collectors.toList());
