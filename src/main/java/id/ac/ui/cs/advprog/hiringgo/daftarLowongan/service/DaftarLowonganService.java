@@ -1,12 +1,12 @@
 package id.ac.ui.cs.advprog.hiringgo.daftarLowongan.service;
 
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.command.DaftarLowonganCommand;
-import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataException;
 import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.EntityNotFoundException;
+import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataException;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
