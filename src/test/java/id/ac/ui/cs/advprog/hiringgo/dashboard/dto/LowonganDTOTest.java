@@ -11,13 +11,13 @@ class LowonganDTOTest {
         LowonganDTO dto = LowonganDTO.builder()
                 .id("1L")
                 .mataKuliahName("Programming")
-                .tahunAjaran(2023)
+                .tahunAjaran("2023")
                 .semester("GANJIL")
                 .build();
 
         assertEquals("1L", dto.getId());
         assertEquals("Programming", dto.getMataKuliahName());
-        assertEquals(2023, dto.getTahunAjaran());
+        assertEquals("2023", dto.getTahunAjaran());
         assertEquals("GANJIL", dto.getSemester());
     }
 
@@ -26,22 +26,22 @@ class LowonganDTOTest {
         LowonganDTO dto = new LowonganDTO();
         dto.setId("1L");
         dto.setMataKuliahName("Programming");
-        dto.setTahunAjaran(2023);
+        dto.setTahunAjaran("2023");
         dto.setSemester("GANJIL");
 
         assertEquals("1L", dto.getId());
         assertEquals("Programming", dto.getMataKuliahName());
-        assertEquals(2023, dto.getTahunAjaran());
+        assertEquals("2023", dto.getTahunAjaran());
         assertEquals("GANJIL", dto.getSemester());
     }
 
     @Test
     void testAllArgsConstructor() {
-        LowonganDTO dto = new LowonganDTO("1L", "Programming", 2023, "GANJIL");
+        LowonganDTO dto = new LowonganDTO("1L", "Programming", "2023", "GANJIL");
 
         assertEquals("1L", dto.getId());
         assertEquals("Programming", dto.getMataKuliahName());
-        assertEquals(2023, dto.getTahunAjaran());
+        assertEquals("2023", dto.getTahunAjaran());
         assertEquals("GANJIL", dto.getSemester());
     }
 }
