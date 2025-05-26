@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository;
+package id.ac.ui.cs.advprog.hiringgo.repository;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public interface LowonganRepository extends JpaRepository<Lowongan, String> {
 

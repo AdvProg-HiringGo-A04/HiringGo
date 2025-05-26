@@ -1,30 +1,20 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenLog.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
-import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidatorFactory;
 import id.ac.ui.cs.advprog.hiringgo.repository.AsdosMataKuliahRepository;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +25,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -80,6 +89,7 @@ public class LogServiceTest {
 
         lowongan = new Lowongan();
         lowongan.setId(lowonganId);
+        lowongan.setMataKuliah(mataKuliah);
 
         request = LogRequest.builder()
                 .judul("judul")
@@ -102,7 +112,6 @@ public class LogServiceTest {
                 .waktuSelesai(LocalTime.of(11, 0))
                 .tanggalLog(LocalDate.now())
                 .status(StatusLog.DIPROSES)
-                .mataKuliah(mataKuliah)  // Use entity object
                 .mahasiswa(mahasiswa)    // Use entity object
                 .lowongan(lowongan)      // Use entity object
                 .createdAt(LocalDate.now())
@@ -163,7 +172,6 @@ public class LogServiceTest {
         assertEquals(log.getJudul(), result.getJudul());
         assertEquals(StatusLog.DIPROSES, result.getStatus());
         verify(logRepository, times(1)).save(any(Log.class));
-        verify(mataKuliahRepository).findById(mataKuliahId);
         verify(mahasiswaRepository).findById(mahasiswaId);
         verify(lowonganRepository).findById(lowonganId);
     }
@@ -200,7 +208,7 @@ public class LogServiceTest {
 
     @Test
     void testCreateLog_MataKuliahNotFound() {
-        when(mataKuliahRepository.findById(mataKuliahId)).thenReturn(Optional.empty());
+        when(lowonganRepository.findById(lowonganId)).thenReturn(Optional.empty());
 
         assertThrows(InvalidLogException.class, () -> logService.createLog(request, mahasiswaId));
         verify(logRepository, never()).save(any(Log.class));
@@ -260,7 +268,6 @@ public class LogServiceTest {
                 .id("log1")
                 .judul("judul")
                 .status(StatusLog.DITOLAK)
-                .mataKuliah(mataKuliah)
                 .mahasiswa(mahasiswa)
                 .lowongan(lowongan)
                 .build();
@@ -309,7 +316,6 @@ public class LogServiceTest {
         Log approvedLog = Log.builder()
                 .id("log1")
                 .status(StatusLog.DITOLAK)
-                .mataKuliah(mataKuliah)
                 .mahasiswa(mahasiswa)
                 .lowongan(lowongan)
                 .build();

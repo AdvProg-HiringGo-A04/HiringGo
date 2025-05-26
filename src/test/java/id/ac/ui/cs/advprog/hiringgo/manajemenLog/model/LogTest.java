@@ -27,6 +27,7 @@ public class LogTest {
 
         Lowongan lowongan = new Lowongan();
         lowongan.setId("lowongan1");
+        lowongan.setMataKuliah(mataKuliah);
 
         Log log = Log.builder()
                 .id("aecaa64a-16ce-4cff-9318-f92445fe8bb4")
@@ -38,7 +39,6 @@ public class LogTest {
                 .tanggalLog(today)
                 .pesan("pesan untuk dosen")
                 .status(StatusLog.DIPROSES)
-                .mataKuliah(mataKuliah)
                 .mahasiswa(mahasiswa)
                 .lowongan(lowongan)
                 .createdAt(today)
@@ -53,7 +53,7 @@ public class LogTest {
         assertEquals(today, log.getTanggalLog());
         assertEquals("pesan untuk dosen", log.getPesan());
         assertEquals(StatusLog.DIPROSES, log.getStatus());
-        assertEquals("matakuliah1", log.getMataKuliah().getKodeMataKuliah());  // Test MataKuliah
+        assertEquals("matakuliah1", log.getLowongan().getMataKuliah().getKodeMataKuliah());  // Test MataKuliah
         assertEquals("mahasiswa1", log.getMahasiswa().getId());  // Test Mahasiswa
         assertEquals("lowongan1", log.getLowongan().getId());  // Test Lowongan
         assertEquals(today, log.getCreatedAt());

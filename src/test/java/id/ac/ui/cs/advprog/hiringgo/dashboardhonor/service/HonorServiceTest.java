@@ -63,7 +63,7 @@ class HonorServiceTest {
         testLog1.setTanggalLog(LocalDate.of(2024, 5, 1));
         testLog1.setWaktuMulai(LocalTime.of(8, 0));
         testLog1.setWaktuSelesai(LocalTime.of(12, 0));
-        testLog1.setStatus(StatusLog.DITERIMA);
+        testLog1.setStatus(StatusLog.DIPROSES);
         testLog1.setMahasiswa(testMahasiswa);
         testLog1.setLowongan(testLowongan);
 

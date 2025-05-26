@@ -1,16 +1,22 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenLog.service;
 
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidatorFactory;
 import id.ac.ui.cs.advprog.hiringgo.repository.AsdosMataKuliahRepository;
-import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.LowonganRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
 import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
-import org.springframework.stereotype.Service;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -19,15 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogRequest;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.dto.LogResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
-import id.ac.ui.cs.advprog.hiringgo.entity.Log;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidator;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.validation.LogValidatorFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -79,7 +76,6 @@ public class LogServiceImpl implements LogService{
                 .tanggalLog(logRequest.getTanggalLog())
                 .pesan(logRequest.getPesan())
                 .status(StatusLog.DIPROSES)
-                .mataKuliah(getMataKuliahOrThrow(logRequest.getMataKuliahId()))
                 .mahasiswa(getMahasiswaOrThrow(mahasiswaId))
                 .lowongan(getLowonganOrThrow(logRequest.getLowonganId()))
                 .createdAt(LocalDate.now())
@@ -101,7 +97,7 @@ public class LogServiceImpl implements LogService{
             throw new LogNotFoundException(Map.of("mahasiswaId", "Log tidak ditemukan atau Anda tidak memiliki akses"));
         }
 
-        if (!existingLog.getMataKuliah().getKodeMataKuliah().equals(logRequest.getMataKuliahId())) {
+        if (!existingLog.getLowongan().getMataKuliah().getKodeMataKuliah().equals(logRequest.getMataKuliahId())) {
             throw new InvalidLogException(Map.of("mataKuliahId",
                     "Log ini tidak terkait dengan mata kuliah yang diminta"));
         }
@@ -152,7 +148,6 @@ public class LogServiceImpl implements LogService{
         logRepository.delete(log);
     }
 
-    // Contoh return: "04-2025": 12
     @Override
     public Map<String, Double> getTotalJamPerBulan(String lowonganId, String mahasiswaId) {
         validateEnrollment(lowonganId, mahasiswaId);
@@ -208,17 +203,12 @@ public class LogServiceImpl implements LogService{
                 .pesan(log.getPesan())
                 .status(log.getStatus())
                 .statusDisplayName(log.getStatus().getDisplayName())
-                .mataKuliahId(log.getMataKuliah().getKodeMataKuliah())
+                .mataKuliahId(log.getLowongan().getMataKuliah().getKodeMataKuliah())
                 .mahasiswaId(log.getMahasiswa().getId())
                 .lowonganId(log.getLowongan().getId())
                 .createdAt(log.getCreatedAt())
                 .updatedAt(log.getUpdatedAt())
                 .build();
-    }
-
-    private MataKuliah getMataKuliahOrThrow(String id) {
-        return mataKuliahRepository.findById(id)
-                .orElseThrow(() -> new InvalidLogException(Map.of("mataKuliahId", "Mata kuliah tidak ditemukan")));
     }
 
     private Mahasiswa getMahasiswaOrThrow(String id) {
@@ -230,5 +220,4 @@ public class LogServiceImpl implements LogService{
         return lowonganRepository.findById(id)
                 .orElseThrow(() -> new InvalidLogException(Map.of("lowonganId", "Lowongan tidak ditemukan")));
     }
-
 }

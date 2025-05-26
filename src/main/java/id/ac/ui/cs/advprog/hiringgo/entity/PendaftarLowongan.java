@@ -1,8 +1,11 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
-import java.util.UUID;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +20,7 @@ import lombok.Setter;
 @Builder
 @Table(name = "mahasiswa_pendaftar_lowongan")
 public class PendaftarLowongan {
+
     @Id
     private String id;
 
@@ -25,12 +29,14 @@ public class PendaftarLowongan {
     private Lowongan lowongan;
 
     @ManyToOne
-    @JoinColumn(name = "mahasiswa_id", nullable = false)
     private Mahasiswa mahasiswa;
 
+    @Column(name = "jumlah_sks")
     private int jumlahSks;
 
+    @Column(name = "ipk")
     private double ipk;
 
-    private boolean diterima; // default false
+    @Column(name = "diterima")
+    private boolean diterima;
 }
