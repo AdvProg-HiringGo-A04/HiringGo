@@ -51,14 +51,9 @@ public class Log {
     private StatusLog status;
 
     @ManyToOne
-    @JoinColumn(name = "mata_kuliah_id", referencedColumnName = "kode_mata_kuliah")
-    private MataKuliah mataKuliah;
-
-    @ManyToOne
     @JoinColumn(name = "mahasiswa_id", referencedColumnName = "id")
     private Mahasiswa mahasiswa;
 
-    // NEW: Add reference to Lowongan
     @ManyToOne
     @JoinColumn(name = "lowongan_id", referencedColumnName = "id")
     private Lowongan lowongan;
