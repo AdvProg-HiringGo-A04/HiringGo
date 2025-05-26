@@ -1,127 +1,356 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboardhonor.controller;
 
-import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.service.HonorService;
-import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.hiringgo.dashboardhonor.model.HonorResponse;
+import id.ac.ui.cs.advprog.hiringgo.entity.Log;
+import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
+import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
+import id.ac.ui.cs.advprog.hiringgo.entity.User;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
+import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.repository.LogRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.LowonganRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.MahasiswaRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.MataKuliahRepository;
+import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtilImpl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.UUID;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(HonorController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
+@AutoConfigureMockMvc
 class HonorControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private HonorService honorService;
+    @Autowired
+    private LogRepository logRepository;
 
-    @MockBean
-    private JwtUtil jwtUtil;
+    @Autowired
+    private UserRepository userRepository;
 
-    private final String MAHASISWA_ROLE = "MAHASISWA";
-    private final String VALID_JWT = "validJwtToken";
-    private final String BEARER = "Bearer " + VALID_JWT;
-    private final String USER_ID = "12345";
+    @Autowired
+    private MahasiswaRepository mahasiswaRepository;
 
-    @Test
-    void whenGetHonorsSuccess_thenReturns200() throws Exception {
-        int year = 2025, month = 5;
+    @Autowired
+    private MataKuliahRepository mataKuliahRepository;
 
-        when(jwtUtil.extractRole(VALID_JWT)).thenReturn(MAHASISWA_ROLE);
-        when(jwtUtil.extractId(VALID_JWT)).thenReturn(USER_ID);
-        when(honorService.getHonorsByMahasiswaAndPeriod(USER_ID, year, month))
-                .thenReturn(Collections.emptyList());
+    @Autowired
+    private LowonganRepository lowonganRepository;
 
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", String.valueOf(year))
-                        .param("month", String.valueOf(month))
-                        .header("Authorization", BEARER)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data").isEmpty());
+    @Autowired
+    private ObjectMapper objectMapper;
 
-        verify(honorService).getHonorsByMahasiswaAndPeriod(USER_ID, year, month);
+    @Autowired
+    private JwtUtilImpl jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private String userId;
+
+    private String userId2;
+
+    private String tokenMahasiswa;
+
+    private Mahasiswa mahasiswa;
+
+    private MataKuliah mataKuliah;
+
+    private final Double honorPerJam = 27500D;
+
+    private Double totalJam;
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID().toString();
+        userId2 = UUID.randomUUID().toString();
+
+        User user = new User();
+        user.setId(userId);
+        user.setEmail("mahasiswa@hiringgo.com");
+        user.setPassword(passwordEncoder.encode("securepassword"));
+        user.setRole(Role.MAHASISWA);
+        userRepository.save(user);
+
+        User user2 = new User();
+        user2.setId(userId2);
+        user2.setEmail("mahasiswa2@hiringgo.com");
+        user2.setPassword(passwordEncoder.encode("securepassword"));
+        user2.setRole(Role.MAHASISWA);
+        userRepository.save(user2);
+
+        mahasiswa = new Mahasiswa();
+        mahasiswa.setId(userId);
+        mahasiswa.setNPM("2306275752");
+        mahasiswa.setNamaLengkap("John Doe");
+        mahasiswaRepository.save(mahasiswa);
+
+        mataKuliah = new MataKuliah();
+        mataKuliah.setKodeMataKuliah("CSCM602223");
+        mataKuliah.setNamaMataKuliah("Pemrograman Lanjut");
+        mataKuliah.setDeskripsiMataKuliah("Belajar konsep lanjutan pemrograman.");
+        mataKuliah.setDosenPengampu(List.of());
+        mataKuliahRepository.save(mataKuliah);
+
+        Lowongan lowongan = new Lowongan();
+        lowongan.setId(UUID.randomUUID().toString());
+        lowongan.setMataKuliah(mataKuliah);
+        lowongan.setSemester("Genap");
+        lowongan.setTahunAjaran("2024/2025");
+        lowongan.setJumlahDibutuhkan(10);
+        lowongan.setPendaftar(List.of());
+        lowonganRepository.save(lowongan);
+
+        Log log = new Log();
+        log.setId(UUID.randomUUID().toString());
+        log.setJudul("Log Test");
+        log.setKeterangan("Keterangan log test");
+        log.setKategori("Kuliah");
+        log.setWaktuMulai(LocalTime.parse("08:00:00"));
+        log.setWaktuSelesai(LocalTime.parse("10:00:00"));
+        log.setTanggalLog(LocalDate.of(2025, 5, 22));
+        log.setPesan("Ini hanya log dummy");
+        log.setStatus("Selesai");
+        log.setMahasiswa(mahasiswa);
+        log.setLowongan(lowongan);
+        log.setCreatedAt(LocalDate.of(2025, 5, 22));
+        log.setUpdatedAt(LocalDate.of(2025, 5, 22));
+        logRepository.save(log);
+
+        Duration durasi = Duration.between(log.getWaktuMulai(), log.getWaktuSelesai());
+        totalJam = durasi.toMinutes() / 60D;
+
+        tokenMahasiswa = jwtUtil.generateToken(user.getId(), user.getEmail(), String.valueOf(user.getRole()));
+    }
+
+    @AfterEach
+    void tearDown() {
+        logRepository.deleteAll();
+        lowonganRepository.deleteAll();
+        mataKuliahRepository.deleteAll();
+        mahasiswaRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
-    void whenMonthInvalid_thenReturns400() throws Exception {
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", "2025")
-                        .param("month", "13")
-                        .header("Authorization", BEARER))
-                .andExpect(status().isBadRequest());
+    void testFindHonorSuccess() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=5")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            HonorResponse log = response.getData().getFirst();
 
-        verifyNoInteractions(jwtUtil, honorService);
+            assertEquals(LocalDate.of(2025, 5, 22), log.getTanggalLog());
+            assertEquals(mahasiswa.getId(), log.getMahasiswa().getId());
+            assertEquals(mataKuliah.getNamaMataKuliah(), log.getMataKuliahNama());
+            assertEquals(totalJam, log.getTotalJam());
+            assertEquals(honorPerJam, log.getHonorPerJam());
+            assertEquals(totalJam * honorPerJam, log.getTotalPembayaran());
+            assertEquals("Selesai", log.getStatus());
+            assertNull(response.getErrors());
+        });
     }
 
     @Test
-    void whenNoToken_thenReturns401() throws Exception {
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", "2025")
-                        .param("month", "5"))
-                .andExpect(status().isUnauthorized());
-
-        verifyNoInteractions(jwtUtil, honorService);
+    void testFindHonorWithoutParam() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
     }
 
     @Test
-    void whenRoleMismatch_thenReturns401() throws Exception {
-        when(jwtUtil.extractRole(VALID_JWT)).thenReturn("ADMIN");
-        when(jwtUtil.extractId(VALID_JWT)).thenReturn("ignoredId");
-
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", "2025")
-                        .param("month", "5")
-                        .header("Authorization", BEARER))
-                .andExpect(status().isUnauthorized());
-
-        verify(jwtUtil).extractRole(VALID_JWT);
-        verify(jwtUtil).extractId(VALID_JWT);
-        verifyNoInteractions(honorService);
+    void testFindHonorWhenParamMonthIsInvalid() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=13")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
     }
 
     @Test
-    void whenIdMismatch_thenReturns403() throws Exception {
-        when(jwtUtil.extractRole(VALID_JWT)).thenReturn(MAHASISWA_ROLE);
-        when(jwtUtil.extractId(VALID_JWT)).thenReturn("differentId");
-
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", "2025")
-                        .param("month", "5")
-                        .header("Authorization", BEARER))
-                .andExpect(status().isForbidden());
-
-        verify(jwtUtil).extractRole(VALID_JWT);
-        verify(jwtUtil).extractId(VALID_JWT);
-        verifyNoInteractions(honorService);
+    void testFindHonorWhenParamYearIsInvalid() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=202X&month=12")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
     }
 
     @Test
-    void whenServiceThrows_thenReturns500() throws Exception {
-        when(jwtUtil.extractRole(VALID_JWT)).thenReturn(MAHASISWA_ROLE);
-        when(jwtUtil.extractId(VALID_JWT)).thenReturn(USER_ID);
-        doThrow(new RuntimeException("DB down")).when(honorService)
-                .getHonorsByMahasiswaAndPeriod(USER_ID, 2025, 5);
+    void testFindHonorWithoutParamYear() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?month=5")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
 
-        mockMvc.perform(get("/mahasiswa/{id}/honors", USER_ID)
-                        .param("year", "2025")
-                        .param("month", "5")
-                        .header("Authorization", BEARER))
-                .andExpect(status().isInternalServerError());
+    @Test
+    void testFindHonorWithoutParamMonth() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isBadRequest()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
 
-        verify(honorService).getHonorsByMahasiswaAndPeriod(USER_ID, 2025, 5);
+    @Test
+    void testFindHonorWhenLogIsEmpty() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isOk()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertTrue(response.getData().isEmpty());
+            assertNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorWhenMahasiswaTriesToAccessAnotherUsersData() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId2 + "/honors?year=2025&month=5")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + tokenMahasiswa)
+        ).andExpectAll(
+                status().isForbidden()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorWhenUserIsNotAuthenticate() throws Exception {
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isUnauthorized()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorWhenUserIsDosen() throws Exception {
+        String token = jwtUtil.generateToken(UUID.randomUUID().toString(), "dosen@hiringgo.com", String.valueOf(Role.DOSEN));
+
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+        ).andExpectAll(
+                status().isForbidden()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
+    }
+
+    @Test
+    void testFindHonorWhenUserIsAdmin() throws Exception {
+        String token = jwtUtil.generateToken(UUID.randomUUID().toString(), "admin@hiringgo.com", String.valueOf(Role.ADMIN));
+
+        mockMvc.perform(
+                get("/mahasiswa/" + userId + "/honors?year=2025&month=1")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+        ).andExpectAll(
+                status().isForbidden()
+        ).andDo(result -> {
+            WebResponse<List<HonorResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
+            });
+            assertNull(response.getData());
+            assertNotNull(response.getErrors());
+        });
     }
 }
