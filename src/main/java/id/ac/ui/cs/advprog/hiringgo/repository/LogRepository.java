@@ -23,4 +23,5 @@ public interface LogRepository extends JpaRepository<Log, String> {
     List<Log> findByMahasiswaId(String mahasiswaId);
 
     List<Log> findByTanggalLogBetweenAndMahasiswaIdOrderByLowonganMataKuliahNamaMataKuliahAsc(LocalDate tanggalLog, LocalDate tanggalLog2, String mahasiswa_id);
+    List<Log> findByLowonganIdAndMahasiswaIdOrderByTanggalLogDescWaktuMulaiDesc(String lowonganId, String mahasiswaId);
 }

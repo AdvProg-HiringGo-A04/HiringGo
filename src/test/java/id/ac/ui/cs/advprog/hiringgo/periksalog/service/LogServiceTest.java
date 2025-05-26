@@ -3,8 +3,8 @@ package id.ac.ui.cs.advprog.hiringgo.periksalog.service;
 import id.ac.ui.cs.advprog.hiringgo.entity.Mahasiswa;
 import id.ac.ui.cs.advprog.hiringgo.entity.Log;  // Fixed import - use the entity package
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
 import id.ac.ui.cs.advprog.hiringgo.entity.MataKuliah;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,7 +42,7 @@ public class LogServiceTest {
     private MataKuliahService mataKuliahService;
 
     @InjectMocks
-    private LogServiceImpl logService;
+    private PeriksaLogServiceImpl logService;
 
     private Mahasiswa mahasiswa;
     private MataKuliah mataKuliah;
@@ -74,11 +73,11 @@ public class LogServiceTest {
         log1.setId("log-1");
         log1.setJudul("Asistensi Lab 1");
         log1.setKeterangan("Membantu mahasiswa dengan lab 1");
-        log1.setKategori(TipeKategori.ASISTENSI.name()); // Store as string in entity
+        log1.setKategori(TipeKategori.ASISTENSI); // Store as string in entity
         log1.setWaktuMulai(LocalTime.of(10, 0));
         log1.setWaktuSelesai(LocalTime.of(12, 0));
         log1.setTanggalLog(LocalDate.now());
-        log1.setStatus(StatusLog.DIPROSES.name()); // Store as string in entity
+        log1.setStatus(StatusLog.DIPROSES); // Store as string in entity
         log1.setMahasiswa(mahasiswa); // Use relationship instead of ID
         log1.setLowongan(lowongan); // Use relationship instead of direct mata kuliah ID
         log1.setCreatedAt(LocalDate.now());
@@ -88,11 +87,11 @@ public class LogServiceTest {
         log2.setId("log-2");
         log2.setJudul("Koreksi Tugas");
         log2.setKeterangan("Mengoreksi tugas 1");
-        log2.setKategori(TipeKategori.MENGOREKSI.name()); // Store as string in entity
+        log2.setKategori(TipeKategori.MENGOREKSI); // Store as string in entity
         log2.setWaktuMulai(LocalTime.of(13, 0));
         log2.setWaktuSelesai(LocalTime.of(15, 0));
         log2.setTanggalLog(LocalDate.now());
-        log2.setStatus(StatusLog.DIPROSES.name()); // Store as string in entity
+        log2.setStatus(StatusLog.DIPROSES); // Store as string in entity
         log2.setMahasiswa(mahasiswa); // Use relationship instead of ID
         log2.setLowongan(lowongan); // Use relationship instead of direct mata kuliah ID
         log2.setCreatedAt(LocalDate.now());
@@ -172,7 +171,7 @@ public class LogServiceTest {
         when(logRepository.save(any(Log.class))).thenAnswer(i -> {
             Log savedLog = (Log) i.getArguments()[0];
             // Verify that the status was updated to string format
-            assertEquals(StatusLog.DITERIMA.name(), savedLog.getStatus());
+            assertEquals(StatusLog.DITERIMA, savedLog.getStatus());
             return savedLog;
         });
 
@@ -316,41 +315,6 @@ public class LogServiceTest {
     }
 
     @Test
-    void parseKategoriFromString_WithInvalidValue_ShouldReturnDefault() {
-        // This is testing the private method indirectly through convertToDTO
-        // Arrange
-        String dosenId = "dosen-123";
-        log1.setKategori("INVALID_KATEGORI");
-        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
-
-        // Act
-        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        // Should return the first enum value as default
-        assertEquals(TipeKategori.values()[0], result.get(0).getKategori());
-    }
-
-    @Test
-    void parseStatusFromString_WithInvalidValue_ShouldReturnDefault() {
-        // This is testing the private method indirectly through convertToDTO
-        // Arrange
-        String dosenId = "dosen-123";
-        log1.setStatus("INVALID_STATUS");
-        when(logRepository.findAllLogsByDosenId(dosenId)).thenReturn(Arrays.asList(log1));
-
-        // Act
-        List<LogDTO> result = logService.getAllLogsByDosenId(dosenId);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        // Should return the first enum value as default
-        assertEquals(StatusLog.values()[0], result.get(0).getStatus());
-    }
-    @Test
     void getAllLogsByDosenId_WithNullLogEntity_ShouldHandleGracefully() {
         // Arrange
         String dosenId = "dosen-123";
@@ -393,52 +357,6 @@ public class LogServiceTest {
 
         // Assert
         assertEquals(-2.0, result.get(0).getDurationInHours());
-    }
-
-    @Test
-    void updateLogStatus_WithEmptyKategori_ShouldUseDefaultValue() {
-        // Arrange
-        String dosenId = "dosen-123";
-        log1.setKategori("");
-        when(logRepository.isLogOwnedByDosen(log1.getId(), dosenId)).thenReturn(true);
-        when(logRepository.findById(log1.getId())).thenReturn(Optional.of(log1));
-        when(logRepository.save(any(Log.class))).thenReturn(log1);
-
-        LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
-        updateDTO.setLogId(log1.getId());
-        updateDTO.setStatus(StatusLog.DITERIMA);
-
-        // Act
-        LogDTO result = logService.updateLogStatus(dosenId, updateDTO);
-
-        // Assert
-        assertEquals(TipeKategori.values()[0], result.getKategori());
-    }
-
-    @Test
-    void updateLogStatus_WithEmptyStatus_ShouldUseDefaultValue() {
-        // Arrange
-        String dosenId = "dosen-123";
-        log1.setStatus(""); // Empty status
-        when(logRepository.isLogOwnedByDosen(log1.getId(), dosenId)).thenReturn(true);
-        when(logRepository.findById(log1.getId())).thenReturn(Optional.of(log1));
-        when(logRepository.save(any(Log.class))).thenAnswer(invocation -> {
-            Log savedLog = invocation.getArgument(0);
-            // Verify the status was set to the new value, not default
-            assertEquals(StatusLog.DITERIMA.name(), savedLog.getStatus());
-            return savedLog;
-        });
-
-        LogStatusUpdateDTO updateDTO = new LogStatusUpdateDTO();
-        updateDTO.setLogId(log1.getId());
-        updateDTO.setStatus(StatusLog.DITERIMA); // Setting new status
-
-        // Act
-        LogDTO result = logService.updateLogStatus(dosenId, updateDTO);
-
-        // Assert
-        // Should use the new status from DTO, not default
-        assertEquals(StatusLog.DITERIMA, result.getStatus());
     }
 
     @Test

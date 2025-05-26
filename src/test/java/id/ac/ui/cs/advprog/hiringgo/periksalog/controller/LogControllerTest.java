@@ -2,14 +2,13 @@ package id.ac.ui.cs.advprog.hiringgo.periksalog.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.User;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
-import id.ac.ui.cs.advprog.hiringgo.entity.Log;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
-import id.ac.ui.cs.advprog.hiringgo.periksalog.service.LogService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.TipeKategori;
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.TipeKategori;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 
+import id.ac.ui.cs.advprog.hiringgo.periksalog.service.PeriksaLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,10 +34,10 @@ import static org.mockito.Mockito.*;
 public class LogControllerTest {
 
     @Mock
-    private LogService logService;
+    private PeriksaLogService logService;
 
     @InjectMocks
-    private LogController logController;
+    private PeriksaLogController logController;
 
     private User dosen;
     private User mahasiswa;

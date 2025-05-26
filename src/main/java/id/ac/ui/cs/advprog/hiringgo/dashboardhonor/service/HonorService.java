@@ -45,7 +45,7 @@ public class HonorService {
                                 .totalJam(jam)
                                 .honorPerJam(HONOR_PER_JAM)
                                 .totalPembayaran(bayar)
-                                .status(log.getStatus())
+                                .status(String.valueOf(log.getStatus()))
                                 .build();
                     })
                     .collect(Collectors.toList());

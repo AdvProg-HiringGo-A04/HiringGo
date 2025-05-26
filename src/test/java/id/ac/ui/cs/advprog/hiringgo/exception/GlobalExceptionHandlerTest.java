@@ -1,5 +1,9 @@
 package id.ac.ui.cs.advprog.hiringgo.exception;
 
+import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.EntityNotFoundException;
+import id.ac.ui.cs.advprog.hiringgo.daftarLowongan.exception.InvalidDataException;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.InvalidLogException;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.exception.LogNotFoundException;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -9,8 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -98,5 +105,99 @@ public class GlobalExceptionHandlerTest {
         assertNotNull(response.getBody());
         assertNull(response.getBody().getData());
         assertEquals("Request body is missing or malformed", response.getBody().getErrors());
+    }
+
+    @Test
+    void testHandleMissingParams() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+        MissingServletRequestParameterException ex = mock(MissingServletRequestParameterException.class);
+
+        when(ex.getParameterName()).thenReturn("param1");
+
+        ResponseEntity<WebResponse<?>> response = handler.handleMissingParams(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertEquals("Required parameter 'param1'", response.getBody().getErrors());
+    }
+
+    @Test
+    void testHandleMethodArgumentTypeMismatch() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+        MethodArgumentTypeMismatchException ex = mock(MethodArgumentTypeMismatchException.class);
+
+        when(ex.getName()).thenReturn("param1");
+
+        ResponseEntity<WebResponse<?>> response = handler.handleTypeMismatch(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertNull(response.getBody().getData());
+        assertEquals("Parameter 'param1' is invalid", response.getBody().getErrors());
+    }
+
+    @Test
+    void testHandleInvalidDataException() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        InvalidDataException ex = mock(InvalidDataException.class);
+        Map<String, String> errors = Map.of("field1", "Invalid value", "field2", "Cannot be empty");
+        when(ex.getErrors()).thenReturn(errors);
+
+        ResponseEntity<Map<String, Object>> response = handler.handleInvalidDataException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Data tidak valid", response.getBody().get("message"));
+        assertEquals(errors, response.getBody().get("errors"));
+    }
+
+    @Test
+    void testHandleEntityNotFoundException() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        EntityNotFoundException ex = mock(EntityNotFoundException.class);
+        Map<String, String> errors = Map.of("entity", "Entity not found");
+        when(ex.getErrors()).thenReturn(errors);
+
+        ResponseEntity<Map<String, Object>> response = handler.handleEntityNotFoundException(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Data tidak ditemukan", response.getBody().get("message"));
+        assertEquals(errors, response.getBody().get("errors"));
+    }
+
+    @Test
+    void testHandleLogNotFoundException() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        LogNotFoundException ex = mock(LogNotFoundException.class);
+        Map<String, String> errors = Map.of("log", "Log entry not found");
+        when(ex.getErrors()).thenReturn(errors);
+
+        ResponseEntity<Map<String, Object>> response = handler.handleLogNotFoundException(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Validasi log gagal", response.getBody().get("message"));
+        assertEquals(errors, response.getBody().get("errors"));
+    }
+
+    @Test
+    void testHandleInvalidLogException() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        InvalidLogException ex = mock(InvalidLogException.class);
+        Map<String, String> errors = Map.of("log", "Invalid log entry");
+        when(ex.getErrors()).thenReturn(errors);
+
+        ResponseEntity<Map<String, Object>> response = handler.handleInvalidLogException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("Validasi log gagal", response.getBody().get("message"));
+        assertEquals(errors, response.getBody().get("errors"));
     }
 }

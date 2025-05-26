@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.periksalog.dto;
 
-import id.ac.ui.cs.advprog.hiringgo.manajemenLog.model.enums.StatusLog;
+import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
