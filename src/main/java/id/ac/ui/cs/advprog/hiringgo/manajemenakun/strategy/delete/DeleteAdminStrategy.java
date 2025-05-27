@@ -25,7 +25,6 @@ public class DeleteAdminStrategy implements DeleteUserStrategy {
         return Role.ADMIN.equals(role);
     }
 
-    @Async
     @Override
     @Transactional
     public void deleteUser(String id) {

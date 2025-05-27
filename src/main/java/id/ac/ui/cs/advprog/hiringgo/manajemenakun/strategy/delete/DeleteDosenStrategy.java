@@ -25,7 +25,6 @@ public class DeleteDosenStrategy implements DeleteUserStrategy {
         return Role.DOSEN.equals(role);
     }
 
-    @Async
     @Override
     @Transactional
     public void deleteUser(String id) {

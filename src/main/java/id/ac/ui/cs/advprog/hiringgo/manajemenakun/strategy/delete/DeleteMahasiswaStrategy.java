@@ -25,7 +25,6 @@ public class DeleteMahasiswaStrategy implements DeleteUserStrategy {
         return Role.MAHASISWA.equals(role);
     }
 
-    @Async
     @Override
     @Transactional
     public void deleteUser(String id) {
