@@ -32,10 +32,3 @@ jobs:
 
       - name: Run unit tests with H2 profile
         run: ./gradlew test
-
-      - name: Trigger deploy workflow if on main branch
-        if: success() && github.ref == 'refs/heads/main'
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          workflow: deploy.yml
-          ref: main

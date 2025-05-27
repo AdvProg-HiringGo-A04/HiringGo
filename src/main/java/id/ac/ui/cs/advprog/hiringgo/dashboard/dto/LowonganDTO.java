@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class LowonganDTO {
     private String id;
     private String mataKuliahName;
-    private int tahunAjaran;
+    private String tahunAjaran;
     private String semester;
 }

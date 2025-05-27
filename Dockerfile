@@ -17,6 +17,7 @@ RUN addgroup -g ${USER_GID} ${USER_NAME} \
 USER ${USER_NAME}
 WORKDIR /opt/hiringgo
 COPY --from=builder --chown=${USER_UID}:${USER_GID} /src/hiringgo/build/libs/*.jar app.jar
+RUN chmod a-w app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java"]
