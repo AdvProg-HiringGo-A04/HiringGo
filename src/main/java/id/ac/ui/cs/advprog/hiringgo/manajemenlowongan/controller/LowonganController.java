@@ -1,11 +1,13 @@
 package id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.controller;
 
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.dto.LowonganForm;
 import id.ac.ui.cs.advprog.hiringgo.entity.PendaftarLowongan;
 import id.ac.ui.cs.advprog.hiringgo.manajemenlowongan.service.LowonganService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
 import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import id.ac.ui.cs.advprog.hiringgo.security.annotation.AllowedRoles;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import id.ac.ui.cs.advprog.hiringgo.security.annotation.AllowedRoles;
 
 import java.net.URI;
 import java.util.List;
@@ -33,25 +36,7 @@ public class LowonganController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    private void roleRequired(String token) {
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        token = token.substring(7);
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-        }
-
-        String role = jwtUtil.extractRole(token);
-
-        Set<String> allowedRoles = Set.of("ADMIN", "DOSEN");
-        if (!allowedRoles.contains(role)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
-        }
-    }
-
+    @AllowedRoles({Role.ADMIN, Role.DOSEN, Role.MAHASISWA})
     @GetMapping(
             path = "/lowongan",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -59,7 +44,7 @@ public class LowonganController {
     public ResponseEntity<WebResponse<List<Lowongan>>> getAllLowongan(
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
+
         List<Lowongan> lowonganList = lowonganService.getAllLowongan();
         WebResponse<List<Lowongan>> response = WebResponse.<List<Lowongan>>builder()
                 .data(lowonganList)
@@ -67,6 +52,7 @@ public class LowonganController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @GetMapping(
             path = "/lowongan/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -75,7 +61,7 @@ public class LowonganController {
             @PathVariable("id") String id,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
+
         Optional<Lowongan> lowongan = lowonganService.getLowonganById(id);
 
         if (lowongan.isEmpty()) {
@@ -92,6 +78,7 @@ public class LowonganController {
         );
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @PostMapping(
             path = "/lowongan",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -101,7 +88,7 @@ public class LowonganController {
             @RequestBody(required = false) LowonganForm form,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
+
 
         if (form == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
@@ -121,6 +108,7 @@ public class LowonganController {
                 .body(response);
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @PutMapping(
             path = "/lowongan/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -131,7 +119,6 @@ public class LowonganController {
             @RequestBody(required = false) LowonganForm form,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
 
         if (form == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body is missing or invalid");
@@ -154,6 +141,7 @@ public class LowonganController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @DeleteMapping(
             path = "/lowongan/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -162,7 +150,6 @@ public class LowonganController {
             @PathVariable("id") String id,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
 
         boolean deleted = lowonganService.deleteLowongan(id);
         if (!deleted) {
@@ -173,6 +160,7 @@ public class LowonganController {
         return ResponseEntity.ok(response); // or .noContent().build() if you prefer 204
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @GetMapping(
             path = "/lowongan/{id}/pendaftar",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -181,7 +169,6 @@ public class LowonganController {
             @PathVariable("id") String lowonganId,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
 
         List<PendaftarLowongan> pendaftarList = lowonganService.getPendaftarByLowongan(lowonganId);
         WebResponse<List<PendaftarLowongan>> response = WebResponse.<List<PendaftarLowongan>>builder()
@@ -191,6 +178,7 @@ public class LowonganController {
         return ResponseEntity.ok(response);
     }
 
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @PostMapping(
             path = "/lowongan/{id}/pendaftar/{npm}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -201,7 +189,6 @@ public class LowonganController {
             @RequestParam("diterima") boolean diterima,
             @RequestHeader(name = "Authorization", required = false) String token
     ) {
-        roleRequired(token);
 
         try {
             lowonganService.setStatusPendaftar(lowonganId, npm, diterima);
