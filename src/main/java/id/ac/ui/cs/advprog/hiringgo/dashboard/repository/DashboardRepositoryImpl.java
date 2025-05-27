@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
+import id.ac.ui.cs.advprog.hiringgo.dashboard.dto.LowonganDTO;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
 import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
@@ -40,14 +41,21 @@ public class DashboardRepositoryImpl implements DashboardRepository {
         static final String COUNT_MAHASISWA_BY_DOSEN =
                 "SELECT COUNT(DISTINCT pl.mahasiswa) FROM PendaftarLowongan pl " +
                         "WHERE pl.lowongan.id IN (SELECT l.id FROM Lowongan l " +
-                        "WHERE l.mataKuliah IN (SELECT mk.id FROM MataKuliah mk " +
+                        "WHERE l.mataKuliah.kodeMataKuliah IN (SELECT mk.kodeMataKuliah FROM MataKuliah mk " +
                         "JOIN mk.dosenPengampu d WHERE d.id = :dosenId)) AND pl.diterima = true";
+
         static final String COUNT_OPEN_LOWONGAN_BY_DOSEN =
-                "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan " +
-                        "AND l.mataKuliah IN (SELECT mk.id FROM MataKuliah mk " +
-                        "JOIN mk.dosenPengampu d WHERE d.id = :dosenId)";
+                "SELECT COUNT(l) FROM Lowongan l " +
+                        "WHERE l.mataKuliah.kodeMataKuliah IN (SELECT mk.kodeMataKuliah FROM MataKuliah mk " +
+                        "JOIN mk.dosenPengampu d WHERE d.id = :dosenId) " +
+                        "AND l.jumlahDibutuhkan > " +
+                        "(SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.lowongan.id = l.id AND pl.diterima = true)";
+
         static final String COUNT_OPEN_LOWONGAN =
-                "SELECT COUNT(l) FROM Lowongan l WHERE l.jumlahDiterima < l.jumlahDibutuhkan";
+                "SELECT COUNT(l) FROM Lowongan l " +
+                        "WHERE l.jumlahDibutuhkan > " +
+                        "(SELECT COUNT(pl) FROM PendaftarLowongan pl WHERE pl.lowongan.id = l.id AND pl.diterima = true)";
+
         static final String COUNT_ACCEPTED_LOWONGAN =
                 "SELECT COUNT(pl) FROM PendaftarLowongan pl " +
                         "WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
@@ -61,7 +69,8 @@ public class DashboardRepositoryImpl implements DashboardRepository {
                 "SELECT log.waktuMulai, log.waktuSelesai FROM Log log " +
                         "WHERE log.mahasiswa.id = :mahasiswaId AND log.status = :status";
         static final String FIND_ACCEPTED_LOWONGAN =
-                "SELECT pl.lowongan FROM PendaftarLowongan pl " +
+                "SELECT l FROM Lowongan l " +
+                        "JOIN PendaftarLowongan pl ON pl.lowongan.id = l.id " +
                         "WHERE pl.mahasiswa.id = :mahasiswaId AND pl.diterima = true";
     }
 
@@ -173,7 +182,7 @@ public class DashboardRepositoryImpl implements DashboardRepository {
     @Override
     public List<Lowongan> findAcceptedLowonganByMahasiswaId(String mahasiswaId) {
         if (!StringUtils.hasText(mahasiswaId)) {
-            log.warn("Attempted to find accepted lowongan with null or empty mahasiswaId");
+            log.warn("Attempted to find accepted lowongan DTO with null or empty mahasiswaId");
             return Collections.emptyList();
         }
 

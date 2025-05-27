@@ -404,7 +404,7 @@ class DashboardServiceImplTest {
         assertEquals(1, result.getAcceptedLowonganList().size());
         LowonganDTO dto = result.getAcceptedLowonganList().get(0);
         assertEquals("test-id", dto.getId());
-        assertEquals(2024, dto.getTahunAjaran());
+        assertEquals("2024/2025", dto.getTahunAjaran());
         assertEquals("Ganjil", dto.getSemester());
     }
 
@@ -429,7 +429,7 @@ class DashboardServiceImplTest {
         // Assert
         assertEquals(1, result.getAcceptedLowonganList().size());
         LowonganDTO dto = result.getAcceptedLowonganList().get(0);
-        assertEquals(0, dto.getTahunAjaran()); // Should be 0 for invalid format
+        assertEquals("2024", dto.getTahunAjaran()); // Should be 0 for invalid format
     }
 
     @Test
@@ -455,7 +455,7 @@ class DashboardServiceImplTest {
         LowonganDTO dto = result.getAcceptedLowonganList().get(0);
         assertEquals("", dto.getId()); // Should be empty string for null ID
         assertEquals("", dto.getMataKuliahName()); // Should be empty string for null MataKuliah
-        assertEquals(0, dto.getTahunAjaran()); // Should be 0 for null tahunAjaran
+        assertEquals("", dto.getTahunAjaran()); // Should be 0 for null tahunAjaran
         assertEquals("", dto.getSemester()); // Should be empty string for null semester
     }
 
@@ -468,7 +468,7 @@ class DashboardServiceImplTest {
         return Lowongan.builder()
                 .id(id.toString())
                 .mataKuliah(mataKuliah)
-                .tahunAjaran("2024/2025")
+                .tahunAjaran("2024")
                 .semester("Ganjil")
                 .build();
     }

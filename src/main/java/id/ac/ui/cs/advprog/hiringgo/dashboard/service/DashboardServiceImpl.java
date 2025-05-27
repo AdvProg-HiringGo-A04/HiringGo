@@ -134,16 +134,17 @@ public class DashboardServiceImpl implements DashboardService {
 
         try {
             String tahunAjaranStr = lowongan.getTahunAjaran();
-            int tahunAjaran = 0;
 
-            if (StringUtils.hasText(tahunAjaranStr) && tahunAjaranStr.contains("/")) {
-                tahunAjaran = Integer.parseInt(tahunAjaranStr.split("/")[0]);
+            // Get the actual mata kuliah name instead of object toString
+            String mataKuliahName = "";
+            if (lowongan.getMataKuliah() != null) {
+                mataKuliahName = lowongan.getMataKuliah().getNamaMataKuliah();
             }
 
             return LowonganDTO.builder()
                     .id(lowongan.getId() != null ? lowongan.getId() : "")
-                    .mataKuliahName(lowongan.getMataKuliah() != null ? String.valueOf(lowongan.getMataKuliah()) : "")
-                    .tahunAjaran(tahunAjaran)
+                    .mataKuliahName(mataKuliahName)
+                    .tahunAjaran(tahunAjaranStr != null ? tahunAjaranStr : "")
                     .semester(lowongan.getSemester() != null ? lowongan.getSemester() : "")
                     .build();
         } catch (Exception e) {

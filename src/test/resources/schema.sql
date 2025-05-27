@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS mahasiswa_pendaftar_lowongan (
     mahasiswa_id CHAR(36) NOT NULL,
     jumlah_sks INT NOT NULL,
     ipk DOUBLE PRECISION NOT NULL,
-    diterima BOOLEAN NOT NULL DEFAULT FALSE,
+    diterima BOOLEAN,
     FOREIGN KEY (lowongan_id) REFERENCES lowongan(id),
     FOREIGN KEY (mahasiswa_id) REFERENCES mahasiswa(id)
 );
