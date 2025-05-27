@@ -92,7 +92,7 @@ public class DaftarLowonganService {
                 .mahasiswa(mahasiswa)
                 .jumlahSks(command.getSks())
                 .ipk(command.getIpk())
-                .diterima(false) // default
+                .diterima(null) // default null
                 .build();
 
         lowongan.getPendaftar().add(pendaftar);

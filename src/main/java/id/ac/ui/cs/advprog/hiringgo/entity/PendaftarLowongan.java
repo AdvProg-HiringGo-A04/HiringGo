@@ -40,5 +40,5 @@ public class PendaftarLowongan {
     private double ipk;
 
     @Column(name = "diterima")
-    private boolean diterima;
+    private Boolean diterima;
 }
