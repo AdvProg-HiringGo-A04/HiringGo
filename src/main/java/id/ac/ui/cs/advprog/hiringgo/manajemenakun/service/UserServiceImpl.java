@@ -19,7 +19,6 @@ import id.ac.ui.cs.advprog.hiringgo.repository.UserRepository;
 import id.ac.ui.cs.advprog.hiringgo.security.CurrentUserProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,20 +161,20 @@ public class UserServiceImpl implements UserService {
                 "Cannot change role from " + oldRole + " to " + newRole);
     }
 
-    @Async
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteAdmin(String id) {
         deleteUserByRole(id, Role.ADMIN);
     }
 
-    @Async
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteDosen(String id) {
         deleteUserByRole(id, Role.DOSEN);
     }
 
-    @Async
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public void deleteMahasiswa(String id) {
         deleteUserByRole(id, Role.MAHASISWA);
     }
