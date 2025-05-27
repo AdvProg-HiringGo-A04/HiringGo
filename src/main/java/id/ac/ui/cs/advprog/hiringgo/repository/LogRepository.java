@@ -10,14 +10,21 @@ import java.util.List;
 
 public interface LogRepository extends JpaRepository<Log, String> {
 
-    @Query("SELECT l FROM Log l " +
-            "WHERE EXISTS (SELECT d FROM l.lowongan.mataKuliah.dosenPengampu d WHERE d.id = :dosenId) " +
-            "ORDER BY l.tanggalLog DESC, l.waktuMulai DESC")
+    @Query(value = "SELECT l.* FROM log l " +
+            "JOIN lowongan low ON low.id = l.lowongan_id " +
+            "JOIN mata_kuliah mk ON mk.kode_mata_kuliah = low.kode_mata_kuliah " +
+            "JOIN mengampu_mata_kuliah mmp ON mmp.kode_mata_kuliah = mk.kode_mata_kuliah " +
+            "WHERE mmp.id = :dosenId " +
+            "ORDER BY l.tanggal_log DESC, l.waktu_mulai DESC",
+            nativeQuery = true)
     List<Log> findAllLogsByDosenId(@Param("dosenId") String dosenId);
 
-    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Log l " +
-            "WHERE EXISTS (SELECT d FROM l.lowongan.mataKuliah.dosenPengampu d WHERE d.id = :dosenId) " +
-            "AND l.id = :logId")
+    @Query(value = "SELECT CASE WHEN COUNT(l.id) > 0 THEN true ELSE false END FROM log l " +
+            "JOIN lowongan low ON low.id = l.lowongan_id " +
+            "JOIN mata_kuliah mk ON mk.kode_mata_kuliah = low.kode_mata_kuliah " +
+            "JOIN mengampu_mata_kuliah mmp ON mmp.kode_mata_kuliah = mk.kode_mata_kuliah " +
+            "WHERE mmp.id = :dosenId AND l.id = :logId",
+            nativeQuery = true)
     boolean isLogOwnedByDosen(@Param("logId") String logId, @Param("dosenId") String dosenId);
 
     List<Log> findByMahasiswaId(String mahasiswaId);
