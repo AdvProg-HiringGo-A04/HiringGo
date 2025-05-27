@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.hiringgo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -26,6 +27,7 @@ public class PendaftarLowongan {
 
     @ManyToOne
     @JoinColumn(name = "lowongan_id", nullable = false)
+    @JsonIgnore
     private Lowongan lowongan;
 
     @ManyToOne
