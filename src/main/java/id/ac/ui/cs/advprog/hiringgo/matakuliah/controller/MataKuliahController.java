@@ -39,7 +39,7 @@ public class MataKuliahController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @AllowedRoles({Role.ADMIN})
+    @AllowedRoles({Role.ADMIN, Role.DOSEN})
     @GetMapping(
             path = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE

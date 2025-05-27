@@ -354,12 +354,12 @@ public class MataKuliahControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + tokenDosen)
         ).andExpectAll(
-                status().isForbidden()
+                status().isOk()
         ).andDo(result -> {
             WebResponse<List<MataKuliahResponse>> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<>() {
             });
-            assertNull(response.getData());
-            assertNotNull(response.getErrors());
+            assertNotNull(response.getData());
+            assertNull(response.getErrors());
         });
     }
 
