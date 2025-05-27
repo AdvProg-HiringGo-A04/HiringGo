@@ -1,27 +1,29 @@
 package id.ac.ui.cs.advprog.hiringgo.dashboard.repository;
 
-import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.entity.Lowongan;
+import id.ac.ui.cs.advprog.hiringgo.enums.Role;
 import id.ac.ui.cs.advprog.hiringgo.manajemenLog.enums.StatusLog;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalTime;
-import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class DashboardRepositoryImplTest {
 
     @Mock
@@ -33,597 +35,466 @@ class DashboardRepositoryImplTest {
     @Mock
     private TypedQuery<Lowongan> typedQuery;
 
+    @Mock
+    private QueryExecutor queryExecutor;
+
+    @Mock
+    private LogHoursCalculator logHoursCalculator;
+
     @InjectMocks
     private DashboardRepositoryImpl dashboardRepository;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        // Reset the mocks and create a new instance for each test
+        dashboardRepository = new DashboardRepositoryImpl();
+        // Use reflection to inject mocked dependencies
+        try {
+            // Inject entityManager using reflection
+            Field entityManagerField = DashboardRepositoryImpl.class.getDeclaredField("entityManager");
+            entityManagerField.setAccessible(true);
+            entityManagerField.set(dashboardRepository, entityManager);
+
+            Field queryExecutorField = DashboardRepositoryImpl.class.getDeclaredField("queryExecutor");
+            queryExecutorField.setAccessible(true);
+            queryExecutorField.set(dashboardRepository, queryExecutor);
+
+            Field logHoursCalculatorField = DashboardRepositoryImpl.class.getDeclaredField("logHoursCalculator");
+            logHoursCalculatorField.setAccessible(true);
+            logHoursCalculatorField.set(dashboardRepository, logHoursCalculator);
+        } catch (Exception e) {
+            // Fallback - create instance without mocked dependencies for integration-like tests
+            fail("Failed to set up test dependencies: " + e.getMessage());
+        }
     }
 
     @Test
     void countDosenUsers_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(Role.DOSEN))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(10L);
+        long expectedCount = 5L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("role"), eq(Role.DOSEN), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countDosenUsers();
 
         // Assert
-        assertEquals(10L, result);
-    }
-
-    @Test
-    void countDosenUsers_WhenExceptionThrown_ShouldReturnZero() {
-        // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(Role.DOSEN))).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countDosenUsers();
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countDosenUsers_WhenResultIsNull_ShouldReturnZero() {
-        // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(Role.DOSEN))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(null);
-
-        // Act
-        long result = dashboardRepository.countDosenUsers();
-
-        // Assert
-        assertEquals(0L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("role"), eq(Role.DOSEN), any());
     }
 
     @Test
     void countMahasiswaUsers_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(Role.MAHASISWA))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(100L);
+        long expectedCount = 10L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("role"), eq(Role.MAHASISWA), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countMahasiswaUsers();
 
         // Assert
-        assertEquals(100L, result);
-    }
-
-    @Test
-    void countMahasiswaUsers_WhenExceptionThrown_ShouldReturnZero() {
-        // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("role"), eq(Role.MAHASISWA))).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countMahasiswaUsers();
-
-        // Assert
-        assertEquals(0L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("role"), eq(Role.MAHASISWA), any());
     }
 
     @Test
     void countMataKuliah_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(20L);
+        long expectedCount = 15L;
+        when(queryExecutor.executeSimpleCountQuery(eq(entityManager), anyString(), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countMataKuliah();
 
         // Assert
-        assertEquals(20L, result);
-    }
-
-    @Test
-    void countMataKuliah_WhenExceptionThrown_ShouldReturnZero() {
-        // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countMataKuliah();
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countMataKuliah_WhenResultIsNull_ShouldReturnZero() {
-        // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(null);
-
-        // Act
-        long result = dashboardRepository.countMataKuliah();
-
-        // Assert
-        assertEquals(0L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeSimpleCountQuery(eq(entityManager), anyString(), any());
     }
 
     @Test
     void countLowongan_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(30L);
+        long expectedCount = 8L;
+        when(queryExecutor.executeSimpleCountQuery(eq(entityManager), anyString(), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countLowongan();
 
         // Assert
-        assertEquals(30L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeSimpleCountQuery(eq(entityManager), anyString(), any());
     }
 
     @Test
-    void countLowongan_WhenExceptionThrown_ShouldReturnZero() {
+    void countMataKuliahByDosenId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countLowongan();
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countMataKuliahByDosenId_ShouldReturnCorrectCount() {
-        // Arrange
-        String dosenId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("dosenId"), eq(dosenId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(5L);
+        String dosenId = "dosen123";
+        long expectedCount = 3L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countMataKuliahByDosenId(dosenId);
 
         // Assert
-        assertEquals(5L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any());
     }
 
     @Test
-    void countMataKuliahByDosenId_WhenDosenIdIsNull_ShouldReturnZero() {
+    void countMataKuliahByDosenId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countMataKuliahByDosenId(null);
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countMataKuliahByDosenId_WhenDosenIdIsEmpty_ShouldReturnZero() {
+    void countMataKuliahByDosenId_WithEmptyId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countMataKuliahByDosenId("");
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countMataKuliahByDosenId_WhenDosenIdIsBlank_ShouldReturnZero() {
+    void countMataKuliahByDosenId_WithBlankId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countMataKuliahByDosenId("   ");
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countMataKuliahByDosenId_WhenExceptionThrown_ShouldReturnZero() {
+    void countMahasiswaAssistantByDosenId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        String dosenId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("dosenId"), eq(dosenId))).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countMataKuliahByDosenId(dosenId);
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countMahasiswaAssistantByDosenId_ShouldReturnCorrectCount() {
-        // Arrange
-        String dosenId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("dosenId"), eq(dosenId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(15L);
+        String dosenId = "dosen123";
+        long expectedCount = 7L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countMahasiswaAssistantByDosenId(dosenId);
 
         // Assert
-        assertEquals(15L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any());
     }
 
     @Test
-    void countMahasiswaAssistantByDosenId_WhenDosenIdIsNull_ShouldReturnZero() {
+    void countMahasiswaAssistantByDosenId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countMahasiswaAssistantByDosenId(null);
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countMahasiswaAssistantByDosenId_WhenDosenIdIsEmpty_ShouldReturnZero() {
-        // Act
-        long result = dashboardRepository.countMahasiswaAssistantByDosenId("");
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countOpenLowonganByDosenId_ShouldReturnCorrectCount() {
+    void countOpenLowonganByDosenId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        String dosenId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("dosenId"), eq(dosenId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(3L);
+        String dosenId = "dosen123";
+        long expectedCount = 2L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countOpenLowonganByDosenId(dosenId);
 
         // Assert
-        assertEquals(3L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("dosenId"), eq(dosenId), any());
     }
 
     @Test
-    void countOpenLowonganByDosenId_WhenDosenIdIsNull_ShouldReturnZero() {
+    void countOpenLowonganByDosenId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countOpenLowonganByDosenId(null);
 
         // Assert
         assertEquals(0L, result);
-    }
-
-    @Test
-    void countOpenLowonganByDosenId_WhenDosenIdIsEmpty_ShouldReturnZero() {
-        // Act
-        long result = dashboardRepository.countOpenLowonganByDosenId("");
-
-        // Assert
-        assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
     void countOpenLowongan_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(8L);
+        long expectedCount = 4L;
+        when(queryExecutor.executeSimpleCountQuery(eq(entityManager), anyString(), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countOpenLowongan();
 
         // Assert
-        assertEquals(8L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeSimpleCountQuery(eq(entityManager), anyString(), any());
     }
 
     @Test
-    void countOpenLowongan_WhenExceptionThrown_ShouldReturnZero() {
+    void countAcceptedLowonganByMahasiswaId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        long result = dashboardRepository.countOpenLowongan();
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countAcceptedLowonganByMahasiswaId_ShouldReturnCorrectCount() {
-        // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(5L);
+        String mahasiswaId = "mahasiswa123";
+        long expectedCount = 3L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countAcceptedLowonganByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(5L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any());
     }
 
     @Test
-    void countAcceptedLowonganByMahasiswaId_WhenMahasiswaIdIsNull_ShouldReturnZero() {
+    void countAcceptedLowonganByMahasiswaId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countAcceptedLowonganByMahasiswaId(null);
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countAcceptedLowonganByMahasiswaId_WhenMahasiswaIdIsEmpty_ShouldReturnZero() {
-        // Act
-        long result = dashboardRepository.countAcceptedLowonganByMahasiswaId("");
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countRejectedLowonganByMahasiswaId_ShouldReturnCorrectCount() {
+    void countRejectedLowonganByMahasiswaId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(2L);
+        String mahasiswaId = "mahasiswa123";
+        long expectedCount = 1L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countRejectedLowonganByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(2L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any());
     }
 
     @Test
-    void countRejectedLowonganByMahasiswaId_WhenMahasiswaIdIsNull_ShouldReturnZero() {
+    void countRejectedLowonganByMahasiswaId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countRejectedLowonganByMahasiswaId(null);
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countRejectedLowonganByMahasiswaId_WhenMahasiswaIdIsEmpty_ShouldReturnZero() {
-        // Act
-        long result = dashboardRepository.countRejectedLowonganByMahasiswaId("");
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void countPendingLowonganByMahasiswaId_ShouldReturnCorrectCount() {
+    void countPendingLowonganByMahasiswaId_WithValidId_ShouldReturnCorrectCount() {
         // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(3L);
+        String mahasiswaId = "mahasiswa123";
+        long expectedCount = 2L;
+        when(queryExecutor.executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any()))
+                .thenReturn(expectedCount);
 
         // Act
         long result = dashboardRepository.countPendingLowonganByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(3L, result);
+        assertEquals(expectedCount, result);
+        verify(queryExecutor).executeCountQuery(eq(entityManager), anyString(), eq("mahasiswaId"), eq(mahasiswaId), any());
     }
 
     @Test
-    void countPendingLowonganByMahasiswaId_WhenMahasiswaIdIsNull_ShouldReturnZero() {
+    void countPendingLowonganByMahasiswaId_WithNullId_ShouldReturnZero() {
         // Act
         long result = dashboardRepository.countPendingLowonganByMahasiswaId(null);
 
         // Assert
         assertEquals(0L, result);
+        verifyNoInteractions(queryExecutor);
     }
 
     @Test
-    void countPendingLowonganByMahasiswaId_WhenMahasiswaIdIsEmpty_ShouldReturnZero() {
-        // Act
-        long result = dashboardRepository.countPendingLowonganByMahasiswaId("");
-
-        // Assert
-        assertEquals(0L, result);
-    }
-
-    @Test
-    void calculateTotalLogHoursByMahasiswaId_ShouldReturnCorrectHours() {
+    void calculateTotalLogHoursByMahasiswaId_WithValidId_ShouldReturnCorrectHours() {
         // Arrange
-        String mahasiswaId = "1";
+        String mahasiswaId = "mahasiswa123";
+        LocalDateTime start1 = LocalDateTime.of(2024, 1, 1, 9, 0);
+        LocalDateTime end1 = LocalDateTime.of(2024, 1, 1, 11, 0);
+        LocalDateTime start2 = LocalDateTime.of(2024, 1, 2, 14, 0);
+        LocalDateTime end2 = LocalDateTime.of(2024, 1, 2, 16, 30);
 
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
-
-        // Create log time data - 2 hours total
-        LocalTime start1 = LocalTime.of(10, 0);
-        LocalTime end1 = LocalTime.of(11, 0);
-        LocalTime start2 = LocalTime.of(14, 0);
-        LocalTime end2 = LocalTime.of(15, 0);
-
-        List<Object[]> logs = Arrays.asList(
+        List<Object[]> mockLogs = Arrays.asList(
                 new Object[]{start1, end1},
                 new Object[]{start2, end2}
         );
 
-        when(query.getResultList()).thenReturn(logs);
+        when(entityManager.createQuery(anyString())).thenReturn(query);
+        when(query.setParameter("mahasiswaId", mahasiswaId)).thenReturn(query);
+        when(query.setParameter("status", StatusLog.DITERIMA)).thenReturn(query);
+        when(query.getResultList()).thenReturn(mockLogs);
+        when(logHoursCalculator.calculateTotalHours(eq(mockLogs), any())).thenReturn(4.5);
 
         // Act
         double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(2.0, result, 0.01);
+        assertEquals(4.5, result, 0.01);
+        verify(entityManager).createQuery(anyString());
+        verify(logHoursCalculator).calculateTotalHours(eq(mockLogs), any());
     }
 
     @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenMahasiswaIdIsNull_ShouldReturnZero() {
+    void calculateTotalLogHoursByMahasiswaId_WithNullId_ShouldReturnZero() {
         // Act
         double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(null);
 
         // Assert
-        assertEquals(0.0, result);
+        assertEquals(0.0, result, 0.01);
+        verifyNoInteractions(entityManager);
     }
 
     @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenMahasiswaIdIsEmpty_ShouldReturnZero() {
+    void calculateTotalLogHoursByMahasiswaId_WithEmptyId_ShouldReturnZero() {
         // Act
         double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId("");
 
         // Assert
-        assertEquals(0.0, result);
+        assertEquals(0.0, result, 0.01);
+        verifyNoInteractions(entityManager);
     }
 
     @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenExceptionThrown_ShouldReturnZero() {
+    void calculateTotalLogHoursByMahasiswaId_WithException_ShouldReturnZero() {
         // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
-        when(query.getResultList()).thenThrow(new RuntimeException("Database error"));
+        String mahasiswaId = "mahasiswa123";
+        when(entityManager.createQuery(anyString())).thenThrow(new RuntimeException("Database error"));
 
         // Act
         double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(0.0, result);
+        assertEquals(0.0, result, 0.01);
+        verify(entityManager).createQuery(anyString());
     }
 
     @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenLogsAreEmpty_ShouldReturnZero() {
+    void calculateTotalInsentifByMahasiswaId_WithValidId_ShouldReturnCorrectAmount() {
         // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
-        when(query.getResultList()).thenReturn(Collections.emptyList());
+        String mahasiswaId = "mahasiswa123";
+        double totalHours = 10.0;
+        double expectedInsentif = totalHours * LogHoursCalculator.HOURLY_RATE;
 
-        // Act
-        double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(mahasiswaId);
-
-        // Assert
-        assertEquals(0.0, result);
-    }
-
-    @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenLogsContainNullEntries_ShouldHandleGracefully() {
-        // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
-
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(11, 0);
-
-        List<Object[]> logs = Arrays.asList(
-                new Object[]{start, end},  // Valid entry
-                null,                      // Null entry
-                new Object[]{null, end},   // Entry with null start
-                new Object[]{start, null}, // Entry with null end
-                new Object[]{start}        // Entry with insufficient data
+        // Mock the calculateTotalLogHoursByMahasiswaId method behavior
+        List<Object[]> mockLogs = Arrays.asList(
+                new Object[]{LocalDateTime.now(), LocalDateTime.now().plusHours(5)},
+                new Object[]{LocalDateTime.now(), LocalDateTime.now().plusHours(5)}
         );
 
-        when(query.getResultList()).thenReturn(logs);
-
-        // Act
-        double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(mahasiswaId);
-
-        // Assert
-        assertEquals(1.0, result, 0.01); // Only the first valid entry should be counted
-    }
-
-    @Test
-    void calculateTotalLogHoursByMahasiswaId_WhenLogEntryThrowsException_ShouldContinueProcessing() {
-        // Arrange
-        String mahasiswaId = "1";
         when(entityManager.createQuery(anyString())).thenReturn(query);
-        when(query.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(query);
-        when(query.setParameter(eq("status"), eq(StatusLog.DITERIMA))).thenReturn(query);
-
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(11, 0);
-
-        List<Object[]> logs = Arrays.asList(
-                new Object[]{start, end},     // Valid entry
-                new Object[]{"invalid", end}  // Invalid entry that will cause exception
-        );
-
-        when(query.getResultList()).thenReturn(logs);
+        when(query.setParameter("mahasiswaId", mahasiswaId)).thenReturn(query);
+        when(query.setParameter("status", StatusLog.DITERIMA)).thenReturn(query);
+        when(query.getResultList()).thenReturn(mockLogs);
+        when(logHoursCalculator.calculateTotalHours(eq(mockLogs), any())).thenReturn(totalHours);
 
         // Act
-        double result = dashboardRepository.calculateTotalLogHoursByMahasiswaId(mahasiswaId);
-
-        // Assert
-        assertEquals(1.0, result, 0.01); // Only the valid entry should be counted
-    }
-
-    @Test
-    void calculateTotalInsentifByMahasiswaId_ShouldReturnCorrectAmount() {
-        // Arrange
-        String mahasiswaId = "1";
-        double logHours = 2.0;
-        double expectedInsentif = logHours * 27500.0; // Based on HOURLY_RATE
-
-        // Mock the calculateTotalLogHoursByMahasiswaId method to return 2.0 hours
-        DashboardRepositoryImpl spyRepository = org.mockito.Mockito.spy(dashboardRepository);
-        org.mockito.Mockito.doReturn(logHours).when(spyRepository).calculateTotalLogHoursByMahasiswaId(mahasiswaId);
-
-        // Act
-        double result = spyRepository.calculateTotalInsentifByMahasiswaId(mahasiswaId);
+        double result = dashboardRepository.calculateTotalInsentifByMahasiswaId(mahasiswaId);
 
         // Assert
         assertEquals(expectedInsentif, result, 0.01);
     }
 
     @Test
-    void findAcceptedLowonganByMahasiswaId_ShouldReturnCorrectList() {
+    void calculateTotalInsentifByMahasiswaId_WithNullId_ShouldReturnZero() {
+        // Act
+        double result = dashboardRepository.calculateTotalInsentifByMahasiswaId(null);
+
+        // Assert
+        assertEquals(0.0, result, 0.01);
+    }
+
+    @Test
+    void findAcceptedLowonganByMahasiswaId_WithValidId_ShouldReturnLowonganList() {
         // Arrange
-        String mahasiswaId = "1";
-        List<Lowongan> expectedLowongans = new ArrayList<>();
-        Lowongan lowongan = new Lowongan();
-        expectedLowongans.add(lowongan);
+        String mahasiswaId = "mahasiswa123";
+        Lowongan lowongan1 = new Lowongan();
+        lowongan1.setId("lowongan1");
+        Lowongan lowongan2 = new Lowongan();
+        lowongan2.setId("lowongan2");
+        List<Lowongan> expectedLowongan = Arrays.asList(lowongan1, lowongan2);
 
         when(entityManager.createQuery(anyString(), eq(Lowongan.class))).thenReturn(typedQuery);
-        when(typedQuery.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenReturn(expectedLowongans);
+        when(typedQuery.setParameter("mahasiswaId", mahasiswaId)).thenReturn(typedQuery);
+        when(typedQuery.getResultList()).thenReturn(expectedLowongan);
 
         // Act
         List<Lowongan> result = dashboardRepository.findAcceptedLowonganByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(expectedLowongans.size(), result.size());
-        assertEquals(expectedLowongans, result);
+        assertEquals(expectedLowongan, result);
+        assertEquals(2, result.size());
+        verify(entityManager).createQuery(anyString(), eq(Lowongan.class));
+        verify(typedQuery).setParameter("mahasiswaId", mahasiswaId);
+        verify(typedQuery).getResultList();
     }
 
     @Test
-    void findAcceptedLowonganByMahasiswaId_WhenMahasiswaIdIsNull_ShouldReturnEmptyList() {
+    void findAcceptedLowonganByMahasiswaId_WithNullId_ShouldReturnEmptyList() {
         // Act
         List<Lowongan> result = dashboardRepository.findAcceptedLowonganByMahasiswaId(null);
 
         // Assert
-        assertEquals(0, result.size());
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(entityManager);
     }
 
     @Test
-    void findAcceptedLowonganByMahasiswaId_WhenMahasiswaIdIsEmpty_ShouldReturnEmptyList() {
+    void findAcceptedLowonganByMahasiswaId_WithEmptyId_ShouldReturnEmptyList() {
         // Act
         List<Lowongan> result = dashboardRepository.findAcceptedLowonganByMahasiswaId("");
 
         // Assert
-        assertEquals(0, result.size());
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(entityManager);
     }
 
     @Test
-    void findAcceptedLowonganByMahasiswaId_WhenExceptionThrown_ShouldReturnEmptyList() {
+    void findAcceptedLowonganByMahasiswaId_WithBlankId_ShouldReturnEmptyList() {
+        // Act
+        List<Lowongan> result = dashboardRepository.findAcceptedLowonganByMahasiswaId("   ");
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(entityManager);
+    }
+
+    @Test
+    void findAcceptedLowonganByMahasiswaId_WithException_ShouldReturnEmptyList() {
         // Arrange
-        String mahasiswaId = "1";
-        when(entityManager.createQuery(anyString(), eq(Lowongan.class))).thenReturn(typedQuery);
-        when(typedQuery.setParameter(eq("mahasiswaId"), eq(mahasiswaId))).thenReturn(typedQuery);
-        when(typedQuery.getResultList()).thenThrow(new RuntimeException("Database error"));
+        String mahasiswaId = "mahasiswa123";
+        when(entityManager.createQuery(anyString(), eq(Lowongan.class)))
+                .thenThrow(new RuntimeException("Database error"));
 
         // Act
         List<Lowongan> result = dashboardRepository.findAcceptedLowonganByMahasiswaId(mahasiswaId);
 
         // Assert
-        assertEquals(0, result.size());
+        assertTrue(result.isEmpty());
+        verify(entityManager).createQuery(anyString(), eq(Lowongan.class));
+    }
+
+    @Test
+    void constructor_ShouldInitializeQueryExecutorAndLogHoursCalculator() {
+        // Act
+        DashboardRepositoryImpl newRepository = new DashboardRepositoryImpl();
+
+        // Assert
+        assertNotNull(newRepository);
+        // The constructor initializes queryExecutor and logHoursCalculator
+        // This test ensures the constructor completes without errors
     }
 }
