@@ -6,11 +6,12 @@ import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.dto.LogStatusUpdateDTO;
 import id.ac.ui.cs.advprog.hiringgo.periksalog.service.PeriksaLogService;
 import id.ac.ui.cs.advprog.hiringgo.model.WebResponse;
+import id.ac.ui.cs.advprog.hiringgo.security.JwtUtil;
+import id.ac.ui.cs.advprog.hiringgo.manajemenakun.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Slf4j
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/logs")
 @RequiredArgsConstructor
@@ -28,78 +30,106 @@ public class PeriksaLogController {
 
     private static final String ACCESS_FORBIDDEN_MESSAGE = "Access forbidden: Only lecturers can access logs";
     private static final String UPDATE_FORBIDDEN_MESSAGE = "Access forbidden: Only lecturers can update log status";
+    private static final String TOKEN_REQUIRED_MESSAGE = "Token required";
+    private static final String INVALID_TOKEN_MESSAGE = "Invalid token";
 
     private final PeriksaLogService logService;
+    private final JwtUtil jwtUtil;
+    private final UserService userService;
 
     @GetMapping("/async")
     public CompletableFuture<ResponseEntity<WebResponse<List<LogDTO>>>> getAllLogsAsync(
-            @AuthenticationPrincipal User user) {
-        log.info("Async: Attempting to fetch all logs for user: {}", getUserIdSafely(user));
+            @RequestHeader(name = "Authorization", required = false) String token) {
 
-        if (!isDosenUser(user)) {
-            log.warn("Async: Unauthorized access attempt by user: {} with role: {}",
-                    getUserIdSafely(user), getUserRoleSafely(user));
-            return CompletableFuture.completedFuture(createForbiddenResponse(ACCESS_FORBIDDEN_MESSAGE));
+        log.info("Async: Attempting to fetch all logs with JWT token");
+
+        try {
+            User user = authenticateUser(token);
+            log.info("Async: Attempting to fetch all logs for user: {}", getUserIdSafely(user));
+
+            if (!isDosenUser(user)) {
+                log.warn("Async: Unauthorized access attempt by user: {} with role: {}",
+                        getUserIdSafely(user), getUserRoleSafely(user));
+                return CompletableFuture.completedFuture(createForbiddenResponse(ACCESS_FORBIDDEN_MESSAGE));
+            }
+
+            return logService.getAllLogsByDosenIdAsync(user.getId())
+                    .thenApply(this::createSuccessResponse)
+                    .exceptionally(this::handleAsyncException);
+        } catch (Exception e) {
+            log.error("Async: Authentication error", e);
+            return CompletableFuture.completedFuture(createUnauthorizedResponse(e.getMessage()));
         }
-
-        return logService.getAllLogsByDosenIdAsync(user.getId())
-                .thenApply(this::createSuccessResponse)
-                .exceptionally(this::handleAsyncException);
     }
 
     @PutMapping("/{logId}/status/async")
     public CompletableFuture<ResponseEntity<WebResponse<LogDTO>>> updateLogStatusAsync(
-            @AuthenticationPrincipal User user,
+            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("logId") @NotBlank String logId,
             @RequestBody @Valid LogStatusUpdateDTO logStatusUpdateDTO) {
 
-        log.info("Async: Attempting to update log status for logId: {} by user: {}",
-                logId, getUserIdSafely(user));
+        log.info("Async: Attempting to update log status for logId: {} with JWT token", logId);
 
-        if (!isDosenUser(user)) {
-            log.warn("Async: Unauthorized status update attempt by user: {} with role: {} for logId: {}",
-                    getUserIdSafely(user), getUserRoleSafely(user), logId);
-            return CompletableFuture.completedFuture(createForbiddenResponse(UPDATE_FORBIDDEN_MESSAGE));
-        }
+        try {
+            User user = authenticateUser(token);
+            log.info("Async: Attempting to update log status for logId: {} by user: {}",
+                    logId, getUserIdSafely(user));
 
-        logStatusUpdateDTO.setLogId(logId);
+            if (!isDosenUser(user)) {
+                log.warn("Async: Unauthorized status update attempt by user: {} with role: {} for logId: {}",
+                        getUserIdSafely(user), getUserRoleSafely(user), logId);
+                return CompletableFuture.completedFuture(createForbiddenResponse(UPDATE_FORBIDDEN_MESSAGE));
+            }
 
-        return logService.updateLogStatusAsync(user.getId(), logStatusUpdateDTO)
-                .thenApply(updatedLog -> {
-                    log.info("Async: Successfully updated log status for logId: {} to status: {}",
-                            logId, logStatusUpdateDTO.getStatus());
-                    return createSuccessResponse(updatedLog);
-                })
-                .exceptionally(throwable -> {
-                    if (throwable.getCause() instanceof SecurityException) {
-                        log.warn("Async: Security exception while updating log status for logId: {}", logId, throwable);
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            logStatusUpdateDTO.setLogId(logId);
+
+            return logService.updateLogStatusAsync(user.getId(), logStatusUpdateDTO)
+                    .thenApply(updatedLog -> {
+                        log.info("Async: Successfully updated log status for logId: {} to status: {}",
+                                logId, logStatusUpdateDTO.getStatus());
+                        return createSuccessResponse(updatedLog);
+                    })
+                    .exceptionally(throwable -> {
+                        if (throwable.getCause() instanceof SecurityException) {
+                            log.warn("Async: Security exception while updating log status for logId: {}", logId, throwable);
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                    .body(WebResponse.<LogDTO>builder()
+                                            .errors(throwable.getCause().getMessage())
+                                            .build());
+                        }
+                        log.error("Async: Error occurred while updating log status for logId: {}", logId, throwable);
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                 .body(WebResponse.<LogDTO>builder()
-                                        .errors(throwable.getCause().getMessage())
+                                        .errors(getErrorMessage(throwable, "An error occurred while updating log status"))
                                         .build());
-                    }
-                    log.error("Async: Error occurred while updating log status for logId: {}", logId, throwable);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .body(WebResponse.<LogDTO>builder()
-                                    .errors(getErrorMessage(throwable, "An error occurred while updating log status"))
-                                    .build());
-                });
+                    });
+        } catch (Exception e) {
+            log.error("Async: Authentication error for log update", e);
+            return CompletableFuture.completedFuture(createUnauthorizedResponse(e.getMessage()));
+        }
     }
 
     @GetMapping
     public ResponseEntity<WebResponse<List<LogDTO>>> getAllLogs(
-            @AuthenticationPrincipal User user) {
-        log.info("Attempting to fetch all logs for user: {}", getUserIdSafely(user));
+            @RequestHeader(name = "Authorization", required = false) String token) {
 
-        if (!isDosenUser(user)) {
-            log.warn("Unauthorized access attempt by user: {} with role: {}",
-                    getUserIdSafely(user), getUserRoleSafely(user));
-            return createForbiddenResponse(ACCESS_FORBIDDEN_MESSAGE);
-        }
+        log.info("Attempting to fetch all logs with JWT token");
 
         try {
+            User user = authenticateUser(token);
+            log.info("Attempting to fetch all logs for user: {}", getUserIdSafely(user));
+
+            if (!isDosenUser(user)) {
+                log.warn("Unauthorized access attempt by user: {} with role: {}",
+                        getUserIdSafely(user), getUserRoleSafely(user));
+                return createForbiddenResponse(ACCESS_FORBIDDEN_MESSAGE);
+            }
+
             List<LogDTO> logs = logService.getAllLogsByDosenId(user.getId());
             return createSuccessResponse(logs);
+        } catch (IllegalArgumentException e) {
+            log.error("Authentication error", e);
+            return createUnauthorizedResponse(e.getMessage());
         } catch (Exception e) {
             return handleException(e);
         }
@@ -107,26 +137,32 @@ public class PeriksaLogController {
 
     @PutMapping("/{logId}/status")
     public ResponseEntity<WebResponse<LogDTO>> updateLogStatus(
-            @AuthenticationPrincipal User user,
+            @RequestHeader(name = "Authorization", required = false) String token,
             @PathVariable("logId") @NotBlank String logId,
             @RequestBody @Valid LogStatusUpdateDTO logStatusUpdateDTO) {
 
-        log.info("Attempting to update log status for logId: {} by user: {}",
-                logId, getUserIdSafely(user));
-
-        if (!isDosenUser(user)) {
-            log.warn("Unauthorized status update attempt by user: {} with role: {} for logId: {}",
-                    getUserIdSafely(user), getUserRoleSafely(user), logId);
-            return createForbiddenResponse(UPDATE_FORBIDDEN_MESSAGE);
-        }
-
-        logStatusUpdateDTO.setLogId(logId);
+        log.info("Attempting to update log status for logId: {} with JWT token", logId);
 
         try {
+            User user = authenticateUser(token);
+            log.info("Attempting to update log status for logId: {} by user: {}",
+                    logId, getUserIdSafely(user));
+
+            if (!isDosenUser(user)) {
+                log.warn("Unauthorized status update attempt by user: {} with role: {} for logId: {}",
+                        getUserIdSafely(user), getUserRoleSafely(user), logId);
+                return createForbiddenResponse(UPDATE_FORBIDDEN_MESSAGE);
+            }
+
+            logStatusUpdateDTO.setLogId(logId);
+
             LogDTO updatedLog = logService.updateLogStatus(user.getId(), logStatusUpdateDTO);
             log.info("Successfully updated log status for logId: {} to status: {}",
                     logId, logStatusUpdateDTO.getStatus());
             return createSuccessResponse(updatedLog);
+        } catch (IllegalArgumentException e) {
+            log.error("Authentication error for log update", e);
+            return createUnauthorizedResponse(e.getMessage());
         } catch (SecurityException e) {
             log.warn("Security exception while updating log status for logId: {}", logId, e);
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -139,6 +175,32 @@ public class PeriksaLogController {
                     .body(WebResponse.<LogDTO>builder()
                             .errors(getErrorMessage(e, "An error occurred while updating log status"))
                             .build());
+        }
+    }
+
+    private User authenticateUser(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            log.warn("Unauthorized access attempt - no token provided");
+            throw new IllegalArgumentException(TOKEN_REQUIRED_MESSAGE);
+        }
+
+        try {
+            String jwt = token.substring(7);
+            String userId = jwtUtil.extractId(jwt);
+            String userRole = jwtUtil.extractRole(jwt);
+
+            if (userId == null || userRole == null) {
+                log.warn("Invalid token - missing user ID or role");
+                throw new IllegalArgumentException(INVALID_TOKEN_MESSAGE);
+            }
+
+            User user = userService.getUserById(userId);
+            log.debug("Authenticated user: {} with role: {}", userId, userRole);
+
+            return user;
+        } catch (Exception e) {
+            log.error("Token validation failed", e);
+            throw new IllegalArgumentException(INVALID_TOKEN_MESSAGE);
         }
     }
 
@@ -156,6 +218,13 @@ public class PeriksaLogController {
 
     private <T> ResponseEntity<WebResponse<T>> createForbiddenResponse(String message) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(WebResponse.<T>builder()
+                        .errors(message)
+                        .build());
+    }
+
+    private <T> ResponseEntity<WebResponse<T>> createUnauthorizedResponse(String message) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(WebResponse.<T>builder()
                         .errors(message)
                         .build());
