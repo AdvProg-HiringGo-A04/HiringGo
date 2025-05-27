@@ -25,7 +25,6 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST})
 public class AuthenticationController {
 
     @Autowired
