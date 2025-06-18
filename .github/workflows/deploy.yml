@@ -26,18 +26,18 @@ jobs:
       - name: Copy Docker image to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST_HARDI }}
+          username: ${{ secrets.SSH_USERNAME_HARDI }}
+          key: ${{ secrets.SSH_KEY_HARDI }}
           source: "hiringgo.tar"
           target: "~/"
 
       - name: Load and run Docker image on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST_HARDI }}
+          username: ${{ secrets.SSH_USERNAME_HARDI }}
+          key: ${{ secrets.SSH_KEY_HARDI }}
           script: |
             docker stop hiringgo || true && docker rm hiringgo || true
             docker load -i ~/hiringgo.tar
