@@ -1,6 +1,7 @@
 name: Deploying to Production
 
 on:
+  push:
   workflow_run:
     workflows: ["Unit Tests"]
     types:
