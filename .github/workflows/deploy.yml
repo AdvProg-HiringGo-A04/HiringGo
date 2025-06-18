@@ -1,16 +1,10 @@
 name: Deploying to Production
 
 on:
-  workflow_run:
-    workflows: ["Unit Tests"]
-    types:
-      - completed
-    branches:
-      - main
+  push:
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -26,17 +20,17 @@ jobs:
       - name: Copy Docker image to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST_ARISHA }}
+          username: ${{ secrets.SSH_USERNAME_ARISHA }}
+          key: ${{ secrets.SSH_KEY_ARISHA }}
           source: "hiringgo.tar"
           target: "~/"
 
       - name: Load and run Docker image on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST_ARISHA }}
+          username: ${{ secrets.SSH_USERNAME_ARISHA }}
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker stop hiringgo || true && docker rm hiringgo || true

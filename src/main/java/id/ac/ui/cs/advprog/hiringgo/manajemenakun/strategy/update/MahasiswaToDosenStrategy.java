@@ -62,12 +62,6 @@ public class MahasiswaToDosenStrategy implements UpdateRoleStrategy {
         return user;
     }
 
-    private void validateNamaLengkap(String namaLengkap) {
-        if (namaLengkap == null || namaLengkap.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nama lengkap is required for Dosen role");
-        }
-    }
-
     private void validateNip(String nip) {
         if (nip == null || nip.trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "NIP is required for Dosen role");

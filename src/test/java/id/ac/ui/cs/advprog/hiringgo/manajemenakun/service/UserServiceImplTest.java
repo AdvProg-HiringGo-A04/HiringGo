@@ -154,10 +154,8 @@ public class UserServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(userMapper.mapUserToResponse(mockUser)).thenReturn(expectedResponse);
 
-        // Act
         Object result = userService.getUserResponseById(userId);
 
-        // Assert
         assertEquals(expectedResponse, result);
         verify(userRepository).findById(userId);
         verify(userMapper).mapUserToResponse(mockUser);
@@ -165,17 +163,14 @@ public class UserServiceImplTest {
 
     @Test
     void testGetAllUsersResponse() {
-        // Arrange
         List<User> userList = Arrays.asList(mockUser);
         Object mockResponse = new Object();
 
         when(userRepository.findAll()).thenReturn(userList);
         when(userMapper.mapUserToResponse(any(User.class))).thenReturn(mockResponse);
 
-        // Act
         List<Object> result = userService.getAllUsersResponse();
 
-        // Assert
         assertEquals(1, result.size());
         assertEquals(mockResponse, result.get(0));
         verify(userRepository).findAll();
@@ -184,28 +179,22 @@ public class UserServiceImplTest {
 
     @Test
     void testGetAllUsers() {
-        // Arrange
         List<User> expectedUsers = Arrays.asList(mockUser);
         when(userRepository.findAll()).thenReturn(expectedUsers);
 
-        // Act
         List<User> result = userService.getAllUsers();
 
-        // Assert
         assertEquals(expectedUsers, result);
         verify(userRepository).findAll();
     }
 
     @Test
     void testGetAllAdmins() {
-        // Arrange
         List<Admin> expectedAdmins = Arrays.asList(mockAdmin);
         when(adminRepository.findAll()).thenReturn(expectedAdmins);
 
-        // Act
         List<Admin> result = userService.getAllAdmins();
 
-        // Assert
         assertEquals(expectedAdmins, result);
         verify(adminRepository).findAll();
     }
@@ -634,7 +623,6 @@ public class UserServiceImplTest {
         when(currentUserProvider.getCurrentUserId()).thenReturn(currentUserId);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
                 () -> userService.deleteAdmin(userId));
 
@@ -645,7 +633,6 @@ public class UserServiceImplTest {
 
     @Test
     void testDeleteUser_MultipleStrategies() {
-        // Arrange
         String userId = "admin-123";
         String currentUserId = "other-admin-456";
 
