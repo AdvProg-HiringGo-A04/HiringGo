@@ -2,44 +2,41 @@ name: Deploying to Production
 
 on:
   push:
-
+    branches:
+      - deployment/arisha
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t hiringgo:latest .
-
-      - name: Save Docker image to file
-        run: docker save hiringgo:latest -o hiringgo.tar
-
-      - name: Copy Docker image to EC2
-        uses: appleboy/scp-action@v0.1.4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
         with:
-          host: ${{ secrets.SSH_HOST_ARISHA }}
-          username: ${{ secrets.SSH_USERNAME_ARISHA }}
-          key: ${{ secrets.SSH_KEY_ARISHA }}
-          source: "hiringgo.tar"
-          target: "~/"
+          username: ${{ secrets.DOCKER_HUB_USERNAME_ARISHA }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_ARISHA }}
 
-      - name: Load and run Docker image on EC2
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME_ARISHA }}/${{ secrets.DOCKER_HUB_REPO_NAME_ARISHA }}:latest
+
+      - name: Releasing New Version
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST_ARISHA }}
           username: ${{ secrets.SSH_USERNAME_ARISHA }}
           key: ${{ secrets.SSH_KEY_ARISHA }}
           script: |
-            docker stop hiringgo || true && docker rm hiringgo || true
-            docker load -i ~/hiringgo.tar
+            docker rmi $(docker images -a -q)
+            docker login -u ${{ secrets.DOCKER_HUB_USERNAME_ARISHA }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_ARISHA }}
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME_ARISHA }}/${{ secrets.DOCKER_HUB_REPO_NAME_ARISHA }}:latest
+            source .env
             docker run -d \
-              --name hiringgo \
-              -p 8080:8080 \
-              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              hiringgo:latest
+            --name=web_server \
+            -p 8080:8080 \
+            -e ENV1="insert env var anda disini jika perlu" \
+            ${{ secrets.DOCKER_HUB_USERNAME_ARISHA }}/${{ secrets.DOCKER_HUB_REPO_NAME_ARISHA }}:latest
