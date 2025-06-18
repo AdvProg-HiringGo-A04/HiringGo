@@ -31,7 +31,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST_ARISHA }}
           username: ${{ secrets.SSH_USERNAME_ARISHA }}
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SSH_KEY_ARISHA }}
           script: |
             docker stop hiringgo || true && docker rm hiringgo || true
             docker load -i ~/hiringgo.tar
