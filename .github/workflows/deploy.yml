@@ -1,10 +1,7 @@
 name: Deploying to Production
 
 on:
-  workflow_run:
-    workflows: ["Unit Tests"]
-    types:
-      - completed
+  push:
 
 jobs:
   deploy:
